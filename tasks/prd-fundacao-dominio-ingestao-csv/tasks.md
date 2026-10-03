@@ -3,7 +3,7 @@
 ## Tarefas
 
 - [x] 1.0 Simplificar a fundação do backend
-- [ ] 2.0 Criar o modelo persistente de processos e movimentações
+- [x] 2.0 Criar o modelo persistente de processos e movimentações
 - [ ] 3.0 Implementar o seed inicial do CSV
 - [ ] 4.0 Validar a carga inicial e documentar a execução
 

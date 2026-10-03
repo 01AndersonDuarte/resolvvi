@@ -7,23 +7,24 @@ O backend fornece a base para persistir processos e movimentações processuais.
 - Node.js 24.11.0 e npm 11, conforme `.nvmrc` e `package-lock.json`.
 - Docker com Compose para o PostgreSQL local.
 
-## Instalação
+## Instalação e banco local
 
 ```bash
 npm ci
 cp .env.development.example .env.development
+cp .env.test.example .env.test
+docker compose up -d postgres
+npm run prisma:generate
+npm run prisma:migrate -- --name process-movement
 ```
 
-Os arquivos `.env` reais não são versionados. `DATABASE_LABEL` identifica o banco em diagnósticos sem expor a URL.
-
-## PostgreSQL local
+Os arquivos `.env` reais não são versionados. O Compose inicia o projeto e o banco `dev_test_resolvvi` em `127.0.0.1:55432`, com o usuário local `dev_test_resolvvi`. O arquivo `.env.test` aponta para `dev_test_resolvvi_test_template`; aplique a migration nesse banco antes de rodar os testes de integração:
 
 ```bash
-docker compose up -d postgres
-docker compose down
+NODE_ENV=test npx prisma migrate deploy
 ```
 
-Por padrão, o banco fica disponível somente em `127.0.0.1:55432`.
+Encerre o PostgreSQL local com `docker compose down`.
 
 ## Validações
 
@@ -35,4 +36,4 @@ npm run test:coverage
 npm run build
 ```
 
-O seed e o modelo de dados serão implementados nas próximas tarefas da funcionalidade.
+`npm test` e `npm run test:coverage` executam os testes de integração no PostgreSQL quando `.env.test` existe e contém `DATABASE_URL`.

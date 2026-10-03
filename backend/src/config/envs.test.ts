@@ -1,8 +1,8 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
 const VALID_ENVIRONMENT = {
-  DATABASE_LABEL: 'judicial-test',
-  DATABASE_URL: 'postgresql://test_user:test_password@localhost:55432/harness_test',
+  DATABASE_LABEL: 'dev_test_resolvvi_test',
+  DATABASE_URL: 'postgresql://test_user:test_password@localhost:55432/dev_test_resolvvi_test',
   NODE_ENV: 'test',
 };
 
@@ -22,7 +22,7 @@ describe('env', () => {
     const { env } = await import('./index.js');
 
     expect(env).toMatchObject({
-      databaseLabel: 'judicial-test',
+      databaseLabel: 'dev_test_resolvvi_test',
       nodeEnvironment: 'test',
     });
   });

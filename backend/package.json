@@ -1,5 +1,5 @@
 {
-  "name": "harness-process-backend",
+  "name": "dev-test-resolvvi-backend",
   "version": "0.1.0",
   "private": true,
   "type": "module",
@@ -9,20 +9,27 @@
   "scripts": {
     "build": "tsc -p tsconfig.build.json",
     "lint": "eslint . --max-warnings 0",
+    "prisma:generate": "prisma generate",
+    "prisma:migrate": "prisma migrate dev",
     "test": "vitest run",
     "test:coverage": "vitest run --coverage",
     "typecheck": "tsc --noEmit -p tsconfig.json"
   },
   "dependencies": {
+    "@prisma/adapter-pg": "^7.10.0",
+    "@prisma/client": "^7.10.0",
     "dotenv": "18.0.5",
-    "joi": "18.2.9"
+    "joi": "18.2.9",
+    "pg": "^8.23.1"
   },
   "devDependencies": {
     "@eslint/js": "10.0.1",
     "@types/node": "24.19.1",
+    "@types/pg": "^8.23.1",
     "@vitest/coverage-v8": "5.0.3",
     "eslint": "10.12.0",
     "globals": "17.13.0",
+    "prisma": "^7.10.0",
     "tsx": "4.23.15",
     "typescript": "6.0.3",
     "typescript-eslint": "8.71.0",
