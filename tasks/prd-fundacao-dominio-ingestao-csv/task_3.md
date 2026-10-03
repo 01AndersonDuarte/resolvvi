@@ -57,7 +57,8 @@ Consultar [TechSpec — Principais interfaces](./techspec.md#principais-interfac
 ### Testes de integração
 
 - [ ] TI-01 — Criar processos e movimentações relacionadas
-- [ ] TI-03 — Falhar sem persistência parcial
+- [ ] TI-04 — Popular base vazia com o CSV fornecido
+- [ ] TI-05 — Falhar sem persistência parcial
 
 ### Testes E2E
 

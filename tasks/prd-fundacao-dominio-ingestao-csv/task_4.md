@@ -59,7 +59,9 @@ Consultar [TechSpec — Abordagem de testes](./techspec.md#abordagem-de-testes) 
 
 - [ ] TI-01 — Criar processos e movimentações relacionadas
 - [ ] TI-02 — Respeitar unicidade do CNJ
-- [ ] TI-03 — Falhar sem persistência parcial
+- [ ] TI-03 — Recusar movimentação sem processo
+- [ ] TI-04 — Popular base vazia com o CSV fornecido
+- [ ] TI-05 — Falhar sem persistência parcial
 
 ### Testes E2E
 

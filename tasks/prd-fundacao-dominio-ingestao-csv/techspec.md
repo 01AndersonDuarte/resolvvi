@@ -108,9 +108,11 @@ Os testes seguem `.agents/rules/tests.md`, usam Vitest e não criam infraestrutu
 
 | ID | Nome do caso de teste | Critérios de aceitação | Resultado esperado |
 | --- | --- | --- | --- |
-| TI-01 | Criar processos e movimentações relacionadas | CA-01, CA-03 | O seed completo produz 100 processos e 5.568 movimentações sem órfãos. |
+| TI-01 | Criar processos e movimentações relacionadas | CA-02, CA-03 | O processo e suas movimentações mantêm os campos persistidos e a ordenação definida. |
 | TI-02 | Respeitar unicidade do CNJ | CA-04 | O banco rejeita um segundo processo com o mesmo CNJ. |
-| TI-03 | Falhar sem persistência parcial | CA-05 | Arquivo inválido ou falha transacional não deixa dados do seed incompletos. |
+| TI-03 | Recusar movimentação sem processo | CA-03 | O banco rejeita a gravação de uma movimentação com chave estrangeira inexistente. |
+| TI-04 | Popular base vazia com o CSV fornecido | CA-01 | A execução do seed cria 100 processos e 5.568 movimentações. |
+| TI-05 | Falhar sem persistência parcial | CA-05 | Arquivo incompatível ou falha de transação não deixa dados do seed incompletos. |
 
 ### Testes E2E
 
