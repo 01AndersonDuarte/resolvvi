@@ -1,0 +1,12 @@
+{
+  "expectedProcesses": 100,
+  "persistedProcesses": 100,
+  "matchingProcesses": 100,
+  "expectedMovements": 5568,
+  "persistedMovements": 5568,
+  "matchingMovements": 5568,
+  "processesInExpectedMovementOrder": 100,
+  "cnjsWithLeadingZero": 0,
+  "movementsWithEmptyContent": 1312,
+  "movementsWithMultilineContent": 2527
+}

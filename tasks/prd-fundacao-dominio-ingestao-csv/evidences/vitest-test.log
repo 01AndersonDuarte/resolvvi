@@ -1,0 +1,12 @@
+
+> dev-test-resolvvi-backend@0.1.0 test
+> vitest run
+
+
+ RUN  v5.0.3 /home/anderson/github/harness/backend
+
+
+ Test Files  11 passed (11)
+      Tests  29 passed (29)
+   Start at  20:26:01
+   Duration  2.31s (tests 64%, transform 22%, import 12%, worker 1%)

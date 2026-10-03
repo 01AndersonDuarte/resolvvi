@@ -1,0 +1,6 @@
+
+> dev-test-resolvvi-backend@0.1.0 seed
+> tsx src/seed/seed.ts
+
+{"timestamp":"2026-10-03T23:26:08.301Z","level":"info","message":"Iniciando seed inicial"}
+{"timestamp":"2026-10-03T23:26:09.437Z","level":"info","message":"Seed inicial concluído","processCount":100,"movementCount":5568}

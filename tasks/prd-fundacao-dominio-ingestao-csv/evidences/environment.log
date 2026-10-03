@@ -1,0 +1,7 @@
+Ambiente QA descartável
+Compose project: qa-fundacao-ingestao-csv
+PostgreSQL: postgres:17, database dev_test_resolvvi
+Porta usada: 127.0.0.1:55439 -> container:5432
+Container observado saudável antes dos testes: qa-fundacao-ingestao-csv-postgres-1
+Migration aplicada: 20261003204206_process_movement
+Backend HTTP e frontend não iniciados: o PRD não define API pública nem interface.

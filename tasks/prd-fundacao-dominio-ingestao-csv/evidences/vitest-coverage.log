@@ -1,0 +1,30 @@
+
+> dev-test-resolvvi-backend@0.1.0 test:coverage
+> vitest run --coverage
+
+
+ RUN  v5.0.3 /home/anderson/github/harness/backend
+      Coverage enabled with v8
+
+
+ Test Files  11 passed (11)
+      Tests  29 passed (29)
+   Start at  20:26:04
+   Duration  2.97s (tests 61%, transform 22%, import 12%, worker 5%)
+
+ % Coverage report from v8
+-------------------|---------|----------|---------|---------|-------------------
+File               | % Stmts | % Branch | % Funcs | % Lines | Uncovered Line #s
+-------------------|---------|----------|---------|---------|-------------------
+All files          |   98.24 |    96.84 |     100 |     100 |
+ seed              |   97.05 |    95.31 |     100 |     100 |
+  ...row-mapper.ts |   94.73 |     93.1 |     100 |     100 | 35,62
+  seed.ts          |    92.3 |       50 |     100 |     100 | 31
+-------------------|---------|----------|---------|---------|-------------------
+
+=============================== Coverage summary ===============================
+Statements   : 98.24% ( 168/171 )
+Branches     : 96.84% ( 92/95 )
+Functions    : 100% ( 48/48 )
+Lines        : 100% ( 153/153 )
+================================================================================

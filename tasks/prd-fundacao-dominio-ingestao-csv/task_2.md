@@ -5,7 +5,7 @@
 Criar o schema Prisma e a migration das entidades Processo e Movimentação Processual, incluindo a chave única do CNJ, a chave estrangeira obrigatória e o campo simples que preserva a ordem do CSV.
 
 **Dependências:** [1.0](./task_1.md).
-**Estado:** pendente.
+**Estado:** concluída em 3 de outubro de 2026.
 
 <skills>
 ### Conformidade com skills

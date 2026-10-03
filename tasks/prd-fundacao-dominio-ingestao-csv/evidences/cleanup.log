@@ -1,0 +1,8 @@
+Limpeza do ambiente QA
+docker compose down --volumes --remove-orphans: concluído com código 0.
+Container qa-fundacao-ingestao-csv-postgres-1 removido.
+Volume qa-fundacao-ingestao-csv_postgres-data removido.
+Rede qa-fundacao-ingestao-csv_default removida.
+docker compose ps -a: nenhum container do projeto.
+ss -ltn após limpeza: porta 55439 ausente.
+Arquivo Compose temporário em /tmp removido.
