@@ -21,10 +21,7 @@
   },
   "include": [
     "src/**/*.ts",
-    "test-support/**/*.ts",
     "eslint.config.js",
-    "playwright.config.ts",
     "vitest.config.ts"
   ]
 }
-

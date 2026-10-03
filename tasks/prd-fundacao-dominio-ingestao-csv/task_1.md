@@ -1,117 +1,73 @@
-# Tarefa 1.0: Preparar o backend e a infraestrutura de testes
+# Tarefa 1.0: Simplificar a fundação do backend
 
 ## Visão geral
 
-Criar a base executável independente em backend/, com configuração validada e ambiente de testes reproduzível. A entrega permite compilar, verificar tipos e testar o código inicial, preparando PostgreSQL real para as próximas tarefas.
+Manter a base executável do backend com configuração, logging, scripts de qualidade e PostgreSQL local. Remover a infraestrutura que existia somente para uma plataforma de importação recorrente.
 
-**Dependências:** nenhuma tarefa anterior.
-**Estado:** concluída; implementação e validações registradas em 3 de outubro de 2026.
+**Dependências:** nenhuma.
+**Estado:** concluída em 3 de outubro de 2026.
 
 <skills>
-
 ### Conformidade com skills
 
-- Aplicar [executar-task](../../.agents/skills/executar-task/SKILL.md) ao implementar esta entrega.
-- [criar-tasks](../../.agents/skills/criar-tasks/SKILL.md) rege a decomposição documental atual.
-- [executar-review](../../.agents/skills/executar-review/SKILL.md) e [executar-qa](../../.agents/skills/executar-qa/SKILL.md) são referências para as etapas posteriores quando solicitadas; sua execução não é implícita nesta tarefa.
-- Não há frontend nesta entrega; nenhuma skill React ou de interface se aplica.
-
+Não há frontend nesta tarefa; a skill React não se aplica. A revisão documental segue as skills de PRD, TechSpec e tasks do projeto.
 </skills>
 
 <rules>
-
 ### Conformidade com o AGENTS.md e as rules
 
-Leitura realizada de [AGENTS.md](../../AGENTS.md) e de todas as rules: [code-standards.md](../../.agents/rules/code-standards.md), [javascript-typescript.md](../../.agents/rules/javascript-typescript.md), [node.md](../../.agents/rules/node.md), [folder-structure.md](../../.agents/rules/folder-structure.md), [tests.md](../../.agents/rules/tests.md), [commit_guidelines.md](../../.agents/rules/commit_guidelines.md). O caminho efetivo das regras de testes é `.agents/rules/tests.md`; a referência a `./agents/rules/tests.md` no trecho crítico do AGENTS está desatualizada.
-
-Respeitar arquivos `.ts` de até 100 linhas, funções de até 30 linhas, até três parâmetros, guard clauses, nomes claros e comentários apenas indispensáveis. Manter dependências entre camadas sem ciclos, imports internos específicos e exports por `index.ts`. Usar Vitest, FIRST, asserts comportamentais e cobertura mínima de 80% nas quatro métricas. Se houver commit posterior, seguir Conventional Commits em inglês, somente título e autoria registrada.
-
-Manter dependências e scripts em backend/, npm com lock, variáveis centralizadas e console restrito ao logger. A ausência de frontend/backend no checkout prevalece sobre os comandos antigos descritos no AGENTS; esta entrega prepara somente o backend de CLI.
-
-A adaptação de arquitetura CLI, sem Express/HTTP, está justificada em **Considerações técnicas → Conformidade com o AGENTS.md e as rules** da [TechSpec](./techspec.md). Não criar frontend, consultas externas, IA ou funcionalidades fora do PRD.
-
+Foram lidos `AGENTS.md` e todos os arquivos em `.agents/rules/`. A tarefa mantém TypeScript estrito, arquivos pequenos, configuração centralizada, npm com lock file e Vitest com cobertura mínima de 80%.
 </rules>
 
 <requirements>
 
-Requisitos do [PRD](./prd.md): RF9, RF15, RF17. Requisitos não funcionais relacionados: RNF4, RNF6.
-
-- Preparar o runtime, ESM, ferramentas e scripts conforme as versões e decisões da TechSpec, validando os patches durante a instalação e versionando o package-lock.json.
-- Centralizar configuração com dotenv/Joi e logging sanitizado; disponibilizar exemplos sem credenciais reais e ignorar artefatos privados.
-- Configurar Vitest, cobertura de todo src autoral e quatro thresholds de 80%; preparar Playwright como runner de CLI, com E2E na raiz.
-- Preparar bases independentes por worker e fixtures que só possam criar/destruir bases explicitamente identificadas como teste.
-
+- Manter scripts de lint, typecheck, test, coverage e build.
+- Manter configuração de banco, ambiente de desenvolvimento/teste, logger e Compose PostgreSQL.
+- Remover relatórios, timeouts de importação, Playwright e fixtures de processo, diretório temporário e criação de bancos de teste.
+- Atualizar a documentação para descrever o seed inicial, sem prometer um importador reutilizável.
 </requirements>
 
 ## Subtarefas
 
-- [x] 1.1 Preparar package.json, lock, runtime, TypeScript/NodeNext, ESLint e scripts de lint, typecheck, test, test:coverage e build.
-- [x] 1.2 Implementar configuração centralizada, contratos mínimos de erros e logger com testes das falhas e da sanitização.
-- [x] 1.3 Preparar compose PostgreSQL, ambientes de desenvolvimento/teste e documentação inicial dos pré-requisitos.
-- [x] 1.4 Configurar Vitest/V8, inclusão de código autoral não importado pela suíte e thresholds em linhas, instruções, funções e ramificações.
-- [x] 1.5 Preparar configuração Playwright no backend e infraestrutura de fixtures para processos, diretórios e bases isolados.
-- [x] 1.6 Validar os scripts existentes sobre código real desta entrega; reservar os comandos do importador para a tarefa 7 e a suíte E2E para a tarefa 8.
+- [x] 1.1 Simplificar variáveis de ambiente e contratos de configuração.
+- [x] 1.2 Remover infraestrutura de testes e execução criada para ETL recorrente.
+- [x] 1.3 Atualizar scripts, dependências, Compose e README.
+- [x] 1.4 Executar lint, typecheck, testes, cobertura e build.
 
 ## Detalhes de implementação
 
-A [TechSpec](./techspec.md) é a fonte de verdade dos contratos e decisões técnicas. Consultar **Sequenciamento do desenvolvimento → Dependências técnicas**, **Modelos de dados → Parâmetros fixos na origem e configuração**, **Monitoramento e observabilidade** e **Abordagem de testes**. O cliente Prisma e a execução de migrations entram na tarefa 3; a configuração de build deve ser completada ali para gerar o cliente antes de typecheck/build.
+Consultar [TechSpec — Arquitetura do sistema](./techspec.md#arquitetura-do-sistema) e [Considerações técnicas](./techspec.md#considerações-técnicas). A configuração permanece genérica para o backend; não contém diretório de relatório, diário ou estado de execução.
 
 ## Critérios de aceitação relacionados
 
-IDs relacionados do [PRD](./prd.md#critérios-de-aceitação); sua validação final é responsabilidade do QA. Critérios compartilhados são comprovados pelo conjunto de tarefas, conforme a [rastreabilidade](./tasks.md#rastreabilidade-dos-critérios-de-aceitação).
-
-- CA-15
-- CA-19
-- CA-20
-- CA-21
+- CA-06
 
 ## Testes da tarefa
 
-IDs e nomes abaixo reproduzem o inventário da [TechSpec](./techspec.md#abordagem-de-testes), que define resultados esperados e variantes. Cada família deve ser desdobrada em testes independentes. Uma etapa parcial só comprova o recorte indicado; a família completa permanece pendente até a tarefa de conclusão registrada em [tasks.md](./tasks.md#rastreabilidade-dos-testes).
+### Testes de unidade
 
-### Testes de unidade (se aplicável)
+- [x] TU-01 — Configuração mínima do ambiente
+- [x] TU-02 — Configuração inválida sem expor credenciais
+- [x] TU-03 — Logger sanitiza contexto e erros
 
-- [x] TU-13 — Sanitização de logs e erros
-  - Parcial: sanitização do logger e erros de configuração; relatórios e bordas completas nas tarefas 6 e 7.
-- [x] TU-14 — Configuração, argumentos e shutdown
-  - Parcial: configuração inválida e interrupção da inicialização; argumentos e shutdown completos na tarefa 7.
+### Testes de integração
 
-### Testes de integração (se aplicável)
+Não aplicável nesta tarefa; persistência será coberta depois que o schema existir.
 
-- [x] TI-19 — Configuração e isolamento das dependências
-  - Parcial: isolamento das bases, configuração e ausência de secrets nos artefatos; migrations na tarefa 3 e importação sem HTTP externo na tarefa 7.
+### Testes E2E
 
-### Testes E2E (se aplicável)
+Não aplicável.
 
-Não há novos casos desta camada nesta tarefa; os E2E são implementados na tarefa 8.
+## Validações
 
-### Validações para concluir a tarefa
-
-- Executar em `backend/`: `npm run lint`, `npm run typecheck`, `npm run test`, `npm run test:coverage` e `npm run build`, após disponibilizar os scripts na tarefa 1.
-- Assegurar cobertura mínima de 80% em linhas, instruções, funções e ramificações de todo código autoral existente; o percentual não substitui os cenários críticos.
-- Registrar comandos e resultados; não marcar variantes dependentes de tarefas futuras como aprovadas. Os E2E completos serão executados na tarefa 8.
-
-Resultados: lint, typecheck, 16 testes, cobertura de 100% nas quatro métricas e build aprovados; Compose validado sem iniciar serviços. As etapas futuras das famílias TU-13, TU-14 e TI-19 permanecem atribuídas às tarefas 3, 6 e 7 na matriz de rastreabilidade.
+Executar em `backend/`: `npm run lint`, `npm run typecheck`, `npm test`, `npm run test:coverage` e `npm run build`.
 
 ## Arquivos relevantes
 
-Caminhos de implementação previstos, que podem ser divididos em módulos coesos para cumprir os limites das rules. Arquivos de aplicação ainda serão criados; o corpus é somente leitura.
-
 - `backend/package.json`
 - `backend/package-lock.json`
-- `backend/.nvmrc`
-- `backend/tsconfig.json`
-- `backend/tsconfig.build.json`
-- `backend/eslint.config.js`
-- `backend/vitest.config.ts`
-- `backend/playwright.config.ts`
-- `backend/compose.yaml`
-- `backend/.env.development.example`
-- `backend/.env.test.example`
-- `backend/src/config/envs.ts`
-- `backend/src/config/logger.ts`
-- `backend/src/errors/`
+- `backend/.env.*.example`
+- `backend/src/config/`
 - `backend/src/protocols.ts`
-- `backend/src/config/*.test.ts`
+- `backend/vitest.config.ts`
 - `backend/README.md`
-- `.gitignore`

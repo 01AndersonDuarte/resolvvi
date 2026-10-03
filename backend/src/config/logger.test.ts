@@ -9,13 +9,13 @@ it('emite eventos estruturados no destino correspondente', () => {
   const stderr = vi.fn();
   const logger = createLogger({ now: () => FIXED_TIME, stderr, stdout });
 
-  logger.info('Importação iniciada', { runId: 'run-1' });
-  logger.error('Importação falhou', new Error('detalhe interno'));
+  logger.info('Aplicação iniciada', { component: 'backend' });
+  logger.error('Operação falhou', new Error('detalhe interno'));
 
   expect(JSON.parse(String(stdout.mock.calls[0]?.[0]))).toEqual({
     level: 'info',
-    message: 'Importação iniciada',
-    runId: 'run-1',
+    component: 'backend',
+    message: 'Aplicação iniciada',
     timestamp: FIXED_TIME.toISOString(),
   });
   expect(JSON.parse(String(stderr.mock.calls[0]?.[0]))).toMatchObject({
@@ -31,20 +31,20 @@ it('remove credenciais, caminhos e detalhes brutos de erros', () => {
   circular.self = circular;
 
   logger.warn('Banco postgresql://admin:secret@localhost indisponível', {
-    audit: [new Date('2026-10-03T12:00:00.000Z'), 5n, true, new Error('interno')],
+    details: [new Date('2026-10-03T12:00:00.000Z'), 5n, true, new Error('interno')],
     circular,
     databaseUrl: 'postgresql://admin:secret@localhost/app',
-    reportPath: '/private/report.json',
+    sourcePath: '/private/source.csv',
   });
 
   const output = String(stdout.mock.calls[0]?.[0]);
   expect(output).not.toContain('secret');
-  expect(output).not.toContain('/private/report.json');
+  expect(output).not.toContain('/private/source.csv');
   expect(JSON.parse(output)).toMatchObject({
-    audit: ['2026-10-03T12:00:00.000Z', '5', true, { name: 'Error' }],
+    details: ['2026-10-03T12:00:00.000Z', '5', true, { name: 'Error' }],
     circular: { self: '[CIRCULAR]' },
     databaseUrl: '[REDACTED]',
-    reportPath: '[REDACTED]',
+    sourcePath: '[REDACTED]',
   });
 });
 

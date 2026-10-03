@@ -16,9 +16,8 @@ export default defineConfig({
         statements: MINIMUM_COVERAGE,
       },
     },
-    include: ['src/**/*.test.ts', 'test-support/**/*.test.ts'],
+    include: ['src/**/*.test.ts'],
     mockReset: true,
     restoreMocks: true,
   },
 });
-

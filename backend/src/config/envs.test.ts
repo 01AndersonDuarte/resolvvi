@@ -28,10 +28,10 @@ describe('env', () => {
   });
 
   it('falha durante a inicialização quando a configuração é inválida', async () => {
-    stubEnvironment({ ...VALID_ENVIRONMENT, DB_CONNECT_TIMEOUT_MS: '0' });
+    stubEnvironment({ ...VALID_ENVIRONMENT, DATABASE_URL: 'senha-super-secreta' });
 
     await expect(import('./envs.js')).rejects.toMatchObject({
-      message: 'Configuração inválida: DB_CONNECT_TIMEOUT_MS.',
+      message: 'Configuração inválida: DATABASE_URL.',
       name: 'InvalidConfigurationError',
     });
   });
