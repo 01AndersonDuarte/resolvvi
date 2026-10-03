@@ -28,7 +28,15 @@ Use a estrutura básica do Conventional Commits (letras minúsculas, **sem corpo
 - **Conteúdo:** Apenas a linha do título. **Não inclua nenhuma descrição ou corpo no texto.**
 - **Autor:** Deve ser commitado apenas com o **Autor/Usuário registrado**. Não injete a palavra "Harness" nos campos de autor ou committer.
 
-## 3. Exemplos Visuais
+## 3. Frequência e automação
+
+- Após concluir e validar um incremento coeso, crie automaticamente um commit local com o código e seus testes. Não acumule tarefas concluídas sem commit.
+- Antes de cada commit, confira o diff e adicione arquivos ou trechos explicitamente; preserve alterações alheias e o conteúdo previamente staged.
+- Use a identidade Git configurada. Se estiver ausente, solicite sua configuração; não invente autoria.
+- Antes de finalizar a tarefa, inclua a atualização dos checklists no último commit e informe os hashes criados. Não crie commits vazios.
+- Push exige autorização separada.
+
+## 4. Exemplos Visuais
 
 - `feat(auth): add JWT token validation`
 - `fix(ui): resolve login button alignment issue`

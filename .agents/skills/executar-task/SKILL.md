@@ -18,7 +18,9 @@ Uma tarefa é uma **entrega incremental**, com dependências explícitas e teste
    **Conclua quando:** a abordagem estiver clara, o `AGENTS.md` e todas as rules tiverem sido consultados, as skills aplicáveis estiverem carregadas e os serviços necessários estiverem disponíveis.
 
 3. **Implementar** — implemente cada subtarefa na ordem; ao final, execute as validações e os testes da tarefa usando os comandos definidos no `AGENTS.md` e nas rules aplicáveis.
+   Após cada incremento coeso e validado, crie um commit local conforme [commit_guidelines.md](../../rules/commit_guidelines.md), reunindo código e testes relacionados.
    **Conclua quando:** toda subtarefa estiver implementada e as validações e os testes aplicáveis da tarefa passarem.
 
 4. **Concluir e limpar** — marque como concluídas (`[x]`) todas as subtarefas e os testes aplicáveis no arquivo `task_[num].md`. Depois, marque a tarefa como concluída (`[x]`) no `tasks.md`, informe, em uma linha, o que foi implementado e desligue todos os serviços iniciados por esta execução. Encerre os processos de forma graciosa, confirme que as portas foram liberadas e não encerre processos pertencentes a outra worktree ou ao usuário. Faça essa limpeza também se a execução for interrompida ou bloqueada.
-   **Conclua quando:** todas as subtarefas e os testes aplicáveis estiverem marcados no arquivo da tarefa, e a tarefa estiver marcada como concluída no `tasks.md`.
+   Inclua os checklists atualizados no commit final da tarefa e informe os hashes criados.
+   **Conclua quando:** todas as subtarefas e os testes aplicáveis estiverem marcados no arquivo da tarefa, a tarefa estiver marcada como concluída no `tasks.md` e suas alterações estiverem commitadas.
