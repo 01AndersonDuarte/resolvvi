@@ -26,6 +26,18 @@ NODE_ENV=test npx prisma migrate deploy
 
 Encerre o PostgreSQL local com `docker compose down`.
 
+## Carga inicial do CSV
+
+Depois de aplicar a migration, execute a partir de `backend/` para carregar o arquivo `lawsuits_movements.csv` na base indicada por `DATABASE_URL`:
+
+```bash
+npm run seed
+```
+
+O seed é uma carga única para uma base vazia e grava os processos e movimentos em uma transação. Não o execute novamente em uma base já populada; o comando não implementa reexecução nem atualização incremental.
+
+Na validação de 3 de outubro de 2026, a carga em uma base vazia criou 100 processos e 5.568 movimentos. A conferência comparou os campos persistidos com os registros do CSV, incluindo textos, datas e conteúdo ausente, e verificou a ordenação por data e ordem de origem.
+
 ## Validações
 
 ```bash
