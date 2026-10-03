@@ -5,7 +5,7 @@
 Implementar o comando específico para ler `lawsuits_movements.csv`, mapear seus oito campos e gravar a base inicial em uma transação. O comando existe para bootstrap desta aplicação e não será tratado como uma rotina de importação reutilizável.
 
 **Dependências:** [2.0](./task_2.md).
-**Estado:** pendente.
+**Estado:** concluída em 3 de outubro de 2026.
 
 <skills>
 ### Conformidade com skills
@@ -30,10 +30,10 @@ Foram lidos `AGENTS.md` e todos os arquivos em `.agents/rules/`. O parser deve s
 
 ## Subtarefas
 
-- [ ] 3.1 Implementar o parser específico do seed.
-- [ ] 3.2 Implementar o mapeamento para Processo e Movimentação.
-- [ ] 3.3 Implementar o comando de execução única e a transação.
-- [ ] 3.4 Cobrir o mapeamento e as falhas relevantes com testes.
+- [x] 3.1 Implementar o parser específico do seed.
+- [x] 3.2 Implementar o mapeamento para Processo e Movimentação.
+- [x] 3.3 Implementar o comando de execução única e a transação.
+- [x] 3.4 Cobrir o mapeamento e as falhas relevantes com testes.
 
 ## Detalhes de implementação
 
@@ -50,15 +50,15 @@ Consultar [TechSpec — Principais interfaces](./techspec.md#principais-interfac
 
 ### Testes de unidade
 
-- [ ] TU-01 — Mapear as oito colunas do registro
-- [ ] TU-02 — Converter data, valor e quantidade
-- [ ] TU-03 — Preservar a ordem de origem
+- [x] TU-01 — Mapear as oito colunas do registro
+- [x] TU-02 — Converter data, valor e quantidade
+- [x] TU-03 — Preservar a ordem de origem
 
 ### Testes de integração
 
-- [ ] TI-01 — Criar processos e movimentações relacionadas
-- [ ] TI-04 — Popular base vazia com o CSV fornecido
-- [ ] TI-05 — Falhar sem persistência parcial
+- [x] TI-01 — Criar processos e movimentações relacionadas
+- [x] TI-04 — Popular base vazia com o CSV fornecido
+- [x] TI-05 — Falhar sem persistência parcial
 
 ### Testes E2E
 
@@ -71,3 +71,11 @@ Não aplicável.
 - `backend/src/repositories/`
 - `backend/src/**/*.test.ts`
 - `lawsuits_movements.csv`
+
+## Validações executadas
+
+- [x] `npm run lint`
+- [x] `npm run typecheck`
+- [x] `npm test` com PostgreSQL: 29 testes aprovados
+- [x] `npm run test:coverage` com PostgreSQL: 98,24% statements, 96,84% branches, 100% functions e 100% lines
+- [x] `npm run build`
