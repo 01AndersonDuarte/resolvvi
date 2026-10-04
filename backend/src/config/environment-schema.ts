@@ -2,6 +2,7 @@ import Joi from 'joi';
 
 import { configurationError } from '../errors/index.js';
 import type { ApplicationEnvironment } from '../types/config.js';
+import { parseSummaryEnvironment } from './summary-environment-schema.js';
 
 type RawEnvironment = {
   DATABASE_LABEL: string;
@@ -30,5 +31,6 @@ export function parseEnvironment(source: NodeJS.ProcessEnv): ApplicationEnvironm
     databaseLabel: value.DATABASE_LABEL,
     databaseUrl: value.DATABASE_URL,
     nodeEnvironment: value.NODE_ENV,
+    summary: parseSummaryEnvironment(source),
   };
 }

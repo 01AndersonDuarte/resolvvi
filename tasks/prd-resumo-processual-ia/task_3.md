@@ -40,7 +40,7 @@ Após cada incremento coeso validado, revisar o diff, selecionar arquivos explic
 
 ## Subtarefas
 
-- [ ] 3.1 Implementar configuração, adaptador real com transporte injetável e fake determinístico, classificando recusa, truncamento, limite, indisponibilidade e Retry-After.
+- [x] 3.1 Implementar configuração, adaptador real com transporte injetável e fake determinístico, classificando recusa, truncamento, limite, indisponibilidade e Retry-After.
 - [ ] 3.2 Compor executor, orçamento de cada etapa, capacidade local, marcação única de despacho, expiração e encerramento; tratar falhas antes/depois de callStartedAt e commit incerto.
 - [ ] 3.3 Implementar service de leitura, solicitação e feedback sobre os repositories; aplicar precedência de estados, reuso, invalidação e recuperação explícita.
 - [ ] 3.4 Ampliar autenticação interna por ID de sessão e implementar schemas, erros, router e controller das três rotas; não aceitar histórico, modelo, prompt ou identidade do usuário vindos do cliente.

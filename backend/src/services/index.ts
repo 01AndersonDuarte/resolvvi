@@ -10,3 +10,4 @@ export {
   verifyPassword,
 } from './security-service.js';
 export { createProcessService, type ProcessService } from './process-service.js';
+export { createOpenAiSummaryProvider } from './openai-summary-service.js';
