@@ -47,6 +47,16 @@ export async function findValidSessionByTokenHash(
   return session;
 }
 
+export async function findValidSessionById(
+  sessionId: string,
+  now: Date,
+  client: AuthenticationDatabase,
+): Promise<Session | null> {
+  const session = await client.session.findUnique({ where: { id: sessionId } });
+  if (!session || session.revokedAt || session.expiresAt <= now) return null;
+  return session;
+}
+
 export async function revokeSessionByTokenHash(
   tokenHash: string,
   revokedAt: Date,
@@ -66,6 +76,7 @@ export function createAuthRepository(client: AuthenticationDatabase): AuthReposi
       replaceSession({ session, previousTokenHash, revokedAt }, client),
     findSessionByTokenHash: (tokenHash) => findSessionByTokenHash(tokenHash, client),
     findValidSessionByTokenHash: (tokenHash, now) => findValidSessionByTokenHash(tokenHash, now, client),
+    findValidSessionById: (sessionId, now) => findValidSessionById(sessionId, now, client),
     revokeSessionByTokenHash: (tokenHash, revokedAt) => revokeSessionByTokenHash(tokenHash, revokedAt, client),
   };
 }

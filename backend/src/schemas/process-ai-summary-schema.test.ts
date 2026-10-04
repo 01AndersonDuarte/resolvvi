@@ -1,5 +1,12 @@
 import { describe, expect, it } from 'vitest';
-import { providerSummaryOutputSchema, sourceMovementsSchema } from './process-ai-summary-schema.js';
+import {
+  parseSummaryFeedbackBody,
+  parseSummaryGenerationBody,
+  parseSummaryId,
+  parseSummaryReadQuery,
+  providerSummaryOutputSchema,
+  sourceMovementsSchema,
+} from './process-ai-summary-schema.js';
 
 describe('process AI summary schemas', () => {
   it('accepts the canonical source and rejects missing fields, extra fields, and invalid dates', () => {
@@ -17,5 +24,30 @@ describe('process AI summary schemas', () => {
     expect(providerSummaryOutputSchema.validate({ ...valid, paragraphs: [] }).error).toBeDefined();
     expect(providerSummaryOutputSchema.validate({ ...valid, paragraphs: Array.from({ length: 4 }, () => valid.paragraphs[0]) }).error).toBeDefined();
     expect(providerSummaryOutputSchema.validate({ ...valid, paragraphs: [{ sentences: [] }] }).error).toBeDefined();
+  });
+});
+
+describe('process AI summary request schemas', () => {
+  it('allows only an optional UUID attempt identifier in reads', () => {
+    expect(parseSummaryReadQuery({ attemptId: '752a061e-31b0-44c4-bf41-c83e72670ea1' })).toEqual({
+      attemptId: '752a061e-31b0-44c4-bf41-c83e72670ea1',
+    });
+    expect(parseSummaryReadQuery({ track: false })).toEqual({ track: false });
+    expect(() => parseSummaryReadQuery({ track: 'false' })).toThrow();
+    expect(() => parseSummaryReadQuery({ page: '2' })).toThrow();
+    expect(() => parseSummaryReadQuery({ attemptId: 'invalid' })).toThrow();
+  });
+
+  it('accepts only an empty generation body', () => {
+    expect(parseSummaryGenerationBody({})).toEqual({});
+    expect(() => parseSummaryGenerationBody({ history: [] })).toThrow();
+  });
+
+  it('requires a strict boolean for feedback and validates summary IDs', () => {
+    expect(parseSummaryFeedbackBody({ helpful: false })).toEqual({ helpful: false });
+    expect(() => parseSummaryFeedbackBody({ helpful: 'false' })).toThrow();
+    expect(() => parseSummaryFeedbackBody({ helpful: true, userId: 'spoofed' })).toThrow();
+    expect(parseSummaryId('752a061e-31b0-44c4-bf41-c83e72670ea1')).toBe('752a061e-31b0-44c4-bf41-c83e72670ea1');
+    expect(() => parseSummaryId('wrong')).toThrow();
   });
 });

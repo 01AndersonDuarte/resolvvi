@@ -59,4 +59,46 @@ export type SummaryReservation = {
   attemptNumber: number | null;
   deadlineAt: Date | null;
   retryAt: Date | null;
+  source?: PreparedSummarySource;
+};
+
+export type SummaryFeedback = {
+  helpful: boolean;
+  createdAt: string;
+  updatedAt: string;
+};
+export type AiSummary = {
+  id: string;
+  version: number;
+  paragraphs: string[];
+  generatedAt: string;
+  movementCount: number;
+  references: SummaryReference[];
+  myFeedback: SummaryFeedback | null;
+};
+export type SummaryAttemptView = {
+  id: string;
+  startedAt: string;
+  deadlineAt: string;
+  retryAt: string | null;
+};
+export type AiSummaryState = {
+  processId: number;
+  status: 'available' | 'not_generated' | 'generating' | 'stale' | 'no_movements' | 'insufficient_data' | 'context_exceeded' | 'failed';
+  summary: AiSummary | null;
+  attempt: SummaryAttemptView | null;
+  message: string | null;
+  failureCode: string | null;
+  action: 'generate' | 'update' | 'retry' | 'none';
+  serverTime: string;
+};
+export type SummaryReadInput = { processId: number; userId: string; attemptId?: string; track?: boolean; requestId?: string | undefined };
+export type SummaryFeedbackCommand = { processId: number; summaryId: string; userId: string; helpful: boolean; requestId?: string | undefined };
+export type ProcessAiSummaryServiceContract = {
+  read: (input: SummaryReadInput) => Promise<AiSummaryState>;
+  requestGeneration: (input: SummaryReadInput & { sessionId: string }) => Promise<AiSummaryState>;
+  saveFeedback: (input: SummaryFeedbackCommand) => Promise<{
+    outcome: 'created' | 'updated' | 'unchanged';
+    feedback: SummaryFeedback;
+  }>;
 };

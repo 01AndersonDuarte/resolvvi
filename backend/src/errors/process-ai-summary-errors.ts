@@ -31,3 +31,13 @@ export function summaryOutputInvalid(): ProcessAiSummaryError {
 export function summaryOutputLanguageInvalid(): ProcessAiSummaryError {
   return new ProcessAiSummaryError('SUMMARY_OUTPUT_LANGUAGE_INVALID', 'The provider output is not in Portuguese.');
 }
+
+export function summaryApplicationError(input: {
+  code: 'SUMMARY_NOT_FOUND' | 'SUMMARY_NOT_CURRENT' | 'SUMMARY_NOT_ELIGIBLE' | 'SUMMARY_RETRY_TOO_SOON' | 'SUMMARY_CAPACITY_EXCEEDED' | 'SUMMARY_READ_FAILED' | 'SUMMARY_SAVE_FAILED' | 'SUMMARY_FEEDBACK_FAILED' | 'SERVICE_UNAVAILABLE';
+  message: string;
+  status: number;
+  retryAfterSeconds?: number | null;
+}): import('./application-error.js').ApplicationError {
+  return new ApplicationError(input);
+}
+import { ApplicationError } from './application-error.js';

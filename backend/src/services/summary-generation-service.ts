@@ -2,6 +2,7 @@ import type { PreparedSummarySource } from '../types/process-ai-summary.js';
 import type { SummaryProvider, SummaryProviderInput, SummaryProviderResult, ValidatedSummary } from '../types/summary-provider.js';
 import { SummaryProviderError } from '../types/summary-provider.js';
 import { ProcessAiSummaryError } from '../errors/process-ai-summary-errors.js';
+import { logSummaryOperationalEvent, type SummaryOperationalEvent } from './summary-operational-event-service.js';
 
 const MAX_LOCAL_EXECUTIONS = 4;
 const TOTAL_DEADLINE_MS = 30_000;
@@ -31,7 +32,7 @@ type SummaryAttemptFailure = {
 };
 
 export type SummaryGenerationDependencies = {
-  provider: SummaryProvider;
+  provider: SummaryProvider | null;
   validateSession: (sessionId: string) => Promise<void>;
   markDispatched: (attemptId: string, now: Date) => Promise<boolean>;
   validateOutput: (result: SummaryProviderResult, source: PreparedSummarySource) => ValidatedSummary;
@@ -43,15 +44,20 @@ export type SummaryGenerationDependencies = {
     paragraphs: string[];
     claims: ValidatedSummary['output']['paragraphs'];
     now: Date;
+    deadlineAt: Date;
+    usage: SummaryProviderResult['usage'];
+    providerRequestId: string | null;
   }) => Promise<boolean>;
   finish: (input: SummaryAttemptFailure) => Promise<void>;
   createProviderInput: (source: PreparedSummarySource, signal: AbortSignal) => SummaryProviderInput;
   now?: () => Date;
   monotonicNow?: () => number;
+  onEvent?: (event: SummaryOperationalEvent) => void;
 };
 
 export type SummaryGenerationService = {
-  start: (job: SummaryGenerationJob) => boolean;
+  acquire: () => (() => void) | null;
+  start: (job: SummaryGenerationJob, release?: () => void) => boolean;
   shutdown: () => Promise<void>;
 };
 
@@ -63,6 +69,10 @@ function currentDate(dependencies: SummaryGenerationDependencies): Date {
 
 function monotonicTime(dependencies: SummaryGenerationDependencies): number {
   return dependencies.monotonicNow?.() ?? performance.now();
+}
+
+function emitEvent(dependencies: SummaryGenerationDependencies, event: SummaryOperationalEvent): void {
+  (dependencies.onEvent ?? logSummaryOperationalEvent)(event);
 }
 
 function failureCode(error: unknown): string {
@@ -120,6 +130,8 @@ async function dispatchAndGenerate(
     await finishFailure(job, dependencies, { code: 'GENERATION_TIMEOUT' });
     return null;
   }
+  emitEvent(dependencies, { event: 'summary_call_dispatched', processId: job.processId, slotId: job.slotId, attemptId: job.attemptId, rulesVersion: job.rulesVersion });
+  if (!dependencies.provider) throw new SummaryProviderError('unavailable', MINIMUM_RETRY_DELAY_MS);
   return dependencies.provider.generate(dependencies.createProviderInput(job.source, controller.signal));
 }
 
@@ -135,19 +147,52 @@ async function executeJob(
     const receivedResult = await dispatchAndGenerate(job, dependencies, controller);
     if (!receivedResult) return;
     providerResult = receivedResult;
+    emitProviderResponse(job, dependencies, receivedResult);
     await validateAndPublish({ job, dependencies, controller, providerResult: receivedResult });
   } catch (error: unknown) {
-    const code = controller.signal.aborted ? 'GENERATION_TIMEOUT' : failureCode(error);
-    const finishedAt = currentDate(dependencies);
-    const failure: { code: string; retryAt: Date | null; providerResult?: SummaryProviderResult } = {
-      code,
-      retryAt: retryAt(error, finishedAt, job.startedAt),
-    };
-    if (providerResult) failure.providerResult = providerResult;
-    await finishFailure(job, dependencies, failure);
+    await handleGenerationError({ job, dependencies, controller, error, providerResult });
   } finally {
     clearTimeout(providerTimer);
   }
+}
+
+function emitProviderResponse(job: SummaryGenerationJob, dependencies: SummaryGenerationDependencies, result: SummaryProviderResult): void {
+  emitEvent(dependencies, {
+    event: 'summary_call_responded', processId: job.processId, slotId: job.slotId,
+    attemptId: job.attemptId, rulesVersion: job.rulesVersion,
+    inputUnits: result.usage?.inputTokens ?? null, outputUnits: result.usage?.outputTokens ?? null,
+    totalUnits: result.usage ? result.usage.inputTokens + result.usage.outputTokens : null,
+    unit: 'tokens', result: result.status,
+  });
+}
+
+async function handleGenerationError(input: {
+  job: SummaryGenerationJob;
+  dependencies: SummaryGenerationDependencies;
+  controller: AbortController;
+  error: unknown;
+  providerResult?: SummaryProviderResult | undefined;
+}): Promise<void> {
+  const { job, dependencies, controller, error } = input;
+  const code = controller.signal.aborted ? 'GENERATION_TIMEOUT' : failureCode(error);
+  const finishedAt = currentDate(dependencies);
+  const failure: { code: string; retryAt: Date | null; providerResult?: SummaryProviderResult } = {
+    code, retryAt: retryAt(error, finishedAt, job.startedAt),
+  };
+  if (input.providerResult) failure.providerResult = input.providerResult;
+  await finishFailure(job, dependencies, failure);
+  emitEvent(dependencies, {
+    event: code === 'GENERATION_TIMEOUT' ? 'summary_expired' : 'summary_failed',
+    processId: job.processId, slotId: job.slotId, attemptId: job.attemptId,
+    rulesVersion: job.rulesVersion, failureCode: code,
+    durationMs: Math.round(monotonicTime(dependencies) - job.requestedAt),
+    inputUnits: input.providerResult?.usage?.inputTokens ?? null,
+    outputUnits: input.providerResult?.usage?.outputTokens ?? null,
+    totalUnits: input.providerResult?.usage
+      ? input.providerResult.usage.inputTokens + input.providerResult.usage.outputTokens
+      : null,
+    unit: 'tokens',
+  });
 }
 
 async function validateAndPublish(input: {
@@ -180,7 +225,19 @@ async function publishValidated(input: {
     await finishFailure(job, dependencies, { code: 'GENERATION_TIMEOUT', providerResult });
     return;
   }
-  const published = await dependencies.publish({
+  const published = await dependencies.publish(createPublicationInput({ job, dependencies, validated, providerResult }));
+  if (!published) await finishFailure(job, dependencies, { code: 'SOURCE_CHANGED', providerResult });
+  else emitCompletion(job, dependencies, providerResult);
+}
+
+function createPublicationInput(input: {
+  job: SummaryGenerationJob;
+  dependencies: SummaryGenerationDependencies;
+  validated: ValidatedSummary;
+  providerResult: SummaryProviderResult;
+}): Parameters<SummaryGenerationDependencies['publish']>[0] {
+  const { job, dependencies, validated, providerResult } = input;
+  return {
     processId: job.processId,
     slotId: job.slotId,
     attemptId: job.attemptId,
@@ -188,16 +245,41 @@ async function publishValidated(input: {
     paragraphs: validated.output.paragraphs.map((paragraph) => paragraph.sentences.map((sentence) => sentence.text).join(' ')),
     claims: validated.output.paragraphs,
     now: currentDate(dependencies),
+    deadlineAt: new Date(job.startedAt.getTime() + TOTAL_DEADLINE_MS),
+    usage: providerResult.usage,
+    providerRequestId: providerResult.providerRequestId ?? null,
+  };
+}
+
+function emitCompletion(job: SummaryGenerationJob, dependencies: SummaryGenerationDependencies, result: SummaryProviderResult): void {
+  emitEvent(dependencies, {
+    event: 'summary_completed', processId: job.processId, slotId: job.slotId, attemptId: job.attemptId,
+    rulesVersion: job.rulesVersion, durationMs: Math.round(monotonicTime(dependencies) - job.requestedAt),
+    inputUnits: result.usage?.inputTokens ?? null, outputUnits: result.usage?.outputTokens ?? null,
+    totalUnits: result.usage ? result.usage.inputTokens + result.usage.outputTokens : null,
+    unit: 'tokens',
   });
-  if (!published) await finishFailure(job, dependencies, { code: 'SOURCE_CHANGED', providerResult });
 }
 
 export function createSummaryGenerationService(dependencies: SummaryGenerationDependencies): SummaryGenerationService {
   const active = new Set<ActiveExecution>();
   let closing = false;
+  let reservedCapacity = 0;
+
+  function acquireCapacity(): (() => void) | null {
+    if (closing || reservedCapacity >= MAX_LOCAL_EXECUTIONS) return null;
+    reservedCapacity += 1;
+    let released = false;
+    return () => {
+      if (released) return;
+      released = true;
+      reservedCapacity -= 1;
+    };
+  }
 
   return {
-    start: (job) => startJob({ job, dependencies, active, isClosing: () => closing }),
+    acquire: acquireCapacity,
+    start: (job, release) => startJob({ job, dependencies, active, isClosing: () => closing, acquireCapacity, release }),
     shutdown: async () => {
       closing = true;
       active.forEach((execution) => execution.controller.abort());
@@ -211,12 +293,24 @@ function startJob(input: {
   dependencies: SummaryGenerationDependencies;
   active: Set<ActiveExecution>;
   isClosing: () => boolean;
+  acquireCapacity: () => (() => void) | null;
+  release: (() => void) | undefined;
 }): boolean {
   const { job, dependencies, active, isClosing } = input;
-  if (isClosing() || active.size >= MAX_LOCAL_EXECUTIONS || isDeadlineExceeded(job, dependencies, TOTAL_DEADLINE_MS)) return false;
+  const release = input.release ?? input.acquireCapacity();
+  if (!release) return false;
+  if (isClosing() || isDeadlineExceeded(job, dependencies, TOTAL_DEADLINE_MS)) {
+    release();
+    return false;
+  }
   const controller = new AbortController();
   const execution = { controller, operation: Promise.resolve() };
-  execution.operation = Promise.resolve().then(() => executeJob(job, dependencies, controller)).finally(() => active.delete(execution));
+  execution.operation = Promise.resolve().then(() => executeJob(job, dependencies, controller)).catch(() => {
+    emitEvent(dependencies, { event: 'summary_failed', processId: job.processId, slotId: job.slotId, attemptId: job.attemptId, failureCode: 'PERSISTENCE_FAILED' });
+  }).finally(() => {
+    active.delete(execution);
+    release();
+  });
   active.add(execution);
   return true;
 }

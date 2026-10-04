@@ -5,7 +5,7 @@ import {
   observeProcessSummarySource, publishProcessAiSummary, readCurrentProcessAiSummary, reserveProcessSummaryAttempt,
 } from './process-ai-summary-repository.js';
 import { finishSummaryAttempt, markSummaryAttemptDispatched } from './summary-attempt-repository.js';
-import { saveSummaryFeedback } from './summary-feedback-repository.js';
+import { getSummaryFeedbackMetrics, saveSummaryFeedback } from './summary-feedback-repository.js';
 import type { SaveSummaryFeedbackResult } from './summary-feedback-repository.js';
 import type { SummaryReservation } from '../types/process-ai-summary.js';
 import {
@@ -104,15 +104,17 @@ async function preservesPublishedEvidence(): Promise<void> {
     processId, slotId: reservation.slotId!, attemptId: reservation.attemptId!, rulesVersion,
     paragraphs: ['Foi juntada uma petição.'],
     claims: [{ paragraphIndex: 0, sentenceIndex: 0, text: 'Foi juntada uma petição.', sourceRefs: ['m1'] }],
-    now: new Date(now.getTime() + 1_000),
+    now: new Date(now.getTime() + 1_000), deadlineAt: new Date(now.getTime() + 30_000), usage: null, providerRequestId: null,
   }, database!);
   expect(published?.version).toBe(1);
   expect((await readCurrentProcessAiSummary({ processId, rulesVersion, userId }, database!))?.summary)
     .toMatchObject({ id: published!.id, version: 1, myFeedback: null });
 
+  await assertFeedbackMetrics(published!.id, 0, 0);
   const first = await saveFeedback(published!.id, true, new Date(now.getTime() + 2_000));
   const repeated = await saveFeedback(published!.id, true, new Date(now.getTime() + 3_000));
   const changed = await saveFeedback(published!.id, false, new Date(now.getTime() + 4_000));
+  await assertFeedbackMetrics(published!.id, 1, 0);
   const concurrentVotes = await recordConcurrentVotes(published!.id, now);
   await database!.movement.deleteMany({ where: { processId } });
   const sourceAfterRemoval = await observeProcessSummarySource(processId, database!);
@@ -121,9 +123,21 @@ async function preservesPublishedEvidence(): Promise<void> {
   expect([first?.outcome, repeated?.outcome, changed?.outcome]).toEqual(['created', 'unchanged', 'updated']);
   expect(changed?.feedback).toMatchObject({ helpful: false });
   expect(concurrentVotes.map((vote) => vote?.outcome).sort()).toEqual(['unchanged', 'updated']);
-  expect(await database!.summaryFeedbackRecord.count({ where: { summaryId: published!.id, userId } })).toBe(1);
+  await assertSavedFeedback(published!.id);
   expect(sourceAfterRemoval?.sourceRevision).toBe(2);
   expect(snapshot?.sourceSnapshot).toMatchObject([{ title: 'Petição juntada' }]);
+}
+
+async function assertSavedFeedback(summaryId: string): Promise<void> {
+  expect(await database!.summaryFeedbackRecord.count({ where: { summaryId, userId } })).toBe(1);
+  await assertFeedbackMetrics(summaryId, 1, 1);
+}
+
+async function assertFeedbackMetrics(summaryId: string, count: number, positive: number): Promise<void> {
+  const metrics = await getSummaryFeedbackMetrics(processId, database!);
+  expect(metrics).toEqual([{
+    summaryId, version: 1, configurationHash: 'a'.repeat(64), count, positive, rate: count === 0 ? null : positive / count,
+  }]);
 }
 
 async function reusesSummaryAcrossProviderChange(): Promise<void> {
@@ -153,6 +167,7 @@ async function rejectsStalePublication(): Promise<void> {
   const published = await publishProcessAiSummary({
     processId, slotId: reservation.slotId!, attemptId: reservation.attemptId!, rulesVersion,
     paragraphs: ['Sem alteração.'], claims: [], now: new Date(now.getTime() + 1_000),
+    deadlineAt: new Date(now.getTime() + 30_000), usage: null, providerRequestId: null,
   }, database!);
 
   expect(published).toBeNull();
@@ -213,6 +228,7 @@ async function rollsBackFailedPublication(): Promise<void> {
   const result = publishProcessAiSummary({
     processId, slotId: reservation.slotId!, attemptId: reservation.attemptId!, rulesVersion,
     paragraphs: ['Petição registrada.'], claims: [], now: new Date(now.getTime() + 1_000),
+    deadlineAt: new Date(now.getTime() + 30_000), usage: null, providerRequestId: null,
   }, database!);
 
   await expect(result).rejects.toMatchObject({ code: 'P2002' });
@@ -294,7 +310,7 @@ async function publish(
     processId, slotId: reservation.slotId!, attemptId: reservation.attemptId!, rulesVersion,
     paragraphs: ['Foi juntada uma petição.'],
     claims: [{ paragraphIndex: 0, sentenceIndex: 0, text: 'Foi juntada uma petição.', sourceRefs: ['m1'] }],
-    now: new Date(now.getTime() + 1_000),
+    now: new Date(now.getTime() + 1_000), deadlineAt: new Date(now.getTime() + 30_000), usage: null, providerRequestId: null,
   }, database!);
 }
 

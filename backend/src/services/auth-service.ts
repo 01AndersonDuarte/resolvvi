@@ -14,6 +14,7 @@ export function createAuthService(dependencies: AuthServiceDependencies): AuthSe
     register: (input) => register(input, dependencies),
     login: (input, previousSecret = null) => login(input, previousSecret, dependencies),
     getSession: (secret) => getSession(secret, dependencies),
+    getSessionById: (sessionId) => getSessionById(sessionId, dependencies),
     logout: (secret) => logout(secret, dependencies),
   };
 }
@@ -74,6 +75,17 @@ export async function getSession(secret: string | null, dependencies: AuthServic
   try {
     const now = getCurrentTime(dependencies);
     const session = await dependencies.repositories.findValidSessionByTokenHash(digestSecret(secret), now);
+    if (!session) throw sessionInvalid();
+    return toSessionContext({ sessionId: session.id, userId: session.userId, expiresAt: session.expiresAt, serverTime: now });
+  } catch (error: unknown) {
+    throw mapSessionFailure(error);
+  }
+}
+
+export async function getSessionById(sessionId: string, dependencies: AuthServiceDependencies): Promise<SessionContext> {
+  try {
+    const now = getCurrentTime(dependencies);
+    const session = await dependencies.repositories.findValidSessionById(sessionId, now);
     if (!session) throw sessionInvalid();
     return toSessionContext({ sessionId: session.id, userId: session.userId, expiresAt: session.expiresAt, serverTime: now });
   } catch (error: unknown) {

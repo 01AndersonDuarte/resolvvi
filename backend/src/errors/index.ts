@@ -4,6 +4,7 @@ export {
   ProcessAiSummaryError,
   summaryOutputInvalid,
   summaryOutputLanguageInvalid,
+  summaryApplicationError,
   summaryPreparationTimeout,
   summarySourceInvalid,
   summarySourceTooLarge,

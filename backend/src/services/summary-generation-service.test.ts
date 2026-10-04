@@ -82,8 +82,9 @@ describe('createSummaryGenerationService capacity', () => {
 
 describe('createSummaryGenerationService dispatch', () => {
   it('revalida sessão e marca despacho antes de chamar o provedor uma única vez', async () => {
-    const dependencies = createDependencies(successfulProvider());
-    const generate = vi.spyOn(dependencies.provider, 'generate');
+    const provider = successfulProvider();
+    const dependencies = createDependencies(provider);
+    const generate = vi.spyOn(provider, 'generate');
     const service = createSummaryGenerationService(dependencies);
 
     expect(service.start(createJob())).toBe(true);
@@ -94,8 +95,9 @@ describe('createSummaryGenerationService dispatch', () => {
 
 describe('createSummaryGenerationService dispatch failure', () => {
   it('não despacha se a tentativa já tiver sido marcada', async () => {
-    const dependencies = createDependencies(successfulProvider());
-    const generate = vi.spyOn(dependencies.provider, 'generate');
+    const provider = successfulProvider();
+    const dependencies = createDependencies(provider);
+    const generate = vi.spyOn(provider, 'generate');
     dependencies.markDispatched = vi.fn(() => Promise.resolve(false));
     const service = createSummaryGenerationService(dependencies);
 
@@ -135,4 +137,27 @@ describe('createSummaryGenerationService deadline', () => {
     expect(dependencies.finish).toHaveBeenCalledWith(expect.objectContaining({ failureCode: 'GENERATION_TIMEOUT' }));
     await service.shutdown();
   });
+
+  it('cancels and awaits active work during shutdown', cancelsActiveWorkOnShutdown);
 });
+
+async function cancelsActiveWorkOnShutdown(): Promise<void> {
+  let receivedSignal: AbortSignal | undefined;
+  const provider: SummaryProvider = {
+    configuration: { provider: 'openai', model: 'model', configurationHash: 'b'.repeat(64) },
+    generate: (input) => {
+      receivedSignal = input.signal;
+      return new Promise((_resolve, reject) => input.signal.addEventListener('abort', () => reject(new Error('aborted')), { once: true }));
+    },
+  };
+  const dependencies = createDependencies(provider);
+  const service = createSummaryGenerationService(dependencies);
+  expect(service.start(createJob())).toBe(true);
+  await vi.waitFor(() => expect(receivedSignal).toBeDefined());
+
+  await service.shutdown();
+
+  expect(receivedSignal?.aborted).toBe(true);
+  expect(dependencies.finish).toHaveBeenCalledWith(expect.objectContaining({ failureCode: 'GENERATION_TIMEOUT' }));
+  expect(service.start(createJob())).toBe(false);
+}

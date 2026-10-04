@@ -8,6 +8,8 @@ import type {
 
 type Transaction = Prisma.TransactionClient;
 type SourceAndState = { source: PreparedSummarySource; sourceRevision: number; lastSummaryVersion: number };
+type LatestSummary = Prisma.ProcessAiSummaryGetPayload<{ include: { slot: true } }>;
+type LatestAttempt = Prisma.SummaryAttemptGetPayload<{ include: { slot: true } }>;
 
 const TRANSACTION_TIMEOUT_MS = 2_000;
 const LOCK_TIMEOUT = '250ms';
@@ -89,6 +91,39 @@ export async function readCurrentProcessAiSummary(input: {
   }, { isolationLevel: 'ReadCommitted', timeout: TRANSACTION_TIMEOUT_MS, maxWait: TRANSACTION_TIMEOUT_MS });
 }
 
+export function findLatestProcessAiSummary(processId: number, client: PrismaClient): Promise<LatestSummary | null> {
+  return client.processAiSummary.findFirst({
+    where: { processId },
+    orderBy: { version: 'desc' },
+    include: { slot: true },
+  });
+}
+
+export function findLatestProcessSummaryAttempt(input: {
+  processId: number;
+  sourceRevision: number;
+  rulesVersion: string;
+}, client: PrismaClient): Promise<LatestAttempt | null> {
+  return client.summaryAttempt.findFirst({
+    where: {
+      slot: {
+        processId: input.processId,
+        sourceRevision: input.sourceRevision,
+        rulesVersion: input.rulesVersion,
+      },
+    },
+    orderBy: { number: 'desc' },
+    include: { slot: true },
+  });
+}
+
+export function findProcessSummaryAttempt(attemptId: string, processId: number, client: PrismaClient): Promise<LatestAttempt | null> {
+  return client.summaryAttempt.findFirst({
+    where: { id: attemptId, slot: { processId } },
+    include: { slot: true },
+  });
+}
+
 export async function reserveProcessSummaryAttempt(
   input: SummaryReservationInput,
   client: PrismaClient,
@@ -104,7 +139,7 @@ export async function reserveProcessSummaryAttempt(
     if (slot.retryAt && slot.retryAt > input.now) {
       return { ...emptyReservation('cooldown'), slotId: slot.id, retryAt: slot.retryAt };
     }
-    return createAttempt(transaction, slot, input);
+    return createAttempt({ transaction, slot, reservation: input, source: source.source });
   }, { isolationLevel: 'ReadCommitted', timeout: TRANSACTION_TIMEOUT_MS, maxWait: TRANSACTION_TIMEOUT_MS });
 }
 
@@ -116,9 +151,15 @@ export async function publishProcessAiSummary(input: {
   paragraphs: unknown;
   claims: unknown;
   now: Date;
+  deadlineAt: Date;
+  usage: { inputTokens: number; outputTokens: number } | null;
+  providerRequestId: string | null;
 }, client: PrismaClient): Promise<{ id: string; version: number } | null> {
+  const remainingMs = input.deadlineAt.getTime() - input.now.getTime();
+  if (remainingMs <= 0) return null;
+  const transactionTimeout = Math.min(TRANSACTION_TIMEOUT_MS, remainingMs);
   return client.$transaction((transaction) => publishInTransaction(transaction, input), {
-    isolationLevel: 'ReadCommitted', timeout: TRANSACTION_TIMEOUT_MS, maxWait: TRANSACTION_TIMEOUT_MS,
+    isolationLevel: 'ReadCommitted', timeout: transactionTimeout, maxWait: transactionTimeout,
   });
 }
 
@@ -155,7 +196,14 @@ async function createPublishedSummary(
     },
     select: { id: true, version: true },
   });
-  await transaction.summaryAttempt.update({ where: { id: attempt.id }, data: { status: 'succeeded', finishedAt: input.now } });
+  const attemptData: Prisma.SummaryAttemptUpdateInput = { status: 'succeeded', finishedAt: input.now };
+  if (input.usage) {
+    attemptData.inputUnits = input.usage.inputTokens;
+    attemptData.outputUnits = input.usage.outputTokens;
+    attemptData.totalUnits = input.usage.inputTokens + input.usage.outputTokens;
+  }
+  if (input.providerRequestId) attemptData.providerRequestId = input.providerRequestId;
+  await transaction.summaryAttempt.update({ where: { id: attempt.id }, data: attemptData });
   await transaction.summarySourceState.update({ where: { processId: input.processId }, data: { lastSummaryVersion: version } });
   return summary;
 }
@@ -206,23 +254,25 @@ async function existingReservation(
   return null;
 }
 
-async function createAttempt(
-  transaction: Transaction,
-  slot: SummaryGenerationSlot,
-  input: SummaryReservationInput,
-): Promise<SummaryReservation> {
+async function createAttempt(input: {
+  transaction: Transaction;
+  slot: SummaryGenerationSlot;
+  reservation: SummaryReservationInput;
+  source: PreparedSummarySource;
+}): Promise<SummaryReservation> {
+  const { transaction, slot, reservation, source } = input;
   const number = slot.lastAttemptNumber + 1;
   await transaction.summaryGenerationSlot.update({
-    where: { id: slot.id }, data: { lastAttemptNumber: number, retryAt: input.retryAt },
+    where: { id: slot.id }, data: { lastAttemptNumber: number, retryAt: reservation.retryAt },
   });
   const attempt = await transaction.summaryAttempt.create({
     data: {
-      slotId: slot.id, number, status: 'running', startedAt: input.now, deadlineAt: input.deadlineAt,
-      configuration: input.configuration as Prisma.InputJsonValue,
-      configurationHash: input.configurationHash,
+      slotId: slot.id, number, status: 'running', startedAt: reservation.now, deadlineAt: reservation.deadlineAt,
+      configuration: reservation.configuration as Prisma.InputJsonValue,
+      configurationHash: reservation.configurationHash,
     },
   });
-  return reservationFromAttempt('created', slot.id, attempt);
+  return { ...reservationFromAttempt('created', slot.id, attempt), source };
 }
 
 function reservationFromAttempt(

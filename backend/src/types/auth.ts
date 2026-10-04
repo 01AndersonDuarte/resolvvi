@@ -20,6 +20,7 @@ export type AuthRepository = {
   replaceSession: (input: CreateSessionInput, previousTokenHash: string | null, revokedAt: Date) => Promise<AuthenticationSession>;
   findSessionByTokenHash: (tokenHash: string) => Promise<AuthenticationSession | null>;
   findValidSessionByTokenHash: (tokenHash: string, now: Date) => Promise<(AuthenticationSession & { user: AuthenticationUser }) | null>;
+  findValidSessionById: (sessionId: string, now: Date) => Promise<AuthenticationSession | null>;
   revokeSessionByTokenHash: (tokenHash: string, revokedAt: Date) => Promise<number>;
 };
 
@@ -27,6 +28,7 @@ export type AuthService = {
   register: (input: RegistrationInput) => Promise<MessageResponse>;
   login: (input: LoginInput, previousSecret?: string | null) => Promise<SessionGrant>;
   getSession: (secret: string | null) => Promise<SessionContext>;
+  getSessionById: (sessionId: string) => Promise<SessionContext>;
   logout: (secret: string | null) => Promise<void>;
 };
 

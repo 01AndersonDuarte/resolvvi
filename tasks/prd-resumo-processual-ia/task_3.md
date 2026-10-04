@@ -41,13 +41,13 @@ Após cada incremento coeso validado, revisar o diff, selecionar arquivos explic
 ## Subtarefas
 
 - [x] 3.1 Implementar configuração, adaptador real com transporte injetável e fake determinístico, classificando recusa, truncamento, limite, indisponibilidade e Retry-After.
-- [ ] 3.2 Compor executor, orçamento de cada etapa, capacidade local, marcação única de despacho, expiração e encerramento; tratar falhas antes/depois de callStartedAt e commit incerto.
-- [ ] 3.3 Implementar service de leitura, solicitação e feedback sobre os repositories; aplicar precedência de estados, reuso, invalidação e recuperação explícita.
-- [ ] 3.4 Ampliar autenticação interna por ID de sessão e implementar schemas, erros, router e controller das três rotas; não aceitar histórico, modelo, prompt ou identidade do usuário vindos do cliente.
-- [ ] 3.5 Serializar resumo, evidências por frase e voto exclusivo do solicitante, com mensagens e códigos da TechSpec.
-- [ ] 3.6 Instrumentar eventos e agregações de avaliação/reuso, excluindo polling do denominador; preservar sanitização e consumo ausente como null.
-- [ ] 3.7 Compor dependências em app/server, atualizar exemplos de ambiente sem segredos e documentar operação em instância única.
-- [ ] 3.8 Completar os casos unitários e de integração mapeados, incluindo contagem de chamadas e efeitos persistidos; executar os gates do backend.
+- [x] 3.2 Compor executor, orçamento de cada etapa, capacidade local, marcação única de despacho, expiração e encerramento; tratar falhas antes/depois de callStartedAt e commit incerto.
+- [x] 3.3 Implementar service de leitura, solicitação e feedback sobre os repositories; aplicar precedência de estados, reuso, invalidação e recuperação explícita.
+- [x] 3.4 Ampliar autenticação interna por ID de sessão e implementar schemas, erros, router e controller das três rotas; não aceitar histórico, modelo, prompt ou identidade do usuário vindos do cliente.
+- [x] 3.5 Serializar resumo, evidências por frase e voto exclusivo do solicitante, com mensagens e códigos da TechSpec.
+- [x] 3.6 Instrumentar eventos e agregações de avaliação/reuso, excluindo polling do denominador; preservar sanitização e consumo ausente como null.
+- [x] 3.7 Compor dependências em app/server, atualizar exemplos de ambiente sem segredos e documentar operação em instância única.
+- [x] 3.8 Completar os casos unitários e de integração mapeados, incluindo contagem de chamadas e efeitos persistidos; executar os gates do backend.
 
 ## Detalhes de implementação
 
@@ -95,27 +95,27 @@ Completar os cenários de repository iniciados na tarefa 2. TI-02 deve provar 20
 ### Testes de unidade
 
 - [x] TU-09 — Relógio cancela provedor e proíbe publicação tardia
-- [ ] TU-10 — Retry-After e cooldown são normalizados
-- [ ] TU-11 — Troca operacional preserva validade e troca de regras invalida
-- [ ] TU-16 — Evento operacional usa apenas campos permitidos
-- [ ] TU-17 — Elegibilidade do voto exige sessão, vínculo e versão atual
+- [x] TU-10 — Retry-After e cooldown são normalizados
+- [x] TU-11 — Troca operacional preserva validade e troca de regras invalida
+- [x] TU-16 — Evento operacional usa apenas campos permitidos
+- [x] TU-17 — Elegibilidade do voto exige sessão, vínculo e versão atual
 
 ### Testes de integração
 
-- [ ] TI-01 — Rotas aplicam sessão, origem, validação e vínculo de processo
-- [ ] TI-02 — Geração completa usa histórico integral e persiste corpo/evidências
-- [ ] TI-03 — Concorrência em dois services/clientes compartilha tentativa
-- [ ] TI-04 — Mudança de cada campo da fonte invalida leitura e publicação
-- [ ] TI-05 — Reinício preserva resumo e expira tentativa sem reenvio
-- [ ] TI-06 — Provedor falso cobre falhas, recusa, limite e atraso
-- [ ] TI-07 — Falha/commit incerto da persistência não publica sucesso aparente
-- [ ] TI-08 — Voto repetido, trocado e concorrente mantém uma linha
-- [ ] TI-09 — Nova versão preserva voto antigo e snapshot após remoção
-- [ ] TI-10 — Referências independem da página e preservam a fonte correta
-- [ ] TI-11 — Capacidade local limita execuções e cooldown sobrevive a reinícios
-- [ ] TI-12 — Logs e agregações mantêm denominadores corretos
-- [ ] TI-13 — Fonte revertida e regras alteradas geram nova identidade
-- [ ] TI-14 — Locks incluem escrita direta e encerramento interrompe operações
+- [x] TI-01 — Rotas aplicam sessão, origem, validação e vínculo de processo
+- [x] TI-02 — Geração completa usa histórico integral e persiste corpo/evidências
+- [x] TI-03 — Concorrência em dois services/clientes compartilha tentativa
+- [x] TI-04 — Mudança de cada campo da fonte invalida leitura e publicação
+- [x] TI-05 — Reinício preserva resumo e expira tentativa sem reenvio
+- [x] TI-06 — Provedor falso cobre falhas, recusa, limite e atraso
+- [x] TI-07 — Falha/commit incerto da persistência não publica sucesso aparente
+- [x] TI-08 — Voto repetido, trocado e concorrente mantém uma linha
+- [x] TI-09 — Nova versão preserva voto antigo e snapshot após remoção
+- [x] TI-10 — Referências independem da página e preservam a fonte correta
+- [x] TI-11 — Capacidade local limita execuções e cooldown sobrevive a reinícios
+- [x] TI-12 — Logs e agregações mantêm denominadores corretos
+- [x] TI-13 — Fonte revertida e regras alteradas geram nova identidade
+- [x] TI-14 — Locks incluem escrita direta e encerramento interrompe operações
 
 ## Arquivos relevantes
 

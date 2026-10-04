@@ -11,6 +11,44 @@ export type SaveSummaryFeedbackResult = {
   feedback: SummaryFeedbackRecord;
 } | null;
 
+export type SummaryFeedbackMetric = {
+  summaryId: string;
+  version: number;
+  configurationHash: string;
+  count: number;
+  positive: number;
+  rate: number | null;
+};
+
+export async function getSummaryFeedbackMetrics(
+  processId: number,
+  client: PrismaClient,
+): Promise<SummaryFeedbackMetric[]> {
+  const summaries = await client.processAiSummary.findMany({
+    where: { processId },
+    select: { id: true, version: true, attempt: { select: { configurationHash: true } } },
+  });
+  if (summaries.length === 0) return [];
+  const grouped = await client.summaryFeedbackRecord.groupBy({
+    by: ['summaryId', 'helpful'],
+    where: { summaryId: { in: summaries.map(({ id }) => id) } },
+    _count: { _all: true },
+  });
+  return summaries.map((summary) => {
+    const votes = grouped.filter(({ summaryId }) => summaryId === summary.id);
+    const count = votes.reduce((total, vote) => total + vote._count._all, 0);
+    const positive = votes.find(({ helpful }) => helpful)?._count._all ?? 0;
+    return {
+      summaryId: summary.id,
+      version: summary.version,
+      configurationHash: summary.attempt.configurationHash,
+      count,
+      positive,
+      rate: count === 0 ? null : positive / count,
+    };
+  });
+}
+
 export async function saveSummaryFeedback(input: {
   processId: number;
   summaryId: string;

@@ -36,6 +36,16 @@ npm run dev
 
 O health check `GET /health` confirma somente que o processo HTTP está respondendo. Solicitações de escrita exigem `Origin` igual a `PUBLIC_APP_URL`, conteúdo `application/json` e corpo de até 8 KiB.
 
+## Resumos processuais por IA
+
+Configure `SUMMARY_ENABLED`, `SUMMARY_PROVIDER`, `SUMMARY_MODEL`, `SUMMARY_CONTEXT_CAPACITY` e `OPENAI_API_KEY` no ambiente do backend. A configuração de exemplo mantém a geração desabilitada. Antes de habilitá-la, confirme operacionalmente o tratamento de dados processuais pelo provedor escolhido. O adaptador envia o histórico necessário à geração sem ferramentas e sem persistência remota solicitada.
+
+Execute inicialmente uma única instância do backend que processe gerações. A deduplicação e o cooldown são persistidos no PostgreSQL; o limite de quatro execuções é local à instância e não coordena capacidade entre réplicas. Implemente coordenação global antes de executar mais de uma instância geradora. O encerramento cancela e aguarda as gerações antes de fechar o Prisma.
+
+Os eventos `summary_*` registram somente identificadores internos, estados, categorias e unidades de consumo retornadas pelo provedor. Eles não registram CNJ, identidade do usuário, histórico, prompt, resposta ou credenciais. A ausência de uso retornado permanece como `null`.
+
+Leituras normais participam da contagem operacional de reuso; clientes que acompanham uma geração devem enviar `track=false` no GET de estado para excluir polling dessa contagem. Esse parâmetro afeta apenas instrumentação.
+
 Encerre o PostgreSQL local com `docker compose down`.
 
 ## Carga inicial do CSV

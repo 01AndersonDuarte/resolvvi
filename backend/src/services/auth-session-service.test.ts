@@ -21,7 +21,7 @@ const user: AuthenticationUser = {
   createdAt: NOW,
 };
 const repository = {
-  findUserByEmail: vi.fn(), replaceSession: vi.fn(), findValidSessionByTokenHash: vi.fn(),
+  findUserByEmail: vi.fn(), replaceSession: vi.fn(), findValidSessionByTokenHash: vi.fn(), findValidSessionById: vi.fn(),
   revokeSessionByTokenHash: vi.fn(),
 } as unknown as AuthRepository;
 const dependencies: AuthServiceDependencies = {
@@ -35,6 +35,7 @@ describe('session authentication service', () => {
   it('authenticates with the stored password and creates a secret session for eight hours', createsSession);
   it('uses the same rejection for an unknown account and an incorrect password', rejectsInvalidCredentials);
   it('loads a session from its secret digest without extending its expiration', restoresSession);
+  it('revalidates an internal session ID without returning a cookie', restoresSessionById);
   it('treats missing, expired, or revoked sessions as invalid', rejectsInvalidSessions);
   it('revokes a valid secret and surfaces infrastructure failure on logout', revokesSession);
 });
@@ -53,6 +54,10 @@ function resetSessionMocks(): void {
   vi.mocked(repository.findValidSessionByTokenHash).mockResolvedValue({
     id: 'session-id', userId: user.id, tokenHash: `digest:${secret}`, createdAt: NOW,
     expiresAt: new Date(NOW.getTime() + 8 * 60 * 60 * 1000), revokedAt: null, user,
+  });
+  vi.mocked(repository.findValidSessionById).mockResolvedValue({
+    id: 'session-id', userId: user.id, tokenHash: `digest:${secret}`, createdAt: NOW,
+    expiresAt: new Date(NOW.getTime() + 8 * 60 * 60 * 1000), revokedAt: null,
   });
   vi.mocked(repository.revokeSessionByTokenHash).mockResolvedValue(1);
 }
@@ -88,6 +93,16 @@ async function restoresSession(): Promise<void> {
 
   expect(repository.findValidSessionByTokenHash).toHaveBeenCalledWith(`digest:${secret}`, NOW);
   expect(result).toMatchObject({ sessionId: 'session-id', serverTime: NOW.toISOString(), userId: user.id });
+}
+
+async function restoresSessionById(): Promise<void> {
+  const result = await service.getSessionById('session-id');
+
+  expect(repository.findValidSessionById).toHaveBeenCalledWith('session-id', NOW);
+  expect(result).toMatchObject({ sessionId: 'session-id', userId: user.id, serverTime: NOW.toISOString() });
+  expect(result).not.toHaveProperty('secret');
+  vi.mocked(repository.findValidSessionById).mockResolvedValueOnce(null);
+  await expect(service.getSessionById('session-id')).rejects.toMatchObject({ status: 401, code: 'SESSION_INVALID' });
 }
 
 async function rejectsInvalidSessions(): Promise<void> {
