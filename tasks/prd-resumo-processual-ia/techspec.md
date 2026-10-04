@@ -6,6 +6,10 @@ Implementar o [PRD de resumo processual por IA](./prd.md) como recurso `process-
 
 Adotar POST com resposta `202` e acompanhamento temporário por GET, preservando os limites HTTP atuais de 12 segundos no servidor e 15 segundos no cliente. Cada tentativa tem prazo absoluto de 30 segundos, sem retomada automática da chamada após queda. PostgreSQL concentra coordenação e persistência; não adicionar Redis ou uma fila externa. Premissa técnica inicial de fornecedor e retenção confirmada pelo usuário: OpenAI Responses com `gpt-4.1-mini-2025-04-14`, substituível por configuração e adaptador. Credenciais, disponibilidade na conta e avaliação semântica real são dependências da implementação, não resultados desta entrega documental.
 
+### Escopo simplificado aprovado
+
+A implementação foi agrupada em cinco tarefas. Foram retirados o comprovante HMAC de apresentação e o endpoint de localização de referências; data e título por frase sustentam a conferência manual no histórico existente. O voto continua protegido por sessão, acesso, vínculo e atualidade, sem prova de entrega prévia à sessão. A capacidade será limitada localmente a quatro execuções, com implantação inicial restrita a uma instância executora de IA. Coordenação global fica adiada; deduplicação por processo/versão, cooldown, evidências imutáveis e proteção contra publicação tardia continuam no PostgreSQL. Antes de habilitar múltiplas instâncias executoras, implementar e validar a coordenação global. Os IDs dos testes foram preservados, com TU-15, TU-17, TI-10 e TI-11 adaptados ao escopo aprovado.
+
 ## Arquitetura do sistema
 
 ### Visão dos componentes
@@ -14,24 +18,24 @@ O estado atual foi inspecionado em 04/10/2026. Autenticação, consulta, detalhe
 
 | Componente novo ou modificado | Responsabilidade e integração |
 | --- | --- |
-| `backend/src/routers/process-ai-summary-router.ts` e `controllers/process-ai-summary-controller.ts` — novos | Quatro rotas autenticadas, validação, revalidação de sessão antes da resposta e serialização; montadas sob `/api`. |
-| `services/process-ai-summary-service.ts` — novo | Leitura, solicitação, validade, feedback e localização de evidência. Recebe repositories, provedor, relógio e executor por injeção na composição existente. |
-| `services/summary-generation-service.ts` — novo | Executa a tentativa reservada, controla orçamento, aborta o provedor e impede publicação tardia. Registro local de operações serve apenas ao cancelamento/desligamento. |
+| `backend/src/routers/process-ai-summary-router.ts` e `controllers/process-ai-summary-controller.ts` — novos | Três rotas autenticadas, validação, revalidação de sessão antes da resposta e serialização; montadas sob `/api`. |
+| `services/process-ai-summary-service.ts` — novo | Leitura, solicitação, validade, feedback e serialização das evidências. Recebe repositories, provedor, relógio e executor por injeção na composição existente. |
+| `services/summary-generation-service.ts` — novo | Executa a tentativa reservada, controla orçamento, aborta o provedor e impede publicação tardia. Registro local controla capacidade, cancelamento e desligamento; a deduplicação permanece no banco. |
 | `services/summary-source-service.ts` — novo | Representação canônica, digest, fonte integral, elegibilidade e previsão conservadora de contexto. |
 | `services/summary-prompt-service.ts` e `summary-validation-service.ts` — novos | Prompt versionado, contrato estruturado, validação de formato, referências e violações detectáveis. |
 | `services/openai-summary-service.ts` — novo | Adaptador externo com `fetch` do Node, uma requisição, `AbortSignal`, sem retries e sem ferramentas. Contrato independente em `types/summary-provider.ts`. |
 | `repositories/process-ai-summary-repository.ts` — novo | Transações de leitura consistente, reserva e publicação. Separar operações de tentativa em `summary-attempt-repository.ts` e voto em `summary-feedback-repository.ts` para responsabilidades e limites de tamanho. |
 | `schemas/process-ai-summary-schema.ts`, `errors/process-ai-summary-errors.ts`, `types/process-ai-summary.ts` — novos; `types/errors.ts` — alterado | Joi, novos códigos em `PublicErrorCode`, erros públicos e contratos agrupados por contexto. Reexports explícitos nos barrels das camadas. |
-| `config/summary-environment-schema.ts`, `config/envs.ts`, `types/config.ts` — novos/alterados | Configuração validada do provedor, capacidade e assinatura de comprovante de apresentação. |
+| `config/summary-environment-schema.ts`, `config/envs.ts`, `types/config.ts` — novos/alterados | Configuração validada do provedor e capacidade local/contexto. |
 | `prisma/schema.prisma` e migration gerada — alterados/novos | Cinco entidades descritas abaixo, relações, unicidade e índices expressáveis no Prisma; sem SQL de migration escrito manualmente. |
 | `app.ts`, `server.ts`, `shutdown.ts`, `types/http.ts` — alterados | Compor router, executor e fechamento de operações de IA antes de desconectar o banco. |
 | `services/auth-service.ts`, `repositories/auth-repository.ts`, `types/auth.ts` — alterados | Acrescentar consulta interna de sessão válida por ID para revalidar a sessão iniciadora antes do envio externo, sem reter o cookie. Não expor nova rota de autenticação. |
-| `repositories/movement-repository.ts` — alterado | Acrescentar `id ASC` ao desempate do histórico integral. Reutilizar a ordenação pública de página para resolver referências. |
+| `repositories/movement-repository.ts` — alterado | Acrescentar `id ASC` ao desempate do histórico integral, preservando a paginação pública existente. |
 | `frontend/src/services/process-ai-summary-service.ts`, `process-ai-summary-response.ts`, `process-ai-summary-feedback.ts` — novos | Chamadas HTTP, leitura de JSON desconhecido, contratos e mensagens em português. |
 | `hooks/useProcessAiSummary.ts`, `useSummaryFeedback.ts` — novos | Leitura inicial, clique, acompanhamento limitado, cancelamento e voto confirmado. Reutilizam `useAuthRequest`/`useRequest` e o fluxo de expiração da sessão. |
 | `components/ProcessAiSummary.tsx`, `SummaryContent.tsx`, `SummaryState.tsx`, `SummaryReferences.tsx`, `SummaryFeedback.tsx` — novos | Seção, corpo em parágrafos, avisos, referências e avaliação. Componentes pequenos, props explícitas e Tailwind existente. |
-| `views/ProcessFoundView.tsx`, `components/ProcessMovements.tsx`, `MovementItem.tsx`, `hooks/useProcessMovements.ts` — alterados | Inserir IA entre dados gerais e histórico; permitir carregar a página de uma referência, expandir o evento e focar sua âncora. |
-| `frontend/src/types/ai-summary.ts`, `ai-summary-state.ts`, `summary-attempt.ts`, `summary-reference.ts`, `summary-feedback.ts`, `summary-feedback-input.ts`, `summary-reference-location.ts` — novos | Um tipo de domínio por arquivo, sem conflito com `process-summary.ts`, que já representa resultado da busca CNJ. |
+| `views/ProcessFoundView.tsx` — alterado | Inserir IA entre dados gerais e histórico, preservando a navegação manual das movimentações. |
+| `frontend/src/types/ai-summary.ts`, `ai-summary-state.ts`, `summary-attempt.ts`, `summary-reference.ts`, `summary-feedback.ts`, `summary-feedback-input.ts` — novos | Um tipo de domínio por arquivo, sem conflito com `process-summary.ts`, que já representa resultado da busca CNJ. |
 | Testes adjacentes, fixtures e `e2e/process-ai-summary.spec.ts` — novos | Cenários rastreados a CA/RF. `backend/src/e2e-harness.ts` injeta provedor falso e controles exclusivos do ambiente isolado. |
 
 Fluxo de leitura: página autenticada → GET do resumo → fonte atual + versão de regras + voto do solicitante → resumo reutilizado ou estado. Fluxo de geração: clique → reserva transacional → `202` → executor local → provedor → validação → publicação transacional → GET retorna resumo. Nenhuma leitura, paginação ou avaliação chama a LLM.
@@ -40,10 +44,10 @@ Fluxo de leitura: página autenticada → GET do resumo → fonte atual + versã
 
 1. Fonte canônica inclui `processId`, IDs, data civil ISO, título original, conteúdo original ou `null` e `sourceOrder`, ordenada por data ASC, ordem ASC, ID ASC. Usar serialização JSON com ordem fixa de campos, versão `source-v1` e SHA-256. Não normalizar espaços ou conteúdo antes do hash. A data civil não ganha horário jurídico.
 2. `SummarySourceState`, único por processo, registra o último hash observado e uma revisão crescente. Cada mudança observada cria nova revisão; se uma fonte anterior retornar após invalidação, recebe nova revisão e não reativa resumo/votos substituídos. Alteração seguida de reversão antes de qualquer leitura, sem resumo gerado nesse intervalo, é semanticamente a mesma fonte observável.
-3. Para verificar a fonte e realizar leitura publicável, reserva, publicação, voto ou resolução de referência, usar transação curta em `ReadCommitted`: primeiro bloqueio consultivo transacional de capacidade quando houver reserva; depois `LOCK TABLE "Movement" IN SHARE MODE`; depois bloqueio da linha `Process` com `FOR UPDATE`, e finalmente registros de IA. Recalcular a fonte após os locks. O lock de tabela também cobre inclusão/remoção/alteração por SQL e movimentação entre processos, sem exigir triggers ou modificar a importação. Ele permite leituras e impede escritas de movimentos apenas durante a transação; nunca mantê-lo durante a chamada externa. Ordem de locks uniforme, `lock_timeout` de 250 ms e orçamento transacional de até 2 s, reduzido pelo prazo restante.
+3. Para verificar a fonte e realizar leitura publicável, reserva, publicação ou voto, usar transação curta em `ReadCommitted`: primeiro `LOCK TABLE "Movement" IN SHARE MODE`; depois bloqueio da linha `Process` com `FOR UPDATE`, e finalmente registros de IA. Recalcular a fonte após os locks. O lock de tabela também cobre inclusão/remoção/alteração por SQL e movimentação entre processos, sem exigir triggers ou modificar a importação. Ele permite leituras e impede escritas de movimentos apenas durante a transação; nunca mantê-lo durante a chamada externa. Ordem de locks uniforme, `lock_timeout` de 250 ms e orçamento transacional de até 2 s, reduzido pelo prazo restante.
 4. A granularidade de tabela é uma decisão inicial para a base importada com escrita pouco frequente. Sua contenção deve ser medida; evolução para revisões mantidas em todos os caminhos de escrita exige outro desenho e testes. Não presumir que bloquear somente `Process` impeça updates de campos de `Movement`. A escolha se apoia nos [modos de lock do PostgreSQL](https://www.postgresql.org/docs/current/explicit-locking.html).
 5. `SummaryGenerationSlot` é único por processo/revisão/regras, contém número da última tentativa e instante mínimo de repetição. Sob lock, uma tentativa não expirada é compartilhada; um resumo válido é reutilizado; falha vencida admite outra tentativa somente por POST explícito. Não usar índice parcial, promessa em memória ou expiração de cache como garantia.
-6. A reserva também serializa a contagem global de tentativas ativas através de advisory lock transacional com namespace fixo. Limite inicial: quatro tentativas não expiradas em toda a aplicação, sem fila de espera. Excedente recebe indisponibilidade com espera de 30 s; esse limite técnico não é meta de volume aprovada.
+6. Limitar o executor local a quatro operações de geração, sem fila. Adquirir lugar local atomicamente antes de iniciar uma nova reserva; liberar em falha de reserva, reutilização, adesão a tentativa existente ou término da execução. Reutilizar resumo válido e compartilhar tentativa existente mesmo com capacidade cheia; revalidar a chave sob lock antes de criar tentativa. Excedente recebe indisponibilidade com espera de 30 s. A implantação inicial exige uma única instância executora; o limite não é uma garantia global entre instâncias nem entre execuções externas residuais após reinício. Tentativas antigas continuam sujeitas ao deadline e nunca são reenviadas. A unicidade por chave e o cooldown permanecem transacionais e duráveis; não usar o limite local como deduplicação.
 7. O executor recebe o ID reservado e o ID interno da sessão iniciadora em memória (sem cookie), revalida a sessão e tenta gravar `callStartedAt` condicionalmente, uma vez. Se já houver marcação, prazo vencido ou estado terminal, não chama o provedor. Queda entre essa gravação e o envio pode consumir a tentativa sem chamada; a escolha preserva a garantia de no máximo uma chamada. Instâncias novas nunca reenviam tentativas antigas.
 8. Na publicação, conferir novamente fonte, revisão, regras, tentativa, validade temporal e estado. Persistir resumo imutável e marcar sucesso na mesma transação. Chave única por slot impede versões equivalentes simultâneas. Resposta tardia, fonte alterada ou regras alteradas encerram sem publicação. Toda leitura determina atualidade novamente, inclusive após reinício.
 
@@ -66,7 +70,6 @@ type ProcessAiSummaryService = {
   read: (input: SummaryReadInput) => Promise<AiSummaryState>;
   requestGeneration: (input: SummaryRequestInput) => Promise<AiSummaryState>;
   saveFeedback: (input: SummaryFeedbackCommand) => Promise<SummaryFeedbackResult>;
-  locateReference: (input: SummaryReferenceQuery) => Promise<SummaryReferenceLocation>;
 };
 ```
 
@@ -139,11 +142,10 @@ Exemplo: `{"movementId":901,"date":"01/09/2026","title":"Petição juntada","par
 | `movementCount` | integer | sim | Quantidade total de registros considerados, inclusive registros vazios da fonte. |
 | `references` | SummaryReference[] | sim | Evidências por frase. |
 | `myFeedback` | SummaryFeedback ou null | sim | Somente voto da sessão solicitante. |
-| `presentationReceipt` | string opaca | sim | HMAC vinculado à sessão, resumo e expiração da sessão, emitido apenas nesta leitura. |
 
-Exemplo: `{"id":"752a061e-31b0-44c4-bf41-c83e72670ea1","version":1,"paragraphs":["Foi registrada a inclusão de uma petição no processo. Esse registro, sozinho, não informa a situação geral do processo."],"generatedAt":"2026-10-04T13:00:08.000Z","movementCount":1,"references":[{"movementId":901,"date":"01/09/2026","title":"Petição juntada","paragraphIndex":0,"sentenceIndex":0,"sentenceText":"Foi registrada a inclusão de uma petição no processo."},{"movementId":901,"date":"01/09/2026","title":"Petição juntada","paragraphIndex":0,"sentenceIndex":1,"sentenceText":"Esse registro, sozinho, não informa a situação geral do processo."}],"myFeedback":null,"presentationReceipt":"opaque-signed-value"}`.
+Exemplo: `{"id":"752a061e-31b0-44c4-bf41-c83e72670ea1","version":1,"paragraphs":["Foi registrada a inclusão de uma petição no processo. Esse registro, sozinho, não informa a situação geral do processo."],"generatedAt":"2026-10-04T13:00:08.000Z","movementCount":1,"references":[{"movementId":901,"date":"01/09/2026","title":"Petição juntada","paragraphIndex":0,"sentenceIndex":0,"sentenceText":"Foi registrada a inclusão de uma petição no processo."},{"movementId":901,"date":"01/09/2026","title":"Petição juntada","paragraphIndex":0,"sentenceIndex":1,"sentenceText":"Esse registro, sozinho, não informa a situação geral do processo."}],"myFeedback":null}`.
 
-O comprovante atesta que o servidor entregou a versão à sessão; não comprova leitura humana. Verificar assinatura em tempo constante, sessão e resumo atuais ao votar. Não registrar o comprovante em logs, persistir no navegador ou compartilhar entre usuários.
+Somente a interface condiciona a oferta de voto à apresentação do resumo. No servidor, verificar sessão válida, acesso ao processo, vínculo e atualidade do resumo; usuário vem exclusivamente da sessão. Não exigir comprovante de entrega prévia nem afirmar comprovação de leitura humana.
 
 #### `SummaryAttemptView` — acompanhamento público
 
@@ -195,23 +197,12 @@ Precedência na leitura: falha de banco é erro HTTP; depois verificar fonte/reg
 | Contrato/campo | Tipo | Obrigatório | Descrição |
 | --- | --- | --- | --- |
 | Input `helpful` | boolean | sim | `true` = Sim, `false` = Não; rejeitar coerção de strings. |
-| Input `presentationReceipt` | string | sim | Comprovante da apresentação desta versão à sessão. |
 | Voto `helpful` | boolean | sim | Valor persistido vigente. |
 | Voto `createdAt`, `updatedAt` | instante UTC | sim | Repetição idêntica preserva ambos; troca atualiza `updatedAt`. |
 | Resultado `feedback` | SummaryFeedback | sim | Estado confirmado após commit. |
 | Resultado `outcome` | `created`, `updated`, `unchanged` | sim | Mensagem “Avaliação registrada” ou “Avaliação atualizada”. |
 
-Exemplos: entrada `{"helpful":true,"presentationReceipt":"opaque-signed-value"}`; voto `{"helpful":true,"createdAt":"2026-10-04T13:01:00.000Z","updatedAt":"2026-10-04T13:01:00.000Z"}`; resposta `{"feedback":{"helpful":false,"createdAt":"2026-10-04T13:01:00.000Z","updatedAt":"2026-10-04T13:02:00.000Z"},"outcome":"updated"}`.
-
-#### `SummaryReferenceLocation` — localização no histórico existente
-
-| Campo | Tipo | Obrigatório | Descrição |
-| --- | --- | --- | --- |
-| `processId`, `movementId` | integer | sim | Identidades conferidas no servidor. |
-| `page`, `pageSize` | integer; literal 20 | sim | Página calculada na ordenação DESC data, ASC ordem/ID. |
-| `anchor` | string | sim | `movement-<id>`, identificador local controlado. |
-
-Exemplo: `{"processId":42,"movementId":901,"page":3,"pageSize":20,"anchor":"movement-901"}`. Calcular a posição contando eventos anteriores na ordenação pública: página = parte inteira da posição baseada em zero /20 +1. Não usar a ordem cronológica da geração para essa conta.
+Exemplos: entrada `{"helpful":true}`; voto `{"helpful":true,"createdAt":"2026-10-04T13:01:00.000Z","updatedAt":"2026-10-04T13:01:00.000Z"}`; resposta `{"feedback":{"helpful":false,"createdAt":"2026-10-04T13:01:00.000Z","updatedAt":"2026-10-04T13:02:00.000Z"},"outcome":"updated"}`.
 
 #### `SummaryApiError` — envelope de erro
 
@@ -222,11 +213,11 @@ Preservar `{error: {code, field, message, retryAfterSeconds}}`. `field` fica `nu
 | `INVALID_INPUT` | 400 / 413 / 415 | Entrada inválida, corpo acima de 8 KiB ou Content-Type diferente de JSON; campos desconhecidos rejeitados. |
 | `SESSION_INVALID` | 401 | Sessão ausente, expirada ou revogada. |
 | `ORIGIN_FORBIDDEN` | 403 | Origem recusada pelo middleware existente. |
-| `PROCESS_NOT_FOUND`, `SUMMARY_NOT_FOUND`, `REFERENCE_NOT_FOUND` | 404 | Recurso inexistente ou sem vínculo; não expor existência em outro processo. |
-| `SUMMARY_NOT_CURRENT`, `SUMMARY_PRESENTATION_INVALID` | 409 | Versão substituída ou comprovante não vinculado à sessão/versão. |
+| `PROCESS_NOT_FOUND`, `SUMMARY_NOT_FOUND` | 404 | Recurso inexistente ou sem vínculo; não expor existência em outro processo. |
+| `SUMMARY_NOT_CURRENT` | 409 | Versão substituída. |
 | `SUMMARY_NOT_ELIGIBLE` | 422 | POST sem fonte utilizável ou com contexto excedido. |
 | `SUMMARY_RETRY_TOO_SOON` | 429 | Cooldown por chave; enviar também `Retry-After`. |
-| `SUMMARY_CAPACITY_EXCEEDED` | 503 | Quatro tentativas em andamento; espera mínima 30 s. |
+| `SUMMARY_CAPACITY_EXCEEDED` | 503 | Quatro execuções locais em andamento; espera mínima 30 s. |
 | `SUMMARY_READ_FAILED`, `SUMMARY_SAVE_FAILED`, `SUMMARY_FEEDBACK_FAILED` | 503 | Persistência indisponível; nenhuma confirmação de sucesso. |
 | `REQUEST_TIMEOUT` | 504 | Prazo HTTP existente. Não equivale automaticamente a falha definitiva da tentativa assíncrona. |
 
@@ -248,9 +239,8 @@ Exemplo: `{"error":{"code":"SUMMARY_READ_FAILED","field":null,"message":"Não fo
 | Parâmetro | Valor inicial e regra |
 | --- | --- |
 | `SUMMARY_PROVIDER` / `SUMMARY_MODEL` | `openai` / `gpt-4.1-mini-2025-04-14`; modelo configurável, nunca recebido da UI. |
-| `SUMMARY_ENABLED` | `false` por padrão; desabilita apenas geração externa. Resumos compatíveis continuam legíveis e avaliáveis com a configuração permanente da aplicação; geração retorna indisponibilidade. |
+| `SUMMARY_ENABLED` | `false` por padrão; desabilita apenas geração externa. Resumos compatíveis continuam legíveis e avaliáveis; geração retorna indisponibilidade. |
 | `SUMMARY_API_KEY` | Segredo somente no servidor; obrigatório apenas com geração habilitada. |
-| `SUMMARY_PRESENTATION_SECRET` | Segredo permanente da aplicação de pelo menos 32 bytes, obrigatório ao montar as rotas de resumo, inclusive com geração desabilitada. Sua rotação invalida comprovantes e exige nova leitura, sem invalidar resumos. |
 | URL do adaptador | HTTPS oficial, validada na configuração; nenhum destino deriva de movimento, erro ou payload do cliente. |
 | `rulesVersion` | `summary-rules-v1`, constante do artefato de prompt/schema/validação. |
 | Capacidade efetiva | 131.072 unidades conservadoras, abaixo da janela documentada de 1.047.576 tokens do modelo inicial. |
@@ -349,7 +339,6 @@ Voto bloqueia o processo e verifica fonte/versão/sessão na transação antes d
 | GET | `/api/processes/:id/ai-summary` | Consulta o estado atual, incluindo tentativa em andamento e voto do usuário. |
 | POST | `/api/processes/:id/ai-summary/generations` | Inicia ou compartilha uma tentativa; reutiliza resumo válido. |
 | POST | `/api/processes/:id/ai-summary/:summaryId/feedback` | Cria, repete ou altera voto com semântica idempotente. |
-| GET | `/api/processes/:id/ai-summary/:summaryId/references/:movementId` | Localiza um evento citado na paginação existente. |
 
 Todas as rotas herdam cookie, `no-store`, CORS e política de origem existentes. IDs e UUIDs são estritos; parâmetros extras são rejeitados. `attemptId` no GET somente classifica acompanhamento; desconhecido ou de outro processo retorna 404 `SUMMARY_NOT_FOUND`. Controladores revalidam sessão antes de entregar dados. Mutação valida sessão também antes da reserva/gravação; executor revalida a sessão iniciadora imediatamente antes do primeiro envio externo, usando ID interno da sessão, sem guardar cookie no snapshot. Implementar `AuthService.getSessionById(sessionId)` sobre `AuthRepository.findValidSessionById(sessionId, now)`, verificando revogação e expiração com as mesmas regras atuais; o ID é contexto interno recebido do middleware, nunca dado confiável enviado pela UI. Depois de uma chamada autorizada iniciada, o trabalho compartilhado pode terminar após logout, mas seus dados só são entregues a sessões válidas.
 
@@ -409,13 +398,13 @@ Todas as rotas herdam cookie, `no-store`, CORS e política de origem existentes.
 | Parâmetro | Tipo | Padrão | Regras |
 | --- | --- | --- | --- |
 | `id`, `summaryId` — path | integer positivo, UUID | — | Resumo atual pertencente ao processo. |
-| `helpful`, `presentationReceipt` — corpo | boolean, string | — | SummaryFeedbackInput; usuário vem exclusivamente da sessão. |
+| `helpful` — corpo | boolean | — | SummaryFeedbackInput; usuário vem exclusivamente da sessão. |
 
 | Status | Corpo | Quando |
 | --- | --- | --- |
 | 200 | Resultado com `feedback`, `outcome` | Criado, alterado ou repetido após commit confirmado. |
 | 400 / 401 / 403 / 404 / 413 / 415 | SummaryApiError | Entrada, sessão, origem, tamanho, tipo de conteúdo, resumo ou vínculo inválido. |
-| 409 | SummaryApiError | Resumo substituído ou comprovante inválido. |
+| 409 | SummaryApiError | Resumo substituído. |
 | 503 / 504 | SummaryApiError | Falha de persistência/timeout, sem confirmação. |
 
 **Exemplo — sucesso:** POST do `SummaryFeedbackInput` ao resumo do exemplo retorna `outcome: created` com voto persistido.
@@ -428,33 +417,9 @@ Todas as rotas herdam cookie, `no-store`, CORS e política de origem existentes.
 
 ---
 
-#### `GET /api/processes/:id/ai-summary/:summaryId/references/:movementId`
-
-| Parâmetro | Tipo | Padrão | Regras |
-| --- | --- | --- | --- |
-| `id`, `movementId` — path | integer positivo | — | Movimento deve estar entre as referências do resumo. |
-| `summaryId` — path | UUID | — | Versão atual e pertencente ao processo. |
-
-| Status | Corpo | Quando |
-| --- | --- | --- |
-| 200 | SummaryReferenceLocation | Referência atual localizada. |
-| 400 / 401 / 404 | SummaryApiError | Entrada, sessão ou recurso sem vínculo. |
-| 409 | SummaryApiError `SUMMARY_NOT_CURRENT` | Fonte alterada, inclusive remoção da referência. |
-| 503 / 504 | SummaryApiError | Falha de consulta. |
-
-**Exemplo — sucesso:** GET para o resumo do exemplo e movimento 901 retorna o exemplo `page: 3` do contrato de localização.
-
-**Exemplo — evento ausente da versão:** retorna 404 `REFERENCE_NOT_FOUND`, sem consultar outro processo.
-
-**Exemplo — alteração concorrente:** retorna 409 `SUMMARY_NOT_CURRENT`; a UI retira o resumo antigo e recupera seu estado.
-
-> Após localização, carregar a página pelo endpoint de movimentos existente e fazer nova leitura do estado do resumo. Só expandir e focar `movement-901` com `tabIndex=-1` se a mesma versão continuar atual e o ID estiver na página. Essa revalidação detecta também edição de título/data/conteúdo sem troca de ID; se necessário recarregar a página após a atualização. Não apresentar a página carregada como evidência verificada antes dessa leitura. Se a fonte mudar entre localização e a verificação final, não focar outro evento: reler o estado do resumo e oferecer recuperação. A página compõe uma navegação controlada por referência, sem mover todo o estado de IA para o histórico.
-
----
-
 ## Pontos de integração
 
-O adaptador inicial utiliza a Responses API por HTTPS com autenticação Bearer somente no backend. `fetch` nativo atende à chamada única, timeout e JSON; não adicionar SDK, framework de agentes, ferramentas de busca ou biblioteca de filas. Usar Joi existente para contratos e `node:crypto` para hash/HMAC. Acrescentar apenas `franc-min` à aplicação backend e seu lock file; frontend usa bibliotecas já instaladas.
+O adaptador inicial utiliza a Responses API por HTTPS com autenticação Bearer somente no backend. `fetch` nativo atende à chamada única, timeout e JSON; não adicionar SDK, framework de agentes, ferramentas de busca ou biblioteca de filas. Usar Joi existente para contratos e `node:crypto` para hash. Acrescentar apenas `franc-min` à aplicação backend e seu lock file; frontend usa bibliotecas já instaladas.
 
 O modelo inicial oferece saída estruturada e janela de 1.047.576 tokens; fixar o snapshot permite repetir a avaliação. Essa escolha é uma hipótese técnica adequada ao formato e à base medida, não uma afirmação de superioridade, de latência garantida ou de qualidade já demonstrada. Confirmar acesso na conta antes da avaliação real. [Documentação do modelo](https://developers.openai.com/api/docs/models/gpt-4.1-mini).
 
@@ -466,7 +431,7 @@ Transações Prisma devem permanecer curtas e não conter chamadas externas. Tra
 
 No React, leitura inicial ocorre em Effect com cleanup; geração e voto em handlers. Chave processo/geração da sessão já existente deve reiniciar a subárvore. O hook descarta resposta com processo, resumo, tentativa ou geração de sessão desatualizados. Um watchdog local encerra a espera em até 30 s desde o clique; nas abas que aderem, usa tempo restante informado pelo servidor. Cada GET continua sujeito ao timeout HTTP existente, limitado também pelo watchdog. Encerramento por rede mostra recuperação de leitura; não pressupõe cancelamento do trabalho compartilhado no servidor. Não fazer polling de resumos já concluídos, nem manter polling periódico da fonte.
 
-A seção usa `section` com `h2`, corpo em `<p>`, aviso permanente literal de RF27, data de geração, quantidade e referências externas ao corpo. Voto usa grupo com nome “Este resumo foi útil?” e botões “Sim”/“Não” com `aria-pressed`; mensagens em `role=status`/`aria-live=polite`, foco visível, texto além de cor. Gerar não move foco compulsoriamente. Referência acionada pelo usuário move foco ao evento; preservar navegação e controles visíveis a 320 px e zoom 200%, usando tokens existentes. Sem HTML injetado ou renderizador Markdown.
+A seção usa `section` com `h2`, corpo em `<p>`, aviso permanente literal de RF27, data de geração, quantidade e referências externas ao corpo. Voto usa grupo com nome “Este resumo foi útil?” e botões “Sim”/“Não” com `aria-pressed`; mensagens em `role=status`/`aria-live=polite`, foco visível, texto além de cor. Gerar não move foco compulsoriamente. Referências são texto por frase com data e título; a pessoa consulta o histórico pela paginação existente, sem salto, expansão ou foco automáticos; preservar navegação e controles visíveis a 320 px e zoom 200%, usando tokens existentes. Sem HTML injetado ou renderizador Markdown.
 
 ## Abordagem de testes
 
@@ -490,9 +455,9 @@ Vitest nos dois aplicativos, React Testing Library, Supertest e PostgreSQL isola
 | TU-12 | Estados visuais e geração dependem de clique | CA-01, CA-04, CA-06, CA-19 | Avisos/ações corretos; GET, render e paginação não geram. |
 | TU-13 | Hook encerra polling e descarta processo/sessão anteriores | CA-11, CA-13, CA-20 | Nenhuma espera infinita nem mistura de respostas. |
 | TU-14 | Feedback confirma somente gravação e preserva voto em erro | CA-15, CA-17 | Sem otimismo; botões bloqueados durante envio; mensagens corretas. |
-| TU-15 | Localização carrega página, expande e foca o evento correto | CA-19, CA-22 | Sem foco em evento diferente se resposta atrasar. |
-| TU-16 | Evento operacional usa apenas campos permitidos | CA-21 | Prompts, texto, cookie, receipt e resposta bruta ausentes. |
-| TU-17 | Comprovante de apresentação vincula sessão e resumo | CA-16, CA-20 | Assinatura alterada/expirada/de outra sessão rejeitada. |
+| TU-15 | Referências exibem frase, data e título para conferência manual | CA-19, CA-22 | Evidências separadas do corpo e legíveis por tecnologia assistiva, sem navegação automática ou nova geração. |
+| TU-16 | Evento operacional usa apenas campos permitidos | CA-21 | Prompts, texto, cookie e resposta bruta ausentes. |
+| TU-17 | Elegibilidade do voto exige sessão, vínculo e versão atual | CA-16, CA-20 | Sessão inválida, resumo ausente/substituído ou de outro processo rejeitados; usuário deriva da sessão, sem comprovante de apresentação. |
 | TU-18 | Regras de fixtures semânticas têm fatos e proibições explícitas | CA-02, CA-03, CA-07 | Regressões preservadas verificam frases/evidências, sem igualdade total de redação. |
 
 Fixtures versionadas em `backend/src/services/fixtures/process-ai-summary/`: histórico sintético, fatos permitidos, conclusões proibidas, evidências esperadas, resposta preservada e resultado da rubrica. Incluir sentença sem resultado, contradição, poucos eventos, empate de data, fato fora da primeira página e instrução maliciosa. TU-18 valida o conjunto preservado e regras determinísticas; não substitui a avaliação do modelo real.
@@ -510,23 +475,23 @@ Fixtures versionadas em `backend/src/services/fixtures/process-ai-summary/`: his
 | TI-07 | Falha/commit incerto da persistência não publica sucesso aparente | CA-14 | Snapshot/summary/attempt atômicos; leitura reconcilia commit confirmado tardiamente na rede. |
 | TI-08 | Voto repetido, trocado e concorrente mantém uma linha | CA-15, CA-16, CA-17 | Último commit prevalece; falha preserva estado anterior. |
 | TI-09 | Nova versão preserva voto antigo e snapshot após remoção | CA-10, CA-18 | Voto novo inicia vazio; evidência antiga permanece recuperável no banco. |
-| TI-10 | Referência fora da página e corrida de remoção mantêm identidade | CA-05, CA-19, CA-22 | Página correta ou erro de versão, nunca outro evento/processo. |
-| TI-11 | Capacidade global e cooldown sobrevivem a instâncias/reinícios | CA-11, CA-13, CA-21 | Máximo quatro ativas e intervalo maior do provedor respeitado no servidor. |
+| TI-10 | Referências independem da página e preservam a fonte correta | CA-05, CA-18, CA-19 | GET inclui evidências por frase de todo o histórico; remoção invalida a leitura atual e preserva o snapshot antigo, sem endpoint de localização. |
+| TI-11 | Capacidade local limita execuções e cooldown sobrevive a reinícios | CA-11, CA-13, CA-21 | Máximo quatro execuções no executor único; reuso/adesão não consomem lugar, falhas liberam capacidade e intervalo maior do provedor permanece no banco. |
 | TI-12 | Logs e agregações mantêm denominadores corretos | CA-21 | Troca altera contagem sem duplicar; zero votos resulta taxa null. |
 | TI-13 | Fonte revertida e regras alteradas geram nova identidade | CA-10, CA-12, CA-18 | Versão substituída não é reativada; troca só do provedor reutiliza. |
 | TI-14 | Locks incluem escrita direta e encerramento interrompe operações | CA-11, CA-13, CA-23 | Fonte não muda entre checagem e commit; nenhuma chamada externa dentro de transação. |
 
-TI-04 e TI-14 usam duas conexões reais e barreiras controladas, sem sleeps arbitrários, incluindo escrita em movimento por SQL e inserção concorrente. TI-07 cobre falha antes do commit, rollback e perda de confirmação após commit. TI-08 inclui sessões distintas, tentativa de voto em resumo de outro processo, comprovante de outro usuário, ausência de resumo e mudança da fonte durante voto. Todos os testes têm assertivas de número de chamadas e efeitos persistidos, não apenas HTTP.
+TI-04 e TI-14 usam duas conexões reais e barreiras controladas, sem sleeps arbitrários, incluindo escrita em movimento por SQL e inserção concorrente. TI-07 cobre falha antes do commit, rollback e perda de confirmação após commit. TI-08 inclui sessões distintas, tentativa de voto em resumo de outro processo, tentativa de informar outro usuário no corpo, ausência de resumo e mudança da fonte durante voto. Todos os testes têm assertivas de número de chamadas e efeitos persistidos, não apenas HTTP.
 
 ### Testes E2E (se aplicável)
 
 | ID | Nome do caso de teste | Critérios de aceitação | Resultado esperado |
 | --- | --- | --- | --- |
-| E2E-01 | Consultar, gerar, conferir referência, votar, trocar e recarregar | CA-01, CA-02, CA-05, CA-09, CA-15, CA-19 | Fluxo real com API/banco; recarga e paginação reutilizam uma chamada. |
+| E2E-01 | Consultar, gerar, conferir referência, votar, trocar e recarregar | CA-01, CA-02, CA-05, CA-09, CA-15, CA-19 | Fluxo real com API/banco e conferência manual de referência fora da primeira página; recarga e paginação reutilizam uma chamada. |
 | E2E-02 | Atualizar após alteração da fonte com outra aba concorrente | CA-10, CA-11, CA-18 | Texto antigo retirado, atualização por clique, novo voto vazio. |
 | E2E-03 | Falhas de geração/leitura/voto recuperam sem afetar histórico | CA-04, CA-06, CA-13, CA-14, CA-17 | Mensagens e ações específicas; nenhum resumo parcial. Casos parametrizados. |
 | E2E-04 | Trocar processo e expirar sessão durante geração | CA-11, CA-20 | Resposta antiga descartada e retorno ao fluxo de sessão existente. |
-| E2E-05 | Operar por teclado em celular, desktop e zoom 200% | CA-19, CA-22, CA-23 | Foco, anúncios, referências e voto acessíveis, sem cortes. |
+| E2E-05 | Operar por teclado em celular, desktop e zoom 200% | CA-19, CA-22, CA-23 | Foco, anúncios, leitura de referências, paginação manual e voto acessíveis, sem cortes. |
 
 E2E usa backend real com adaptador falso injetado no harness, contagem verificável de chamadas e controles locais para mudar fonte/expirar sessão. Não interceptar toda a API para simular um fluxo que deveria testar persistência. Preservar E2E anteriores de autenticação, consulta e detalhes.
 
@@ -543,7 +508,7 @@ Na implementação, executar em cada aplicativo `npm run lint`, `npm run typeche
 1. Contratos, fonte canônica, prompt, fixtures e validadores: fixam formato, chave e limites antes da integração externa.
 2. Entidades Prisma, migration gerada e repositories: provar locks, unicidade, snapshot, reinício e voto em banco isolado.
 3. Reserva, executor, deadlines e adaptador: compor chamada única com fake primeiro; implementar transporte real sem executá-lo na suíte comum.
-4. Rotas autenticadas e localização de referências: provar sessão, origem, erros, estado e navegação para outra página.
+4. Rotas autenticadas e referências estáticas por frase: provar sessão, origem, erros, estado e elegibilidade do voto.
 5. Seção React, acompanhamento e avaliação: usar contratos consolidados e identidade processo/sessão, preservando o histórico.
 6. Integração completa, métricas, E2E, cobertura e builds; executar o gate semântico real e registrar evidências antes de considerar a funcionalidade entregue.
 
@@ -557,13 +522,13 @@ Na implementação, executar em cada aplicativo `npm run lint`, `npm run typeche
 
 ## Monitoramento e observabilidade
 
-Usar `config/logger.ts` com eventos de campos permitidos: `summary_requested`, `summary_reused`, `summary_joined`, `summary_invalidated`, `summary_call_dispatched`, `summary_completed`, `summary_rejected`, `summary_failed`, `summary_expired`, `summary_feedback_saved`. Sucesso/reuso/concorrência em info; falha/rejeição em error com categoria conhecida, sem passar erro bruto do provedor ao logger. Campos: requestId, processId interno, slotId, attemptId, summaryId, rulesVersion, configurationHash, durationMs, result, failureCode e contagens. Não incluir CNJ, usuário/email, movimentos, prompt, output, receipt ou credenciais.
+Usar `config/logger.ts` com eventos de campos permitidos: `summary_requested`, `summary_reused`, `summary_joined`, `summary_invalidated`, `summary_call_dispatched`, `summary_completed`, `summary_rejected`, `summary_failed`, `summary_expired`, `summary_feedback_saved`. Sucesso/reuso/concorrência em info; falha/rejeição em error com categoria conhecida, sem passar erro bruto do provedor ao logger. Campos: requestId, processId interno, slotId, attemptId, summaryId, rulesVersion, configurationHash, durationMs, result, failureCode e contagens. Não incluir CNJ, usuário/email, movimentos, prompt, output ou credenciais.
 
 O sanitizador atual remove chaves contendo `token`. Usar `inputUnits`, `outputUnits`, `totalUnits` e `unit: tokens`, todos provenientes do provedor, sem enfraquecer o sanitizador. Consumo ausente é `null`. A reserva de despacho e resposta confirmada são métricas distintas; em crash no envio, declarar resultado de despacho desconhecido em vez de inventar contagem faturada. Histograma de duração distingue sucesso, falha e expiração lógica aos 30 s.
 
 Avaliações são calculadas por consulta ao banco agrupando resumo/versão e configuração da tentativa: quantidade = número de pares únicos usuário/resumo, positivos = `helpful=true`, taxa = positivos/quantidade ou `null` sem votos. Troca atualiza a linha e o agregado; votos antigos permanecem segmentados em suas versões, sem inflar a contagem da versão nova. Taxa de reuso = leituras/solicitações resolvidas com versão persistida sobre operações elegíveis de consulta/solicitação, apresentando também as contagens brutas; excluir polling desse denominador usando o parâmetro de acompanhamento documentado no GET, sem permitir que ele altere a fonte ou inicie geração.
 
-Não incluir dependência LLM no sucesso do `/health` existente nem criar dashboard. Investigar aumento de timeouts, respostas inválidas, contenção dos locks, saturação dos quatro lugares e falhas de publicação por meio dos eventos existentes. Logs e banco mantêm dados suficientes para calcular O3–O5; durabilidade dos logs depende do destino operacional configurado, sem prometer retenção que a infraestrutura atual não fornece.
+Não incluir dependência LLM no sucesso do `/health` existente nem criar dashboard. Investigar aumento de timeouts, respostas inválidas, contenção dos locks, saturação dos quatro lugares locais e falhas de publicação por meio dos eventos existentes. Logs e banco mantêm dados suficientes para calcular O3–O5; durabilidade dos logs depende do destino operacional configurado, sem prometer retenção que a infraestrutura atual não fornece.
 
 ## Considerações técnicas
 
@@ -588,7 +553,7 @@ Não incluir dependência LLM no sucesso do `/health` existente nem criar dashbo
 | Rejeição de português curto/correto | Detector heurístico e regras versionadas com fixtures; avaliar falsos positivos no gate, sem contornar falha publicando texto não validado. |
 | Crescimento de snapshots e retenção indefinida local | Medir tamanho e restringir acesso; não apagar versões/votos automaticamente. Política administrativa de retenção futura deve preservar obrigações do domínio. |
 | Retenção do provedor e dados pessoais no próprio texto | Envio mínimo, treinamento desabilitado, configuração real de conta documentada; retenção zero não é presumida. |
-| Abuso entre processos distintos | Limite global e cooldown por chave; custo e limites por conta precisam ser ajustados quando houver volume/orçamento definidos. |
+| Abuso entre processos distintos | Limite local com uma instância executora e cooldown persistido por chave; coordenação global obrigatória antes de habilitar múltiplas instâncias; custo e limites por conta precisam ser ajustados quando houver volume/orçamento definidos. |
 | Atualização enquanto página permanece aberta | Verificar em cada chamada e voto; não há promessa de push de invalidação em tempo real, conforme fora do escopo do PRD. |
 
 ### Conformidade com o AGENTS.md e as rules
@@ -604,7 +569,7 @@ Gerar migrations pelo Prisma, sem edição manual; locks são consultas parametr
 - [`criar-techspec`](../../.agents/skills/criar-techspec/SKILL.md): PRD lido integralmente, exploração via agente Explore, regras e integrações inspecionadas, documentação primária consultada, esclarecimento solicitado e premissa de fornecedor/retenção confirmada pelo usuário; documento segue o template. `AskUserQuestion` não está disponível nesta sessão; usado `request_user_input_async` equivalente. Nenhuma implementação de produto nesta etapa.
 - [`react`](../../.agents/skills/react/SKILL.md): lida junto de `references/react-best-practices.md`; prevê componentes de até 30 linhas, props explícitas, hooks puros, handlers para ações, effects com cleanup, serviços HTTP próprios, semântica acessível e Tailwind. Caminho de serviços segue a rule local `services/`, em vez do caminho meramente ilustrativo `lib/api` da skill.
 
-Skills de PRD, tarefas, implementação, QA e revisão não são etapas desta entrega. Não há redesenho visual que exija o fluxo `impeccable`; a seção estende a interface e tokens atuais conforme o PRD. A orientação externa OpenAI Docs foi consultada para a integração, mas não integra a lista de skills do projeto em `.agents/skills/`.
+A revisão documental do planejamento usa `criar-tasks`, com cinco tarefas, testes rastreados e cortes aprovados. Implementação, QA e revisão de código permanecem etapas posteriores. Não há redesenho visual que exija o fluxo `impeccable`; a seção estende a interface e tokens atuais conforme o PRD. A orientação externa OpenAI Docs foi consultada para a integração, mas não integra a lista de skills do projeto em `.agents/skills/`.
 
 ### Arquivos relevantes e dependentes
 
