@@ -27,7 +27,7 @@ Preservar Prisma 7, singleton existente e direção das dependências. Middlewar
 <requirements>
 
 - RF18 e RF19: identidade normalizada, senha preservada e unicidade garantida pelo banco.
-- RF3, RF6 e RF21: modelar sessões revogáveis e confirmações vinculadas a uma única conta, com vencimento e estado de consumo.
+- RF3, RF6 e RF8: modelar usuários e sessões revogáveis vinculadas a uma conta, com vencimento.
 - RF22: persistir reservas de emissão e seus índices para os limites concorrentes da tarefa 3.
 - RN5 e RN8: migration aditiva, sem modificar processos, movimentações ou credenciais existentes.
 
@@ -35,7 +35,7 @@ Preservar Prisma 7, singleton existente e direção das dependências. Middlewar
 
 ## Subtarefas
 
-- [x] 2.1 Adicionar User, Session e EmailVerification ao schema e gerar migration aditiva com o Prisma.
+- [x] 2.1 Adicionar User e Session ao schema e gerar migration de autenticação com o Prisma.
 - [x] 2.2 Criar contratos derivados dos modelos e repositórios de autenticação, com fronteiras de transação e injeção do cliente.
 - [x] 2.3 Implementar normalização/validação do e-mail e validação da senha com preservação integral de seu conteúdo.
 - [x] 2.4 Implementar derivação/verificação assíncrona de senhas e limites de concorrência de trabalho, conforme a TechSpec.
@@ -47,7 +47,7 @@ Preservar Prisma 7, singleton existente e direção das dependências. Middlewar
 Usar o [PRD](./prd.md) e a [TechSpec](./techspec.md) como fonte de verdade. Consultar as seções:
 
 - Design de implementação → Principais interfaces: Cadastro e concorrência; Senhas e segredos
-- Design de implementação → Modelos de dados: CredentialsInput, User, Session e EmailVerification
+- Design de implementação → Modelos de dados: CredentialsInput, User e Session
 - Pontos de integração: migrations e preservação da fundação
 - Abordagem de testes → Testes de integração
 

@@ -28,7 +28,7 @@ Preservar Prisma 7, singleton existente e direção das dependências. Middlewar
 
 - RF4, RF15 e RF23: preparar proteção de origem, limites de corpo, prazos e tratamento uniforme de falhas para os recursos que serão registrados nas próximas tarefas.
 - O6 e CA-19: preparar testes HTTP e banco isolado, mantendo as suítes da fundação e cobertura mínima por aplicativo.
-- Preservar a execução de seed e migrations sem exigir credenciais do Resend. Não registrar endpoints de autenticação ou consulta com comportamento provisório.
+- Preservar execução de seed e migrations sem configuração de provedores externos. Não registrar endpoints de autenticação ou consulta com comportamento provisório.
 
 </requirements>
 
@@ -70,7 +70,7 @@ IDs e nomes abaixo vêm da [abordagem de testes da TechSpec](./techspec.md#abord
 
 ### Testes de unidade (se aplicável)
 
-- [x] TU-16 — Configuração, erros e logs seguros. Escopo nesta tarefa: Configuração comum/HTTP, sanitização e tradução pública dos erros; preservar seed sem Resend.
+- [x] TU-16 — Configuração, erros e logs seguros. Escopo nesta tarefa: Configuração comum/HTTP, sanitização e tradução pública dos erros; preservar seed sem serviços externos.
 
 ### Testes de integração (se aplicável)
 

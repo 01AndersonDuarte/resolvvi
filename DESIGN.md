@@ -175,7 +175,7 @@ Controles e mensagens usam cantos suavemente arredondados (8px); painéis e a re
 - **Style:** Faixa de largura contida, contorno e fundo tonal, cantos de 8px, preenchimento 12px vertical e 16px horizontal.
 - **Info:** Fundo cinza suave e texto principal.
 - **Success:** Fundo verde suave e tinta verde escura.
-- **Error:** Fundo vermelho suave e tinta vermelho escura; anúncio assertivo para leitor de tela.
+- **Error:** Fundo vermelho suave e tinta vermelho escura; destaque claro para mensagens de erro.
 
 ### Protected Boundary
 - **Style:** Região de pelo menos 160px de altura, preenchida em cinza azulado e contornada em linha fria.

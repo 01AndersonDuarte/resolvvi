@@ -1,9 +1,6 @@
 import { expect, test } from '../frontend/e2e-support/playwright';
 import {
-  confirmInNewContext,
   expireSession,
-  expireVerification,
-  getConfirmationUrl,
   login,
   PROCESS_CNJ,
   registerAccount,
@@ -12,15 +9,9 @@ import {
   uniqueEmail,
 } from '../frontend/e2e-support/session';
 
-test('E2E-01: cadastro, confirmação em outro contexto, login e consulta', async ({ page }) => {
+test('E2E-01: cadastro imediato, login e consulta', async ({ page }) => {
   const email = uniqueEmail();
   await registerAccount(page, email);
-  await page.goto('/entrar');
-  await page.getByLabel('E-mail').fill(email);
-  await page.getByLabel('Senha').fill('senha-e2e-segura');
-  await page.getByRole('button', { name: 'Entrar' }).click();
-  await expect(page.getByText('Confirme seu e-mail para entrar.')).toBeVisible();
-  await confirmInNewContext(page, email);
   await login(page, email);
   await submitSearch(page, PROCESS_CNJ);
   await expect(page.getByText(PROCESS_CNJ)).toBeVisible();
@@ -28,22 +19,14 @@ test('E2E-01: cadastro, confirmação em outro contexto, login e consulta', asyn
   await expect(page.getByLabel('Número do processo (CNJ)')).toHaveValue(PROCESS_CNJ);
 });
 
-test('E2E-02: link expirado, espera anunciada e reenvio recuperam o cadastro', async ({ page }) => {
+test('E2E-02: e-mail sintético é aceito e cadastro duplicado preserva a senha original', async ({ page }) => {
   const email = uniqueEmail();
   await registerAccount(page, email);
-  const expiredLink = await getConfirmationUrl(email);
-  await expireVerification(email);
-  await page.goto(expiredLink);
-  await page.getByRole('button', { name: 'Confirmar e-mail' }).click();
-  await expect(page.getByText('Este link não é mais válido. Solicite outra confirmação ou entre se já confirmou seu e-mail.')).toBeVisible();
-  await page.goto('/reenviar-confirmacao');
+  await page.goto('/criar-conta');
   await page.getByLabel('E-mail').fill(email);
-  await page.getByRole('button', { name: 'Reenviar confirmação' }).click();
-  await expect(page.getByRole('status').filter({ hasText: 'Se houver confirmação pendente' })).toBeVisible();
-  await expect(page.getByText(/Tente novamente em \d+ segundos\./)).toBeVisible();
-  await page.goto(await getConfirmationUrl(email));
-  await page.getByRole('button', { name: 'Confirmar e-mail' }).click();
-  await expect(page.getByText('E-mail confirmado. Agora você pode entrar.')).toBeVisible();
+  await page.getByLabel('Senha').fill('senha-e2e-substituta');
+  await page.getByRole('button', { name: 'Criar conta' }).click();
+  await expect(page.getByRole('alert')).toContainText('Já existe uma conta com esse e-mail.');
   await login(page, email);
 });
 
@@ -51,7 +34,6 @@ test('E2E-03: consulta distingue validação, ausência e falha, preserva entrad
   const email = uniqueEmail();
   await page.setViewportSize({ width: 320, height: 780 });
   await registerAccount(page, email);
-  await confirmInNewContext(page, email);
   await login(page, email);
   await page.getByLabel('Número do processo (CNJ)').fill('invalido');
   await page.getByRole('button', { name: 'Consultar' }).click();
@@ -86,7 +68,6 @@ test('E2E-04: rota protegida, sessão expirada em outra aba e saída', async ({ 
   await page.goto(`/processos/1`);
   await expect(page).toHaveURL(/\/entrar$/);
   await registerAccount(page, email);
-  await confirmInNewContext(page, email);
   await login(page, email);
   const secondTab = await context.newPage();
   await secondTab.goto('/consulta');
@@ -119,11 +100,9 @@ test('E2E-05: jornada por teclado em 320 px sem rolagem horizontal', async ({ pa
   await page.keyboard.type('senha-e2e-segura');
   await page.keyboard.press('Tab');
   await page.keyboard.press('Enter');
-  await expect(page.getByText('Confira seu e-mail para continuar. Se já possui conta confirmada, entre.')).toBeVisible();
-  await confirmInNewContext(page, email, true);
-  await page.goto('/entrar');
+  await expect(page.getByText('Conta criada. Entre com seu e-mail e senha.')).toBeVisible();
   await tabTo(page, 'email');
-  await page.keyboard.type(email);
+  await expect(page.getByLabel('E-mail')).toHaveValue(email);
   await page.keyboard.press('Tab');
   await page.keyboard.type('senha-e2e-segura');
   await page.keyboard.press('Tab');

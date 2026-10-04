@@ -12,18 +12,18 @@ React 19, TypeScript, Vite, Tailwind CSS, React Router; stack definida pelo plan
 
 ## Users
 
-Pessoas com acesso ao próprio e-mail que conhecem o número CNJ do processo que desejam localizar. Não precisam ter conhecimento técnico ou jurídico. Responsáveis por disponibilizar o serviço configuram o ambiente e o envio de confirmação; não há interface administrativa nesta etapa.
+Pessoas que conhecem o número CNJ do processo que desejam localizar. Não precisam ter conhecimento técnico ou jurídico. O e-mail é usado como identificador da conta e deve ter estrutura sintática válida.
 
 ## Product Purpose
 
-Permitir cadastro com e-mail e senha, confirmação obrigatória do endereço, autenticação e localização de um processo existente na base disponível por seu número CNJ. O sucesso é chegar ao registro correto após uma consulta simples e protegida.
+Permitir cadastro com e-mail e senha, autenticação e localização de um processo existente na base disponível por seu número CNJ. O sucesso é chegar ao registro correto após uma consulta simples e protegida.
 
 ## Capabilities and Constraints
 
-- A jornada inclui cadastro, confirmação por e-mail, login, consulta CNJ protegida e destino mínimo do processo.
+- A jornada inclui cadastro com e-mail sintaticamente válido e senha, login, consulta CNJ protegida e destino mínimo do processo.
 - A consulta é somente leitura e usa a base processual existente; não consulta serviços externos nem altera processos ou movimentações.
-- A autorização é igual para todas as contas confirmadas; não há relação de titularidade entre conta e processo.
-- O cadastro solicita somente e-mail e senha. A confirmação não cria sessão automaticamente.
+- A autorização é igual para todas as contas cadastradas; não há relação de titularidade entre conta e processo.
+- O cadastro solicita somente e-mail e senha. Após sucesso, o login abre com o e-mail preenchido.
 - A interface e as mensagens são em português do Brasil.
 - O validador CNJ real da fundação é uma dependência; não deve ser substituído por outro algoritmo.
 - A visualização completa de dados e movimentações processuais pertence a uma etapa futura.
@@ -38,10 +38,6 @@ Permitir cadastro com e-mail e senha, confirmação obrigatória do endereço, a
 ## Product Principles
 
 - Simplificar a consulta para pessoas sem conhecimento jurídico.
-- Exigir confirmação de e-mail e sessão válida antes de revelar registros.
+- Exigir sessão válida antes de revelar registros.
 - Diferenciar ausência de resultado de falhas de validação ou infraestrutura.
 - Preservar os dados da fundação e limitar a consulta ao necessário.
-
-## Accessibility & Inclusion
-
-Manter fluxo utilizável por teclado, nomes e mensagens semânticas para leitor de tela, e layout funcional em viewport de 320 px e zoom de 200%.

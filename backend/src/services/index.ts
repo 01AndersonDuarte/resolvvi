@@ -1,4 +1,4 @@
-export { createAuthService, getSession, login, logout, register, resend } from './auth-service.js';
+export { createAuthService, getSession, login, logout, register } from './auth-service.js';
 export {
   createDummyPasswordHash,
   createPasswordWorkQueue,
@@ -9,5 +9,4 @@ export {
   PasswordWorkloadError,
   verifyPassword,
 } from './security-service.js';
-export { createResendService, createVerificationEmailContent } from './resend-service.js';
 export { createProcessService, type ProcessService } from './process-service.js';

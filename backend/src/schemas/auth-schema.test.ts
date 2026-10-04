@@ -1,15 +1,16 @@
 import { describe, expect, it } from 'vitest';
 
-import { parseEmailInput, parseLoginInput } from './auth-schema.js';
+import { parseLoginInput, parseRegistrationInput } from './auth-schema.js';
 
-describe('parseEmailInput', () => {
-  it('accepts a single email field', () => {
-    expect(parseEmailInput({ email: 'person@example.test' })).toEqual({ email: 'person@example.test' });
+describe('parseRegistrationInput', () => {
+  it('accepts a syntactically valid email with password and no extra fields', () => {
+    expect(parseRegistrationInput({ email: 'example@email.com', password: 'password' }))
+      .toEqual({ email: 'example@email.com', password: 'password' });
   });
 
-  it.each([null, {}, { email: 42 }, { email: 'person@example.test', extra: true }])(
-    'rejects invalid email payload shapes',
-    (input) => expect(() => parseEmailInput(input)).toThrow('Informe um e-mail válido.'),
+  it.each([null, {}, { email: 'person@example.test' }, { email: 'person@example.test', password: 'password', role: 'admin' }])(
+    'rejects invalid registration payload shapes',
+    (input) => expect(() => parseRegistrationInput(input)).toThrow(),
   );
 });
 
@@ -63,23 +64,5 @@ describe('validatePassword', () => {
 
   it('rejects unpaired Unicode surrogates', () => {
     expect(validatePassword('validpwd\ud800').valid).toBe(false);
-  });
-});
-import { parseRegistrationInput } from './auth-schema.js';
-
-describe('parseRegistrationInput', () => {
-  it('accepts only the email and password fields', () => {
-    expect(() => parseRegistrationInput({ email: 'a@b.test', password: 'password', role: 'admin' }))
-      .toThrow('Informe um e-mail válido.');
-  });
-
-  it.each([null, {}, { email: 'a@b.test' }, { email: 1, password: 'password' }])(
-    'rejects invalid credential shapes',
-    (input) => expect(() => parseRegistrationInput(input)).toThrow(),
-  );
-
-  it('preserves the submitted credential values', () => {
-    expect(parseRegistrationInput({ email: ' A@B.test ', password: ' pass word ' }))
-      .toEqual({ email: ' A@B.test ', password: ' pass word ' });
   });
 });

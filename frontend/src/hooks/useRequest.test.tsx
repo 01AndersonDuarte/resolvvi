@@ -11,8 +11,8 @@ type Deferred<TValue> = {
 };
 
 const RATE_LIMIT_ERROR: ApiError = {
-  code: 'VERIFICATION_RATE_LIMITED',
-  message: 'Aguarde para solicitar outro e-mail.',
+  code: 'SERVICE_UNAVAILABLE',
+  message: 'Serviço temporariamente indisponível.',
   field: null,
   retryAfterSeconds: 42,
 };

@@ -28,7 +28,7 @@ Preservar Prisma 7, singleton existente e direção das dependências. Middlewar
 
 <requirements>
 
-- RF4 e RF5: autorizar antes de validar o domínio ou buscar processos; qualquer conta autenticada confirmada tem o mesmo acesso de leitura.
+- RF11 e RF13: autorizar antes de validar o domínio ou buscar processos; qualquer conta autenticada tem o mesmo acesso de leitura.
 - RF8, RF9 e RF11: entrada estrita, equivalência dos dois formatos, preservação de zeros e busca exata.
 - RF12–RF15: payload mínimo, destino estável e erros distintos de ausência, entrada inválida e infraestrutura.
 - RN2, RN5 e RN6: preservar identificador persistido e todo o conteúdo processual, sem carga nem consulta externa.

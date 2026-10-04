@@ -13,7 +13,7 @@ const PUBLIC_APP_URL = 'http://localhost:5173';
 const PROCESS_CNJ = '0000001-01.2025.8.26.9001';
 const ABSENT_CNJ = '9999999-99.2026.8.99.9999';
 const session: SessionContext = {
-  sessionId: 'session-id', userId: 'user-id', emailVerifiedAt: new Date(),
+  sessionId: 'session-id', userId: 'user-id',
   expiresAt: '2026-10-04T04:00:00.000Z', serverTime: '2026-10-03T20:00:00.000Z',
 };
 const authService = { getSession: () => Promise.resolve(session) } as unknown as AuthService;

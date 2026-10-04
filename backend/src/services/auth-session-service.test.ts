@@ -1,7 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import type { AuthenticationUser, AuthRepository, AuthServiceDependencies } from '../types/auth.js';
-import type { VerificationSender } from '../types/resend.js';
 import { createAuthService } from './auth-service.js';
 
 const cryptoMocks = vi.hoisted(() => ({
@@ -19,24 +18,22 @@ const NOW = new Date('2026-10-03T20:00:00.000Z');
 const secret = Buffer.alloc(32, 7).toString('base64url');
 const user: AuthenticationUser = {
   id: 'user-id', email: 'person@example.test', passwordHash: 'stored-hash',
-  emailVerifiedAt: NOW, createdAt: NOW,
+  createdAt: NOW,
 };
 const repository = {
   findUserByEmail: vi.fn(), replaceSession: vi.fn(), findValidSessionByTokenHash: vi.fn(),
   revokeSessionByTokenHash: vi.fn(),
 } as unknown as AuthRepository;
 const dependencies: AuthServiceDependencies = {
-  publicAppUrl: 'https://app.example', repositories: repository,
-  sender: {} as VerificationSender, now: () => NOW,
+  repositories: repository, now: () => NOW,
 };
 const service = createAuthService(dependencies);
 
 describe('session authentication service', () => {
   beforeEach(resetSessionMocks);
 
-  it('verifies a confirmed account and creates a secret session for eight hours', createsSession);
+  it('authenticates with the stored password and creates a secret session for eight hours', createsSession);
   it('uses the same rejection for an unknown account and an incorrect password', rejectsInvalidCredentials);
-  it('checks the password before explaining that email confirmation is pending', requiresEmailConfirmation);
   it('loads a session from its secret digest without extending its expiration', restoresSession);
   it('treats missing, expired, or revoked sessions as invalid', rejectsInvalidSessions);
   it('revokes a valid secret and surfaces infrastructure failure on logout', revokesSession);
@@ -84,15 +81,6 @@ async function rejectsInvalidCredentials(): Promise<void> {
   vi.mocked(cryptoMocks.verifyPassword).mockResolvedValueOnce(false);
   await expect(service.login({ email: user.email, password: 'wrong-password' }))
     .rejects.toMatchObject({ status: 401, code: 'INVALID_CREDENTIALS' });
-}
-
-async function requiresEmailConfirmation(): Promise<void> {
-  vi.mocked(repository.findUserByEmail).mockResolvedValueOnce({ ...user, emailVerifiedAt: null });
-
-  await expect(service.login({ email: user.email, password: 'password' }))
-    .rejects.toMatchObject({ status: 403, code: 'EMAIL_UNCONFIRMED' });
-  expect(cryptoMocks.verifyPassword).toHaveBeenCalledOnce();
-  expect(repository.replaceSession).not.toHaveBeenCalled();
 }
 
 async function restoresSession(): Promise<void> {

@@ -26,9 +26,9 @@ NODE_ENV=test npx prisma migrate deploy
 
 ## Servidor HTTP
 
-Configure `PORT` e `PUBLIC_APP_URL` no `.env.development`. O servidor valida essas opções antes de abrir a porta; `PUBLIC_APP_URL` deve ser uma origem sem caminho, credenciais, query ou fragmento. O seed e as migrations usam apenas a configuração de banco e não exigem credenciais do Resend.
+Configure `PORT` e `PUBLIC_APP_URL` no `.env.development`. O servidor valida essas opções antes de abrir a porta; `PUBLIC_APP_URL` deve ser uma origem sem caminho, credenciais, query ou fragmento.
 
-Para cadastro e reenvio de confirmação, configure também `RESEND_API_KEY` e `RESEND_FROM`. Mantenha a chave somente no arquivo de ambiente local e use um remetente de domínio verificado no Resend. As suítes automatizadas injetam um remetente simulado e não enviam e-mails reais.
+O cadastro valida somente a estrutura sintática do e-mail. O endereço não precisa existir ou receber mensagens; a conta é criada com e-mail e senha e pode entrar imediatamente.
 
 ```bash
 npm run dev
@@ -64,7 +64,7 @@ npm run build
 
 ## Jornadas E2E
 
-As jornadas Playwright usam uma base PostgreSQL dedicada. Crie `dev_test_resolvvi_e2e_test` no PostgreSQL local, aplique as migrations e carregue a fixture processual antes de executar `npm run test:e2e` em `frontend/`. O servidor E2E injeta um remetente que guarda links apenas em memória e inicia um coletor separado, limitado a `127.0.0.1:3051`; esses controles não fazem parte da API de produção.
+As jornadas Playwright usam uma base PostgreSQL dedicada. Crie `dev_test_resolvvi_e2e_test` no PostgreSQL local, aplique as migrations e carregue a fixture processual antes de executar `npm run test:e2e` em `frontend/`. O servidor E2E inicia um endpoint de controle separado, limitado a `127.0.0.1:3051`, para expirar sessões durante os testes; esse endpoint não faz parte da API de produção.
 
 ```bash
 docker exec dev_test_resolvvi-postgres-1 createdb -U dev_test_resolvvi dev_test_resolvvi_e2e_test
@@ -75,4 +75,4 @@ cd ../frontend
 npm run test:e2e
 ```
 
-O Playwright inicia API, coletor e SPA nas portas 3050, 3051 e 5100. Confirme que estão livres antes da execução; ajuste `E2E_API_PORT`, `E2E_MAILBOX_PORT`, `E2E_APP_URL` e `E2E_DATABASE_URL` se o ambiente usar outros valores. O PostgreSQL existente é compartilhado como serviço, mas a base de dados acima é isolada das bases de desenvolvimento e integração.
+O Playwright inicia API, endpoint de controle e SPA nas portas 3050, 3051 e 5100. Confirme que estão livres antes da execução; ajuste `E2E_API_PORT`, `E2E_CONTROL_PORT`, `E2E_APP_URL` e `E2E_DATABASE_URL` se o ambiente usar outros valores. O PostgreSQL existente é compartilhado como serviço, mas a base de dados acima é isolada das bases de desenvolvimento e integração.

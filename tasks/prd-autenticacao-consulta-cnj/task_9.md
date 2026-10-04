@@ -30,7 +30,7 @@ No frontend, manter componentes até 30 linhas, props explícitas, acesso HTTP e
 
 - RF7–RF10: tela simples com campo CNJ, validação de estrutura, envio por Enter e estado de espera sem submissões duplicadas.
 - RF11–RF14: navegar somente para correspondência exata, mostrar CNJ do resultado e permitir retorno/recarga/destino direto.
-- RF6 e RF15–RF17: saída, recuperação de falhas, proteção contra respostas antigas, teclado e acessibilidade.
+- RF6 e RF15–RF17: saída, recuperação de falhas, proteção contra respostas antigas e uso por teclado.
 - RN5 e RN6: sem conteúdo processual adicional, consultas externas ou resultados aproximados.
 
 </requirements>
@@ -51,7 +51,7 @@ Usar o [PRD](./prd.md) e a [TechSpec](./techspec.md) como fonte de verdade. Cons
 - Design de implementação → Principais interfaces: Entrada CNJ e busca; Link e frontend
 - Design de implementação → Modelos de dados: ProcessSummary e ApiError
 - Design de implementação → Endpoints processuais
-- PRD → Experiência do usuário: consulta, destino, falhas e acessibilidade
+- PRD → Experiência do usuário: consulta, destino e falhas
 
 Dentro de `frontend/`, executar `npm run lint`, `npm run typecheck`, `npm test`, `npm run test:coverage` e `npm run build`. Registrar evidências do incremento e manter checklists abertos até concluir as verificações. Nenhuma aprovação documental substitui esses resultados.
 

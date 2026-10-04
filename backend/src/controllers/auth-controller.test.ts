@@ -5,7 +5,7 @@ import { createAuthController } from './auth-controller.js';
 import type { AuthService, SessionGrant } from '../types/auth.js';
 
 const grant: SessionGrant = {
-  sessionId: 'session-id', userId: 'user-id', emailVerifiedAt: new Date(),
+  sessionId: 'session-id', userId: 'user-id',
   expiresAt: new Date(Date.now() + 60_000).toISOString(), serverTime: new Date().toISOString(), secret: 'secret',
 };
 

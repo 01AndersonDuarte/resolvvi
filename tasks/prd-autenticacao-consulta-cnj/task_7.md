@@ -2,7 +2,7 @@
 
 ## Visão geral
 
-Criar o frontend e a infraestrutura compartilhada de navegação, requisições e sessão para integrar as telas das próximas tarefas com segurança e acessibilidade.
+Criar o frontend e a infraestrutura compartilhada de navegação, requisições e sessão para integrar as telas das próximas tarefas com segurança.
 
 **Dependências:** [5.0](./task_5.md)
 

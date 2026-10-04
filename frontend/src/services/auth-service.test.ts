@@ -1,10 +1,8 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { ApiRequestError } from './http-client';
 import {
-  confirmEmail,
   loginAccount,
   registerAccount,
-  resendVerification,
 } from './auth-service';
 
 const MESSAGE_RESPONSE = { message: 'Operação aceita.' };
@@ -33,7 +31,7 @@ function expectPost(path: string, body: unknown, signal: AbortSignal): void {
 
 describe('authentication API service', () => {
   it('registers with the exact normalized identity and unchanged password', async () => {
-    respondWith(MESSAGE_RESPONSE, 202);
+    respondWith(MESSAGE_RESPONSE, 201);
     const signal = new AbortController().signal;
     const input = { email: 'pessoa@example.com', password: '  senha🙂  ' };
 
@@ -50,28 +48,8 @@ describe('authentication API service', () => {
     expectPost('/api/auth/login', input, signal);
   });
 
-  it('requests resend with only the e-mail address', async () => {
-    respondWith(MESSAGE_RESPONSE, 202);
-    const signal = new AbortController().signal;
-    const input = { email: 'pessoa@example.com' };
-
-    await expect(resendVerification(input, signal)).resolves.toEqual(MESSAGE_RESPONSE);
-    expectPost('/api/auth/resend-verification', input, signal);
-  });
-
-  it('confirms with the exact token and supplied abort signal', async () => {
-    respondWith(MESSAGE_RESPONSE);
-    const signal = new AbortController().signal;
-    const token = 'token_sem-alteracao-123';
-
-    await expect(confirmEmail(token, signal)).resolves.toEqual(MESSAGE_RESPONSE);
-    expectPost('/api/auth/verify-email', { token }, signal);
-  });
-
   it.each([
     ['register', () => registerAccount({ email: 'pessoa@example.com', password: '12345678' }, new AbortController().signal)],
-    ['resend', () => resendVerification({ email: 'pessoa@example.com' }, new AbortController().signal)],
-    ['confirmation', () => confirmEmail('token', new AbortController().signal)],
   ])('rejects a malformed %s message response', async (_operation, request) => {
     respondWith({ message: 42 });
 
@@ -88,26 +66,13 @@ describe('authentication API service', () => {
   });
 
   it('preserves structured API failures for the authentication hooks', async () => {
-    respondWith({
-      error: {
-        code: 'VERIFICATION_RATE_LIMITED',
-        message: 'Aguarde para solicitar outro e-mail.',
-        field: null,
-        retryAfterSeconds: 42,
-      },
-    }, 429);
-
-    const failure = await resendVerification(
-      { email: 'pessoa@example.com' },
+    respondWith({ error: { code: 'ACCOUNT_ALREADY_EXISTS', message: 'Entre com sua senha.', field: null, retryAfterSeconds: null } }, 409);
+    const failure = await registerAccount(
+      { email: 'pessoa@example.com', password: '12345678' },
       new AbortController().signal,
     ).catch((error: unknown) => error);
 
     expect(failure).toBeInstanceOf(ApiRequestError);
-    expect((failure as ApiRequestError).apiError).toEqual({
-      code: 'VERIFICATION_RATE_LIMITED',
-      message: 'Aguarde para solicitar outro e-mail.',
-      field: null,
-      retryAfterSeconds: 42,
-    });
+    expect((failure as ApiRequestError).apiError.code).toBe('ACCOUNT_ALREADY_EXISTS');
   });
 });

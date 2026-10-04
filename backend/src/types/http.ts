@@ -6,8 +6,6 @@ import type { ProcessRepository } from './process.js';
 
 export type AuthController = {
   register: RequestHandler;
-  resend: RequestHandler;
-  confirm: RequestHandler;
   login: RequestHandler;
   session: RequestHandler;
   logout: RequestHandler;

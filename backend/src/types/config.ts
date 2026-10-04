@@ -7,8 +7,6 @@ export type ApplicationEnvironment = {
 export type HttpEnvironment = {
   port: number;
   publicAppUrl: string;
-  resendApiKey?: string;
-  resendFrom?: string;
 };
 
 export type LogContext = Record<string, unknown>;

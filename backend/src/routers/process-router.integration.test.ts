@@ -10,7 +10,7 @@ import { createProcessRouter } from './process-router.js';
 const PUBLIC_APP_URL = 'http://localhost:5173';
 const COOKIE = 'session=valid-session-secret';
 const session = {
-  sessionId: 'session-id', userId: 'user-id', emailVerifiedAt: new Date(),
+  sessionId: 'session-id', userId: 'user-id',
   expiresAt: '2026-10-04T04:00:00.000Z', serverTime: '2026-10-03T20:00:00.000Z',
 } as SessionContext;
 const getSession = vi.fn<AuthService['getSession']>();
@@ -37,7 +37,7 @@ function processRouterCases(): void {
   it('normaliza formas equivalentes e revalida a sessão antes da resposta', searchEquivalentCnj);
   it('não revela processo se a sessão for revogada durante a busca', hideResultAfterRevocation);
   it('retorna a projeção mínima no destino estável', returnMinimalProcessSummary);
-  it('permite leitura do mesmo processo por outra conta confirmada', allowsAnotherConfirmedAccount);
+  it('permite leitura do mesmo processo por outra conta autenticada', allowsAnotherAccount);
 }
 
 async function rejectMalformedCnj(): Promise<void> {
@@ -91,7 +91,7 @@ async function returnMinimalProcessSummary(): Promise<void> {
   expect(getSession).toHaveBeenCalledTimes(2);
 }
 
-async function allowsAnotherConfirmedAccount(): Promise<void> {
+async function allowsAnotherAccount(): Promise<void> {
   getSession.mockResolvedValue({ ...session, userId: 'other-user-id' });
   findSummaryByCnj.mockResolvedValue({ id: 9, cnj: '1002271-82.2025.8.26.0003' });
   const response = await request(app).post('/api/processes/search')

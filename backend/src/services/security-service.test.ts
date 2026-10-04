@@ -22,7 +22,7 @@ describe('password service', () => {
       .resolves.toBe(false);
   });
 
-  it('creates a same-cost dummy hash for unknown account verification', async () => {
+  it('creates a same-cost dummy password hash for an unknown account', async () => {
     const dummyHash = await createDummyPasswordHash();
 
     expect(dummyHash.startsWith('scrypt$v1$131072$8$1$')).toBe(true);

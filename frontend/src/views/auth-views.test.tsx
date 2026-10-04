@@ -8,18 +8,14 @@ import { INITIAL_SESSION_STATE } from '../contexts/session-state';
 import { ApiRequestError } from '../services/http-client';
 import { loginAccount, registerAccount } from '../services/auth-service';
 import { LoginView } from './LoginView';
-import { ResendVerificationView } from './ResendVerificationView';
 import { SignUpView } from './SignUpView';
-import { VerificationPendingView } from './VerificationPendingView';
 
 vi.mock('../services/auth-service', () => ({
-  confirmEmail: vi.fn(),
   loginAccount: vi.fn(),
   registerAccount: vi.fn(),
-  resendVerification: vi.fn(),
 }));
 
-type RouteEntry = string | { pathname: string; state: Record<string, string> };
+type RouteEntry = string | { pathname: string; state: Record<string, unknown> };
 
 beforeEach(() => vi.resetAllMocks());
 
@@ -67,19 +63,19 @@ describe('SignUpView', () => {
   it('navega ao estado pendente após cadastro aceito', async () => {
     const user = userEvent.setup();
     vi.mocked(registerAccount).mockResolvedValue({
-      message: 'Confira seu e-mail para continuar. Se já possui conta confirmada, entre.',
+      message: 'Conta criada. Entre com seu e-mail e senha.',
     });
     renderAuthJourney('/criar-conta');
 
     await fillCredentials(user, 'nova@example.com', 'senha válida');
     await user.click(screen.getByRole('button', { name: 'Criar conta' }));
 
-    expect(await screen.findByRole('heading', { name: 'Confirme seu e-mail' })).toBeInTheDocument();
-    expect(screen.getByRole('status')).toHaveTextContent('Confira seu e-mail para continuar.');
-    expect(screen.getByRole('link', { name: 'Reenviar confirmação' })).toBeInTheDocument();
+    expect(await screen.findByRole('heading', { name: 'Entre para continuar' })).toBeInTheDocument();
+    expect(screen.getByLabelText('E-mail')).toHaveValue('nova@example.com');
+    expect(screen.getByRole('status')).toHaveTextContent('Conta criada. Entre com seu e-mail e senha.');
   });
 
-  it('orienta conferir a caixa de entrada quando o resultado do cadastro é desconhecido', async () => {
+  it('mostra erro recuperável sem orientar ações de e-mail', async () => {
     const user = userEvent.setup();
     vi.mocked(registerAccount).mockRejectedValue(new Error('network timeout'));
     renderAuthJourney('/criar-conta');
@@ -88,12 +84,10 @@ describe('SignUpView', () => {
     await user.keyboard('{Enter}');
 
     expect(await screen.findByRole('alert')).toHaveTextContent('Não foi possível concluir o cadastro agora.');
-    expect(screen.getByRole('alert')).toHaveTextContent('confira sua caixa de entrada');
-    expect(screen.getByRole('link', { name: 'Reenviar confirmação' })).toBeInTheDocument();
   });
 });
 
-describe('LoginView e confirmação pendente', () => {
+describe('LoginView', () => {
   it('exibe a mensagem comum de credenciais e mantém o e-mail informado', async () => {
     const user = userEvent.setup();
     vi.mocked(loginAccount).mockRejectedValue(apiFailure({
@@ -110,24 +104,6 @@ describe('LoginView e confirmação pendente', () => {
       'E-mail ou senha incorretos. Confira os dados e tente novamente.',
     );
     expect(screen.getByLabelText('E-mail')).toHaveValue('pessoa@example.com');
-  });
-
-  it('leva conta não confirmada à pendência e preserva o e-mail no reenvio', async () => {
-    const user = userEvent.setup();
-    vi.mocked(loginAccount).mockRejectedValue(apiFailure({
-      status: 403,
-      code: 'EMAIL_UNCONFIRMED',
-      message: 'Confirme seu e-mail antes de entrar.',
-    }));
-    renderAuthJourney('/entrar');
-
-    await fillCredentials(user, 'pendente@example.com', 'senha correta');
-    await user.keyboard('{Enter}');
-
-    expect(await screen.findByText('Confirme seu e-mail para entrar.')).toBeInTheDocument();
-    await user.click(screen.getByRole('link', { name: 'Reenviar confirmação' }));
-    expect(await screen.findByRole('heading', { name: 'Reenvie a confirmação' })).toBeInTheDocument();
-    expect(screen.getByLabelText('E-mail')).toHaveValue('pendente@example.com');
   });
 
   it('conclui somente uma entrada enquanto a resposta está pendente', async () => {
@@ -168,8 +144,6 @@ function renderAuthJourney(entry: RouteEntry, session = createSessionValue()): v
         <Routes>
           <Route path="/entrar" element={<LoginView />} />
           <Route path="/criar-conta" element={<SignUpView />} />
-          <Route path="/confirmacao-pendente" element={<VerificationPendingView />} />
-          <Route path="/reenviar-confirmacao" element={<ResendVerificationView />} />
         </Routes>
       </MemoryRouter>
     </AuthContext.Provider>,

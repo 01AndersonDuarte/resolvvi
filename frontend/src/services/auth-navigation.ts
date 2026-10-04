@@ -1,16 +1,14 @@
-export type PendingReason = 'login' | 'registration';
-
 export type AuthNavigationState = {
   email?: string;
-  reason?: PendingReason;
+  registrationCompleted?: boolean;
 };
 
 export function readAuthNavigationState(value: unknown): AuthNavigationState {
   if (!isRecord(value)) return {};
 
   const email = typeof value.email === 'string' ? value.email : undefined;
-  const reason = value.reason === 'login' || value.reason === 'registration' ? value.reason : undefined;
-  return { email, reason };
+  const registrationCompleted = value.registrationCompleted === true;
+  return { email, registrationCompleted };
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {

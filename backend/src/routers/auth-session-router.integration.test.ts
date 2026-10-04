@@ -10,12 +10,12 @@ const ORIGIN = 'https://app.example.test';
 const COOKIE_NAME = '__Host-session';
 const secret = Buffer.alloc(32, 3).toString('base64url');
 const session: SessionContext = {
-  sessionId: 'session-id', userId: 'user-id', emailVerifiedAt: new Date('2026-10-03T20:00:00.000Z'),
+  sessionId: 'session-id', userId: 'user-id',
   expiresAt: '2026-10-04T04:00:00.000Z', serverTime: '2026-10-03T20:00:00.000Z',
 };
 const grant: SessionGrant = { ...session, secret };
 const service = {
-  register: vi.fn(), resend: vi.fn(), confirm: vi.fn(), login: vi.fn(), getSession: vi.fn(), logout: vi.fn(),
+  register: vi.fn(), login: vi.fn(), getSession: vi.fn(), logout: vi.fn(),
 } as unknown as AuthService;
 
 describe('authentication session routes', () => {
@@ -54,7 +54,6 @@ async function validatesSessionCookie(): Promise<void> {
   expect(response.status).toBe(200);
   expect(service.getSession).toHaveBeenCalledWith(secret);
   expect(response.body).not.toHaveProperty('userId');
-  expect(response.body).not.toHaveProperty('emailVerifiedAt');
 }
 
 async function clearsCookieAfterLogout(): Promise<void> {

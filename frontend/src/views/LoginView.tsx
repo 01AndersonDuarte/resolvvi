@@ -9,17 +9,18 @@ import { readAuthNavigationState } from '../services/auth-navigation';
 
 export function LoginView() {
   const location = useLocation();
-  const initialEmail = readAuthNavigationState(location.state).email;
+  const navigationState = readAuthNavigationState(location.state);
+  const initialEmail = navigationState.email;
   const flow = useLogin(initialEmail);
   const { state: session } = useSession();
   const busy = flow.state.status === 'pending';
 
   return (
     <DispatchLayout currentStep={1}>
-      <AccessPanel title="Entre para continuar" description="Use a conta com e-mail confirmado para acessar a consulta.">
+      <AccessPanel title="Entre para continuar" description="Use seu e-mail e senha para acessar a consulta.">
         <CredentialsForm mode="login" email={flow.fields.email} password={flow.fields.password} errors={flow.fields.errors} emailRef={flow.fields.emailRef} passwordRef={flow.fields.passwordRef} busy={busy} onEmailChange={flow.fields.setEmail} onPasswordChange={flow.fields.setPassword} onSubmit={flow.submit} />
-        <RequestFeedback pendingMessage={busy ? 'Entrando…' : undefined} errorMessage={flow.errorMessage} infoMessage={session.status === 'anonymous' ? session.message : null} />
-        <AuthLinks email={flow.fields.email} showRegistration showResend />
+        <RequestFeedback pendingMessage={busy ? 'Entrando…' : undefined} errorMessage={flow.errorMessage} infoMessage={navigationState.registrationCompleted ? 'Conta criada. Entre com seu e-mail e senha.' : session.status === 'anonymous' ? session.message : null} />
+        <AuthLinks email={flow.fields.email} showRegistration />
       </AccessPanel>
     </DispatchLayout>
   );

@@ -1,4 +1,4 @@
-import type { ConfirmationInput, EmailInput, LoginInput, RegistrationInput, SessionContext } from '../types/auth.js';
+import type { LoginInput, RegistrationInput, SessionContext } from '../types/auth.js';
 import type { AuthService } from '../types/auth.js';
 import type { AuthController, SessionCookieConfiguration } from '../types/http.js';
 import { readSessionSecret } from '../config/session-cookie.js';
@@ -10,8 +10,6 @@ const COOKIE_MAX_AGE_MS = 8 * 60 * 60 * 1000;
 export function createAuthController(service: AuthService, cookie: SessionCookieConfiguration): AuthController {
   return {
     register: createRegisterHandler(service),
-    resend: createResendHandler(service),
-    confirm: createConfirmationHandler(service),
     login: createLoginHandler(service, cookie),
     session: (_request, response) => response.status(200).json(toPublicSession(response.locals.session as SessionContext)),
     logout: createLogoutHandler(service, cookie),
@@ -21,21 +19,7 @@ export function createAuthController(service: AuthService, cookie: SessionCookie
 function createRegisterHandler(service: AuthService): AuthController['register'] {
   return async (request, response) => {
     const result = await service.register(request.body as RegistrationInput);
-    response.status(202).json(result);
-  };
-}
-
-function createResendHandler(service: AuthService): AuthController['resend'] {
-  return async (request, response) => {
-    const result = await service.resend(request.body as EmailInput);
-    response.status(202).json(result);
-  };
-}
-
-function createConfirmationHandler(service: AuthService): AuthController['confirm'] {
-  return async (request, response) => {
-    const result = await service.confirm(request.body as ConfirmationInput);
-    response.status(200).json(result);
+    response.status(201).json(result);
   };
 }
 
@@ -70,6 +54,6 @@ function createLogoutHandler(service: AuthService, cookie: SessionCookieConfigur
   };
 }
 
-function toPublicSession(session: SessionContext): Omit<SessionContext, 'userId' | 'emailVerifiedAt'> {
+function toPublicSession(session: SessionContext): Omit<SessionContext, 'userId'> {
   return { sessionId: session.sessionId, expiresAt: session.expiresAt, serverTime: session.serverTime };
 }

@@ -4,7 +4,7 @@ const appUrl = process.env.E2E_APP_URL ?? 'http://127.0.0.1:5100';
 const appAddress = new URL(appUrl);
 const appPort = appAddress.port || '80';
 const backendPort = process.env.E2E_API_PORT ?? '3050';
-const mailboxPort = process.env.E2E_MAILBOX_PORT ?? '3051';
+const controlPort = process.env.E2E_CONTROL_PORT ?? '3051';
 const databaseUrl = process.env.E2E_DATABASE_URL ??
   'postgresql://dev_test_resolvvi:dev_test_resolvvi@127.0.0.1:55432/dev_test_resolvvi_e2e_test';
 
@@ -26,7 +26,7 @@ export default defineConfig({
         DATABASE_URL: databaseUrl,
         PORT: backendPort,
         PUBLIC_APP_URL: appUrl,
-        E2E_MAILBOX_PORT: mailboxPort,
+        E2E_CONTROL_PORT: controlPort,
       },
     },
     {

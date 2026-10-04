@@ -41,7 +41,7 @@ describe('application routes', () => {
     expect(screen.getByRole('button', { name: 'Concluir saída' })).toBeInTheDocument();
   });
 
-  it('shows the checking status on entry while session confirmation is pending', () => {
+  it('shows the checking status while session loading is pending', () => {
     render(<AuthContext.Provider value={sessionValue('checking')}><MemoryRouter initialEntries={['/entrar']}><App /></MemoryRouter></AuthContext.Provider>);
     expect(screen.getByText('Verificando acesso…')).toBeInTheDocument();
     expect(screen.queryByRole('textbox', { name: 'E-mail' })).not.toBeInTheDocument();

@@ -2,9 +2,9 @@
 
 ## Visão geral
 
-Entregar autenticação de contas confirmadas e o ciclo completo de sessão persistida, com cookie protegido, expiração absoluta e revogação remota.
+Entregar autenticação de contas cadastradas e o ciclo completo de sessão persistida, com cookie protegido, expiração absoluta e revogação remota.
 
-**Dependências:** [4.0](./task_4.md)
+**Dependências:** [3.0](./task_3.md)
 
 <skills>
 
@@ -26,19 +26,18 @@ Preservar Prisma 7, singleton existente e direção das dependências. Middlewar
 
 <requirements>
 
-- RF1–RF4: conferir senha antes da confirmação, responder credenciais erradas de forma comum e autorizar somente sessão válida de conta confirmada.
+- RF1–RF4: verificar senha, responder credenciais erradas de forma comum e autorizar somente sessão válida.
 - RF3: persistir sessão por no máximo oito horas, sem renovação automática.
 - RF6, RF15 e RF16: revogar no logout, revalidar acesso e distinguir falhas de infraestrutura de credenciais recusadas.
-- RF21: conta pendente com senha correta recebe orientação de confirmação e permanece sem sessão.
 
 </requirements>
 
 ## Subtarefas
 
 - [x] 5.1 Expor POST /api/auth/login, GET /api/auth/session e POST /api/auth/logout com os contratos da TechSpec.
-- [x] 5.2 Implementar serviço de login, tratamento comum de credenciais recusadas e bloqueio de conta pendente.
+- [x] 5.2 Implementar serviço de login e tratamento comum de credenciais recusadas.
 - [x] 5.3 Implementar criação, leitura e revogação da sessão, incluindo substituição da sessão anterior ao novo login.
-- [x] 5.4 Configurar cookie por ambiente, middleware de sessão, checagem de confirmação e revalidação após espera.
+- [x] 5.4 Configurar cookie por ambiente, middleware de sessão e revalidação após espera.
 - [x] 5.5 Tratar saída repetida, falha de revogação, timeout e proibição de cookie tardio sem afirmar sucesso remoto indevido.
 - [x] 5.6 Implementar testes completos do ciclo de sessão e suas fronteiras; executar as verificações do backend.
 
@@ -77,7 +76,7 @@ IDs e nomes abaixo vêm da [abordagem de testes da TechSpec](./techspec.md#abord
 
 ### Testes de integração (se aplicável)
 
-- [x] TI-10 — Login, credenciais erradas e pendência. Escopo nesta tarefa: Contrato completo de login e conta pendente.
+- [x] TI-10 — Login e credenciais erradas. Escopo nesta tarefa: Contrato de autenticação e resposta comum a credenciais inválidas.
 - [x] TI-11 — Cookie, origem e proteção direta. Escopo nesta tarefa: Faceta de cookies, origem e middleware; proteção das rotas processuais será completada na tarefa 6.
 - [x] TI-12 — Expiração e logout revogável. Escopo nesta tarefa: Caso completo de expiração e revogação HTTP, incluindo token anterior capturado.
 - [x] TI-16 — Falhas de dependências e prazos HTTP. Escopo nesta tarefa: Faceta de autenticação e logout, sem cookie tardio e sem falso sucesso de revogação.
