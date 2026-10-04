@@ -6,7 +6,7 @@ Ampliar a auditoria da fixture real para demonstrar que os cinco campos gerais e
 
 **Dependências:** [1.0](./task_1.md), [2.0](./task_2.md)
 
-**Status:** pendente de implementação.
+**Status:** concluída e validada.
 
 <skills>
 ### Conformidade com skills
@@ -32,11 +32,11 @@ Requisitos relacionados: RF1, RF2, RF3, RF4, RF6, RF7, RF8, RF9, RF13, RF21.
 
 ## Subtarefas
 
-- [ ] 3.1 Estender o cenário existente em persist-seed.integration.test.ts e preparar expectativas independentes por processo e ordem de origem.
-- [ ] 3.2 Consultar detalhes e todas as páginas pelas novas leituras e comparar identidade, campos formatados, ordem, vínculo e conteúdo integral.
-- [ ] 3.3 Verificar completude dos 100 processos e 5.568 eventos, incluindo ausências e os extremos reais de volume e conteúdo.
-- [ ] 3.4 Extrair auxiliar de teste coeso somente se necessário para respeitar o limite de arquivo; manter cleanup e isolamento existentes.
-- [ ] 3.5 Executar as validações da tarefa e registrar evidências; atualizar os checklists e criar o commit local do incremento.
+- [x] 3.1 Estender o cenário existente em persist-seed.integration.test.ts e preparar expectativas independentes por processo e ordem de origem.
+- [x] 3.2 Consultar detalhes e todas as páginas pelas novas leituras e comparar identidade, campos formatados, ordem, vínculo e conteúdo integral.
+- [x] 3.3 Verificar completude dos 100 processos e 5.568 eventos, incluindo ausências e os extremos reais de volume e conteúdo.
+- [x] 3.4 Manter os auxiliares coesos no teste existente, abaixo do limite de 300 linhas, com cleanup e isolamento preservados.
+- [x] 3.5 Executar as validações da tarefa e registrar evidências; atualizar os checklists e criar o commit local do incremento.
 
 ## Detalhes de implementação
 
@@ -66,11 +66,18 @@ IDs, nomes e resultados esperados preservados da TechSpec. Casos compartilhados 
 
 ### Testes de integração
 
-- [ ] TI-07 — Fixture CSV inteira permanece consultável. Todos os campos dos 100 processos e 5.568 eventos correspondem à origem após formatação.
+- [x] TI-07 — Fixture CSV inteira permanece consultável. Todos os campos dos 100 processos e 5.568 eventos correspondem à origem após formatação.
 
 ### Validações de conclusão
 
 Executar `npm run lint`, `npm run typecheck`, `npm test`, `npm run test:coverage` e `npm run build` no aplicativo afetado. Os scripts atuais existem em ambos os aplicativos; prevalecem sobre as observações antigas de ausência de lint/testes. Não reduzir os limites de cobertura nem excluir código novo para atingir o percentual.
+
+### Evidências da execução
+
+- Aplicativo: backend; Node.js `v24.11.0`; PostgreSQL de teste isolado (`dev_test_resolvvi_test`).
+- TI-07 no cenário existente `persist-seed.integration.test.ts`: 100 processos e 5.568 movimentações conferidos pelas leituras reais; detalhes, ordenação paginada, vínculo por ID, texto integral e conteúdo ausente comparados com expectativas independentes derivadas do CSV.
+- Extremos conferidos: 1.312 conteúdos ausentes, histórico máximo de 120 eventos e conteúdo máximo de 15.266 caracteres; sem IDs repetidos ou eventos omitidos.
+- `npm run lint`, `npm run typecheck`, `npm test`, `npm run test:coverage` e `npm run build`: aprovados. A suíte teve 32 arquivos e 167 testes aprovados; cobertura de 87,98% statements, 85,50% branches, 86,86% funções e 90,16% linhas.
 
 ## Arquivos relevantes
 
