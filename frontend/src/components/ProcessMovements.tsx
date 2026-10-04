@@ -14,7 +14,7 @@ export function ProcessMovements({ processId, onProcessMissing }: ProcessMovemen
       <p className="text-sm text-muted-ink">{page ? `${page.total} movimentações · Mais recentes primeiro` : 'Mais recentes primeiro'}</p>
     </header>
     <MovementsFeedback pending={movements.pending} hasPage={page !== null} errorMessage={movements.errorMessage} onRetry={() => void movements.retry()} />
-    {page?.total === 0 ? <p className="rounded-xl bg-protected p-4 text-sm text-muted-ink">Este processo ainda não possui movimentações.</p> : null}
+    {page?.total === 0 ? <p className="rounded-xl bg-protected p-4 text-sm text-muted-ink">Nenhuma movimentação disponível na base para este processo.</p> : null}
     {page && page.items.length > 0 ? <ol key={`${page.processId}:${page.page}`} className="grid min-w-0 gap-6">
       {page.items.map((movement) => <li key={movement.id}><MovementItem movement={movement} /></li>)}
     </ol> : null}

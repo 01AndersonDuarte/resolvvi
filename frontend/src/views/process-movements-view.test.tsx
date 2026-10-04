@@ -98,7 +98,7 @@ describe('process movement section', () => {
     api.getProcessMovements.mockResolvedValueOnce({ ...firstPage, items: [], total: 0, totalPages: 0 });
     renderFound();
 
-    expect(await screen.findByText('Este processo ainda não possui movimentações.')).toBeInTheDocument();
+    expect(await screen.findByText('Nenhuma movimentação disponível na base para este processo.')).toBeInTheDocument();
     expect(screen.queryByRole('navigation', { name: 'Paginação das movimentações' })).not.toBeInTheDocument();
   });
 });
