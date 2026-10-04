@@ -90,10 +90,10 @@ Não aplicável como entrega desta tarefa; as jornadas completas estão atribuí
 
 - `backend/src/routers/auth-router.ts`
 - `backend/src/controllers/session-controller.ts`
-- `backend/src/services/session-service.ts`
-- `backend/src/services/password-service.ts`
-- `backend/src/repositories/session-repository.ts`
-- `backend/src/repositories/user-repository.ts`
+- `backend/src/services/auth-service.ts`
+- `backend/src/services/security-service.ts`
+- `backend/src/repositories/auth-repository.ts`
+- `backend/src/types/auth.ts`
 - `backend/src/middlewares/session-middleware.ts`
 - `backend/src/schemas/`
 - `backend/src/errors/`

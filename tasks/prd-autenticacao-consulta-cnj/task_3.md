@@ -103,9 +103,9 @@ Não aplicável como entrega desta tarefa; as jornadas completas estão atribuí
 - `backend/src/controllers/auth-controller.ts`
 - `backend/src/services/auth-service.ts`
 - `backend/src/services/resend-service.ts`
-- `backend/src/services/verification-email.ts`
-- `backend/src/repositories/user-repository.ts`
-- `backend/src/repositories/verification-repository.ts`
+- `backend/src/services/resend-service.ts`
+- `backend/src/repositories/auth-repository.ts`
+- `backend/src/types/auth.ts`
 - `backend/src/schemas/`
 - `backend/src/errors/`
 - `backend/src/app.ts`

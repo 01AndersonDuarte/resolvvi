@@ -89,7 +89,7 @@ Não aplicável como entrega desta tarefa; as jornadas completas estão atribuí
 - `backend/src/app.ts`
 - `backend/src/server.ts`
 - `backend/src/config/`
-- `backend/src/protocols.ts`
+- `backend/src/types/config.ts`
 - `backend/src/errors/`
 - `backend/src/middlewares/`
 - `backend/src/routers/health-router.ts`

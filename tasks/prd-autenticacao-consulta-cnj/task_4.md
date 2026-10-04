@@ -82,9 +82,9 @@ Não aplicável como entrega desta tarefa; as jornadas completas estão atribuí
 
 - `backend/src/routers/auth-router.ts`
 - `backend/src/controllers/verification-controller.ts`
-- `backend/src/services/verification-service.ts`
-- `backend/src/repositories/verification-repository.ts`
-- `backend/src/repositories/user-repository.ts`
+- `backend/src/services/auth-service.ts`
+- `backend/src/repositories/auth-repository.ts`
+- `backend/src/types/auth.ts`
 - `backend/src/schemas/`
 - `backend/src/errors/`
 - Testes `*.test.ts`/`*.test.tsx` adjacentes aos módulos implementados, quando aplicável.

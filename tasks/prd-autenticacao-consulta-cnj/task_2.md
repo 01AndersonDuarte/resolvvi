@@ -98,12 +98,10 @@ Não aplicável como entrega desta tarefa; as jornadas completas estão atribuí
 
 - `backend/prisma/schema.prisma`
 - `backend/prisma/migrations/`
-- `backend/src/protocols.ts`
-- `backend/src/repositories/user-repository.ts`
-- `backend/src/repositories/session-repository.ts`
-- `backend/src/repositories/verification-repository.ts`
-- `backend/src/services/password-service.ts`
-- `backend/src/services/token-service.ts`
+- `backend/src/types/auth.ts`
+- `backend/src/types/database.ts`
+- `backend/src/repositories/auth-repository.ts`
+- `backend/src/services/security-service.ts`
 - `backend/src/schemas/`
 - `backend/src/errors/`
 - `backend/src/config/`

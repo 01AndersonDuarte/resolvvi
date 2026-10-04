@@ -15,21 +15,21 @@ Fluxo principal: navegador → API de autenticação → serviços → repositó
 | Componente e localização | Situação | Responsabilidade e relações |
 | --- | --- | --- |
 | `backend/src/app.ts`, `server.ts` | Novos | Compor Express sem `listen` em `app.ts`; iniciar HTTP e desligamento em `server.ts`. Injetar dependências na composição para permitir testes. |
-| `backend/src/config/envs.ts`, `environment-schema.ts`, `protocols.ts` | Modificados | Preservar configuração da fundação e acrescentar opções HTTP tipadas. Ler ambiente somente na configuração. |
+| `backend/src/config/envs.ts`, `environment-schema.ts`, `http-environment-schema.ts`, `types/config.ts` | Modificados | Preservar configuração da fundação e acrescentar opções HTTP tipadas. Ler ambiente somente na configuração. |
 | `backend/src/config/http-environment.ts`, `http-environment-schema.ts` | Novos | Validar opções obrigatórias de HTTP e Resend antes de abrir o servidor, sem exigir credenciais de envio de migrations ou seed. |
 | `backend/src/config/database.ts`, `database-client.ts` | Reutilizados | Singleton Prisma e factory do adaptador PostgreSQL existentes. |
 | `backend/src/config/logger.ts`, `sanitize-log-context.ts` | Modificados | Registrar eventos HTTP por lista permitida de campos; proteger cookies, e-mail, CNJ e material de confirmação. |
 | `backend/src/routers/{auth,process,health}-router.ts` | Novos | Registrar os nove endpoints especificados abaixo. |
 | `backend/src/middlewares/` | Novos | `session-middleware.ts`, `origin-middleware.ts`, `validation-middleware.ts`, `error-middleware.ts`, `request-context-middleware.ts`: sessão, origem, schemas, erros e prazo/correlação. |
-| `backend/src/controllers/` | Novos | `registration-controller.ts`, `verification-controller.ts`, `session-controller.ts`, `process-controller.ts`, `health-controller.ts`; extrair entrada, chamar serviço e responder. |
-| `backend/src/schemas/` | Novos | Schemas Joi de cadastro, login, confirmação, reenvio, CNJ e ID de processo, rejeitando campos desconhecidos e coerção de tipos. |
-| `backend/src/services/` | Novos | `registration-service.ts`, `verification-service.ts`, `session-service.ts`, `process-query-service.ts`; regras de conta, limites, sessão e busca. |
-| `backend/src/services/password-service.ts`, `token-service.ts` | Novos | Hash assíncrono de senha; geração aleatória e digest de segredos. |
-| `backend/src/services/resend-service.ts`, `verification-email.ts` | Novos | Adaptador de envio HTTPS e composição de HTML/texto; não dependem de Express nem acessam banco. |
+| `backend/src/controllers/auth-controller.ts`, `process-controller.ts`, `health-controller.ts` | Novos | Controllers agrupados por recurso; extrair entrada validada, chamar service e responder. |
+| `backend/src/schemas/auth-schema.ts`, `process-schema.ts` | Novos | Schemas Joi agrupados por recurso para cadastro, login, confirmação, reenvio, CNJ e ID de processo, rejeitando campos desconhecidos e coerção de tipos. |
+| `backend/src/services/auth-service.ts`, `process-service.ts` | Novos | Regras de conta, confirmação, sessão, limites e busca agrupadas por recurso. |
+| `backend/src/services/security-service.ts` | Novo | Hash assíncrono de senha; geração, validação e digest de segredos. Fila de trabalho mantida junto à segurança. |
+| `backend/src/services/resend-service.ts` | Novo | Adaptador de envio HTTPS e composição de HTML/texto; não depende de Express nem acessa banco. |
 | `backend/src/services/cnj-input-service.ts` | Novo adaptador | Validar entrada estrutural, consumir o validador da fundação e produzir a máscara usada na persistência. O algoritmo verificador não pertence a este adaptador. |
-| `backend/src/repositories/{user,session,verification}-repository.ts` | Novos | Acesso a contas/sessões/emissões e operações transacionais coesas; único ponto de acesso ao banco. |
+| `backend/src/repositories/auth-repository.ts` | Novo | Acesso a contas, sessões e emissões, incluindo operações transacionais coesas; único ponto de acesso ao banco para autenticação. |
 | `backend/src/repositories/process-repository.ts` | Modificado | Preservar `create`/`findByCnj`; acrescentar `findSummaryById`, projetando apenas `id`/`cnj`. |
-| `backend/src/errors/`, `protocols.ts` | Modificados | Factories de erros `Error` com nome e metadados públicos tipados; contratos derivados dos modelos quando aplicável. Dividir contratos em módulos coesos caso atinjam 100 linhas. |
+| `backend/src/errors/`, `backend/src/types/` | Modificados | Erros agrupados por contexto e contratos compartilhados agrupados por recurso, derivados dos modelos quando aplicável. |
 | `backend/prisma/schema.prisma`, `prisma/migrations/` | Adição | Criar `User`, `Session` e `EmailVerification`; não alterar modelos ou registros de processos/movimentações. |
 | `frontend/src/App.tsx`, `main.tsx`, `index.css` | Novos | Compor rotas, provedor de sessão e estilos Tailwind. |
 | `frontend/src/views/` | Novas | `LoginView`, `SignUpView`, `VerificationPendingView`, `EmailVerificationView`, `ResendVerificationView`, `ProcessSearchView`, `ProcessFoundView`. |
@@ -758,7 +758,7 @@ Esta especificação não realiza implementação, revisão de código ou QA. O 
 | `AGENTS.md`, `.agents/rules/*.md`, `.agents/skills/react/` | Normas aplicáveis. |
 | `backend/package.json`, `package-lock.json`, `tsconfig*.json`, `eslint.config.js`, `vitest.config.ts` | Base de dependências/build/qualidade a ampliar. |
 | `backend/prisma/schema.prisma`, `prisma.config.ts`, `prisma/migrations/` | Modelos e migrations da fundação e novas entidades de autenticação. |
-| `backend/src/config/`, `errors/`, `protocols.ts` | Configuração, banco, logger e contratos reutilizáveis. |
+| `backend/src/config/`, `errors/`, `types/` | Configuração, banco, logger, erros e contratos reutilizáveis agrupados por contexto. |
 | `backend/src/repositories/process-repository.ts`, `movement-repository.ts` | Busca literal e persistência existente a preservar. |
 | `backend/src/seed/`, `lawsuits_movements.csv` | Origem da base; sem recarga/alteração pela jornada. |
 | `backend/compose.yaml`, `.env.development.example`, `.env.test.example`, `README.md` | Infra local e documentação de configuração/aceite. |

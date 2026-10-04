@@ -98,7 +98,7 @@ Não aplicável como entrega desta tarefa; as jornadas completas estão atribuí
 ## Arquivos relevantes
 
 - `backend/src/services/cnj-input-service.ts`
-- `backend/src/services/process-query-service.ts`
+- `backend/src/services/process-service.ts`
 - `backend/src/repositories/process-repository.ts`
 - `backend/src/routers/process-router.ts`
 - `backend/src/controllers/process-controller.ts`

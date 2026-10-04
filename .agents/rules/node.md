@@ -258,7 +258,7 @@ As dependências seguem uma única direção, definida em `folder-structure.md`:
 routers → middlewares → controllers → services → repositories
 ```
 
-Uma camada nunca importa a camada anterior: `repositories` não importam `services`, e `services` não importam `controllers`. `config/`, `errors/` e `protocols.ts` podem ser importados por qualquer camada e não importam nenhuma delas.
+Uma camada nunca importa a camada anterior: `repositories` não importam `services`, e `services` não importam `controllers`. `config/`, `errors/` e `types/` podem ser importados por qualquer camada e não importam nenhuma delas.
 
 Os `index.ts` de cada pasta são a principal fonte de ciclos. Dentro da mesma camada, importe o arquivo específico, nunca o `index.ts` da própria pasta:
 
@@ -272,6 +272,6 @@ import * as authService from '../services';
 import * as authService from './auth-service';
 ```
 
-Extraia contratos compartilhados para `protocols.ts` e funções comuns para módulos independentes. Cada módulo deve ter uma responsabilidade clara e não depender do módulo que o instancia.
+Agrupe contratos compartilhados por contexto em `types/`, conforme `folder-structure.md`, e funções comuns no módulo do recurso e da camada responsáveis. Cada módulo deve ter uma responsabilidade clara e não depender do módulo que o instancia.
 
 Antes de concluir uma alteração, verifique se a nova importação não cria um ciclo indireto. Referências circulares podem produzir objetos parcialmente inicializados, comportamento dependente da ordem de importação e erros difíceis de diagnosticar.
