@@ -28,3 +28,48 @@ model Movement {
 
   @@index([processId, movementDate, sourceOrder])
 }
+
+enum VerificationDeliveryStatus {
+  UNKNOWN
+  ACCEPTED
+  FAILED
+}
+
+model User {
+  id              String             @id @default(uuid()) @db.Uuid
+  email           String             @unique @db.VarChar(254)
+  passwordHash    String
+  emailVerifiedAt DateTime?           @db.Timestamptz(3)
+  createdAt       DateTime            @default(now()) @db.Timestamptz(3)
+  sessions        Session[]
+  verifications   EmailVerification[]
+}
+
+model Session {
+  id        String    @id @default(uuid()) @db.Uuid
+  userId    String    @db.Uuid
+  tokenHash String    @unique @db.Char(64)
+  createdAt DateTime  @default(now()) @db.Timestamptz(3)
+  expiresAt DateTime  @db.Timestamptz(3)
+  revokedAt DateTime? @db.Timestamptz(3)
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([expiresAt])
+}
+
+model EmailVerification {
+  id                String                    @id @default(uuid()) @db.Uuid
+  userId            String                    @db.Uuid
+  tokenHash         String                    @unique @db.Char(64)
+  issuedAt          DateTime                  @default(now()) @db.Timestamptz(3)
+  expiresAt         DateTime                  @db.Timestamptz(3)
+  consumedAt        DateTime?                 @db.Timestamptz(3)
+  invalidatedAt     DateTime?                 @db.Timestamptz(3)
+  deliveryStatus    VerificationDeliveryStatus @default(UNKNOWN)
+  providerMessageId String?
+  user              User                      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, issuedAt])
+  @@index([expiresAt])
+}
