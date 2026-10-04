@@ -6,7 +6,7 @@
 - [x] 2.0 [API de movimentações paginadas](./task_2.md)
 - [x] 3.0 [Auditoria da base importada pelos novos contratos](./task_3.md)
 - [x] 4.0 [Cliente HTTP e hooks de detalhes e histórico](./task_4.md)
-- [ ] 5.0 [Página de informações gerais e estados de detalhes](./task_5.md)
+- [x] 5.0 [Página de informações gerais e estados de detalhes](./task_5.md)
 - [ ] 6.0 [Interface de movimentações e integração da página](./task_6.md)
 - [ ] 7.0 [Jornadas E2E e validação final](./task_7.md)
 
@@ -129,4 +129,4 @@ Inventário completo: 19 casos unitários, oito de integração e cinco E2E. As 
 - Acessibilidade segue o limite do PRD: semântica, teclado, responsividade e zoom nativo de 200%, distinguindo-o de CSS zoom automatizado.
 - Marcar checklists somente após a conclusão e validação do incremento; seguir os commits locais previstos nas rules.
 
-A implementação está em andamento. A próxima tarefa pendente é a 5.0.
+A implementação está em andamento. A próxima tarefa pendente é a 6.0.

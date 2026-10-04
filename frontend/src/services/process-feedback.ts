@@ -31,9 +31,15 @@ export function getProcessSearchError(failure: RequestFailure | null, error: str
 }
 
 export function getProcessDetailsError(failure: RequestFailure | null): string {
-  return failure?.error.code === 'PROCESS_NOT_FOUND'
-    ? 'Não encontramos esse processo na base disponível.'
-    : SERVICE_MESSAGE;
+  if (failure?.error.code === 'PROCESS_NOT_FOUND') {
+    return 'Não encontramos esse processo na base disponível.';
+  }
+
+  if (failure?.error.code === 'INVALID_INPUT') {
+    return 'O endereço do processo é inválido. Confira o endereço e tente novamente.';
+  }
+
+  return 'Não foi possível carregar os dados do processo. Tente novamente.';
 }
 
 export function getProcessMovementsError(failure: RequestFailure | null, error: string): string {

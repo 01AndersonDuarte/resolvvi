@@ -25,7 +25,8 @@ describe('process feedback', () => {
     expect(getProcessSearchError(null, 'network')).toContain('conectar');
     expect(getProcessSearchError(failure('SERVICE_UNAVAILABLE'), 'x')).toContain('concluir');
     expect(getProcessDetailsError(failure('PROCESS_NOT_FOUND'))).toContain('Não encontramos');
-    expect(getProcessDetailsError(null)).toContain('concluir');
+    expect(getProcessDetailsError(failure('INVALID_INPUT'))).toContain('endereço do processo é inválido');
+    expect(getProcessDetailsError(null)).toContain('carregar os dados do processo');
   });
 });
 
