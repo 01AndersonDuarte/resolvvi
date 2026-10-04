@@ -40,13 +40,13 @@ No frontend, manter componentes até 30 linhas, props explícitas, acesso HTTP e
 
 ## Subtarefas
 
-- [ ] 10.1 Configurar Playwright no frontend e testes em e2e/ na raiz, com SPA/API reais, portas disponíveis e banco dedicado.
-- [ ] 10.2 Integrar o provedor de confirmação simulado e coletor privado do harness, sem endpoint de produção para obter tokens.
-- [ ] 10.3 Implementar E2E-01 e E2E-02 para cadastro, confirmação em outro contexto, reenvio e recuperação.
-- [ ] 10.4 Implementar E2E-03, E2E-04 e E2E-05 para consulta, autorização, saída, teclado e tela pequena.
-- [ ] 10.5 Executar as suítes e verificações dos dois aplicativos, conferir cobertura e rastreabilidade de todos os casos; corrigir falhas dentro do escopo.
+- [x] 10.1 Configurar Playwright no frontend e testes em e2e/ na raiz, com SPA/API reais, portas disponíveis e banco dedicado.
+- [x] 10.2 Integrar o provedor de confirmação simulado e coletor privado do harness, sem endpoint de produção para obter tokens.
+- [x] 10.3 Implementar E2E-01 e E2E-02 para cadastro, confirmação em outro contexto, reenvio e recuperação.
+- [x] 10.4 Implementar E2E-03, E2E-04 e E2E-05 para consulta, autorização, saída, teclado e tela pequena.
+- [x] 10.5 Executar as suítes e verificações dos dois aplicativos, conferir cobertura e rastreabilidade de todos os casos; corrigir falhas dentro do escopo.
 - [ ] 10.6 Realizar e registrar aceite de leitor de tela/zoom e envio/recebimento real pelo Resend em ambiente controlado, sem registrar segredos.
-- [ ] 10.7 Atualizar documentação operacional e evidências, registrar dependências realmente atendidas e encerrar somente recursos iniciados pela execução.
+- [x] 10.7 Atualizar documentação operacional e evidências, registrar dependências realmente atendidas e encerrar somente recursos iniciados pela execução.
 
 ## Detalhes de implementação
 
@@ -109,11 +109,11 @@ Não há novos casos desta camada atribuídos a esta tarefa. Reexecutar os casos
 
 ### Testes E2E (se aplicável)
 
-- [ ] E2E-01 — Cadastro até consulta e retorno. Escopo nesta tarefa: Caso completo conforme a TechSpec.
-- [ ] E2E-02 — Link expirado, reenvio e recuperação. Escopo nesta tarefa: Caso completo conforme a TechSpec.
-- [ ] E2E-03 — Consulta inválida, ausente, falha e correção. Escopo nesta tarefa: Caso completo conforme a TechSpec.
-- [ ] E2E-04 — Autorização, expiração e saída. Escopo nesta tarefa: Caso completo conforme a TechSpec.
-- [ ] E2E-05 — Jornada por teclado e viewport pequeno. Escopo nesta tarefa: Caso completo conforme a TechSpec.
+- [x] E2E-01 — Cadastro até consulta e retorno. Escopo nesta tarefa: Caso completo conforme a TechSpec.
+- [x] E2E-02 — Link expirado, reenvio e recuperação. Escopo nesta tarefa: Caso completo conforme a TechSpec.
+- [x] E2E-03 — Consulta inválida, ausente, falha e correção. Escopo nesta tarefa: Caso completo conforme a TechSpec.
+- [x] E2E-04 — Autorização, expiração e saída. Escopo nesta tarefa: Caso completo conforme a TechSpec.
+- [x] E2E-05 — Jornada por teclado e viewport pequeno. Escopo nesta tarefa: Caso completo conforme a TechSpec.
 
 ## Arquivos relevantes
 
@@ -130,3 +130,7 @@ Não há novos casos desta camada atribuídos a esta tarefa. Reexecutar os casos
 - `tasks/prd-autenticacao-consulta-cnj/evidences/`
 - Testes `*.test.ts`/`*.test.tsx` adjacentes aos módulos implementados, quando aplicável.
 - `tasks/prd-autenticacao-consulta-cnj/task_10.md` e `tasks.md` para atualização de progresso ao concluir a implementação.
+
+## Evidências
+
+Resultados e aceite externo pendente: [`evidences/task-10.md`](./evidences/task-10.md).
