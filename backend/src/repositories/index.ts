@@ -10,3 +10,6 @@ export {
   type ProcessRepository,
 } from './process-repository.js';
 export * from './auth-repository.js';
+export * from './process-ai-summary-repository.js';
+export * from './summary-attempt-repository.js';
+export * from './summary-feedback-repository.js';

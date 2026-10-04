@@ -12,7 +12,7 @@ export function createMovement(input: CreateMovementInput, client: PrismaClient)
 export function listMovementsByProcess(processId: number, client: PrismaClient): Promise<Movement[]> {
   return client.movement.findMany({
     where: { processId },
-    orderBy: [{ movementDate: 'asc' }, { sourceOrder: 'asc' }],
+    orderBy: [{ movementDate: 'asc' }, { sourceOrder: 'asc' }, { id: 'asc' }],
   });
 }
 

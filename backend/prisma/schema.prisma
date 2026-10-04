@@ -8,13 +8,16 @@ datasource db {
 }
 
 model Process {
-  id              Int        @id @default(autoincrement())
-  cnj             String     @unique
-  forum           String
-  court           String
-  lawsuitValue    Decimal
-  numberOfAuthors Int
-  movements       Movement[]
+  id                 Int                     @id @default(autoincrement())
+  cnj                String                  @unique
+  forum              String
+  court              String
+  lawsuitValue       Decimal
+  numberOfAuthors    Int
+  movements          Movement[]
+  summarySourceState SummarySourceState?
+  summarySlots       SummaryGenerationSlot[]
+  aiSummaries        ProcessAiSummary[]
 }
 
 model Movement {
@@ -30,11 +33,12 @@ model Movement {
 }
 
 model User {
-  id           String    @id @default(uuid()) @db.Uuid
-  email        String    @unique @db.VarChar(254)
-  passwordHash String
-  createdAt    DateTime  @default(now()) @db.Timestamptz(3)
-  sessions     Session[]
+  id              String                  @id @default(uuid()) @db.Uuid
+  email           String                  @unique @db.VarChar(254)
+  passwordHash    String
+  createdAt       DateTime                @default(now()) @db.Timestamptz(3)
+  sessions        Session[]
+  summaryFeedback SummaryFeedbackRecord[]
 }
 
 model Session {
@@ -48,4 +52,95 @@ model Session {
 
   @@index([userId])
   @@index([expiresAt])
+}
+
+model SummarySourceState {
+  processId          Int      @id
+  sourceHash         String   @db.Char(64)
+  sourceRevision     Int      @default(1)
+  lastSummaryVersion Int      @default(0)
+  updatedAt          DateTime @updatedAt @db.Timestamptz(3)
+  process            Process  @relation(fields: [processId], references: [id], onDelete: Restrict)
+}
+
+model SummaryGenerationSlot {
+  id                  String            @id @default(uuid()) @db.Uuid
+  processId           Int
+  sourceRevision      Int
+  rulesVersion        String            @db.VarChar(100)
+  sourceHash          String            @db.Char(64)
+  sourceFormatVersion String            @db.VarChar(50)
+  sourceSnapshot      Json
+  movementCount       Int
+  lastAttemptNumber   Int               @default(0)
+  retryAt             DateTime?         @db.Timestamptz(3)
+  createdAt           DateTime          @default(now()) @db.Timestamptz(3)
+  process             Process           @relation(fields: [processId], references: [id], onDelete: Restrict)
+  attempts            SummaryAttempt[]
+  summary             ProcessAiSummary?
+
+  @@unique([processId, sourceRevision, rulesVersion])
+  @@index([processId, sourceRevision])
+}
+
+enum SummaryAttemptStatus {
+  running
+  succeeded
+  failed
+  expired
+  source_changed
+  rules_changed
+}
+
+model SummaryAttempt {
+  id                String                @id @default(uuid()) @db.Uuid
+  slotId            String                @db.Uuid
+  number            Int
+  status            SummaryAttemptStatus  @default(running)
+  startedAt         DateTime              @db.Timestamptz(3)
+  deadlineAt        DateTime              @db.Timestamptz(3)
+  callStartedAt     DateTime?             @db.Timestamptz(3)
+  finishedAt        DateTime?             @db.Timestamptz(3)
+  failureCode       String?               @db.VarChar(100)
+  configuration     Json
+  configurationHash String                @db.Char(64)
+  inputUnits        Int?
+  outputUnits       Int?
+  totalUnits        Int?
+  providerRequestId String?               @db.VarChar(255)
+  slot              SummaryGenerationSlot @relation(fields: [slotId], references: [id], onDelete: Restrict)
+  summary           ProcessAiSummary?
+
+  @@unique([slotId, number])
+  @@index([status, deadlineAt])
+}
+
+model ProcessAiSummary {
+  id          String                  @id @default(uuid()) @db.Uuid
+  processId   Int
+  version     Int
+  slotId      String                  @unique @db.Uuid
+  attemptId   String                  @unique @db.Uuid
+  paragraphs  Json
+  claims      Json
+  generatedAt DateTime                @db.Timestamptz(3)
+  process     Process                 @relation(fields: [processId], references: [id], onDelete: Restrict)
+  slot        SummaryGenerationSlot   @relation(fields: [slotId], references: [id], onDelete: Restrict)
+  attempt     SummaryAttempt          @relation(fields: [attemptId], references: [id], onDelete: Restrict)
+  feedback    SummaryFeedbackRecord[]
+
+  @@unique([processId, version])
+}
+
+model SummaryFeedbackRecord {
+  summaryId String           @db.Uuid
+  userId    String           @db.Uuid
+  helpful   Boolean
+  createdAt DateTime         @default(now()) @db.Timestamptz(3)
+  updatedAt DateTime         @updatedAt @db.Timestamptz(3)
+  summary   ProcessAiSummary @relation(fields: [summaryId], references: [id], onDelete: Restrict)
+  user      User             @relation(fields: [userId], references: [id], onDelete: Restrict)
+
+  @@id([summaryId, userId])
+  @@index([userId])
 }

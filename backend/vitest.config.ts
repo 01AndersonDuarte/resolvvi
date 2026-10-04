@@ -4,6 +4,7 @@ const MINIMUM_COVERAGE = 80;
 
 export default defineConfig({
   test: {
+    fileParallelism: false,
     coverage: {
       exclude: ['src/**/*.test.ts', 'src/generated/**', 'src/protocols.ts'],
       include: ['src/**/*.ts'],

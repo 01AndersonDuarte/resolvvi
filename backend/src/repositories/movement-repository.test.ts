@@ -27,7 +27,7 @@ it('lista movimentações por data e ordem de origem', async () => {
   await expect(repository.listByProcess(7)).resolves.toEqual([savedMovement]);
   expect(findMany).toHaveBeenCalledWith({
     where: { processId: 7 },
-    orderBy: [{ movementDate: 'asc' }, { sourceOrder: 'asc' }],
+    orderBy: [{ movementDate: 'asc' }, { sourceOrder: 'asc' }, { id: 'asc' }],
   });
 });
 

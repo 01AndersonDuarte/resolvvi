@@ -37,12 +37,12 @@ Após cada incremento coeso validado, revisar o diff, selecionar arquivos explic
 
 ## Subtarefas
 
-- [ ] 2.1 Adicionar entidades e constraints ao schema, gerar migration e validar aplicação em banco isolado sem alterar os textos processuais existentes.
-- [ ] 2.2 Implementar leitura integral em lotes e transações de observação da fonte, revisão e leitura de resumo atual; preservar ordenação pública do histórico.
-- [ ] 2.3 Implementar reserva, número de tentativa, cooldown, despacho condicional e transições terminais com prazo persistido.
-- [ ] 2.4 Implementar publicação atômica de resumo/evidências e consultas para reconciliação após falha de confirmação.
-- [ ] 2.5 Implementar gravação serializada de feedback, idempotência, timestamps e preservação de votos antigos.
-- [ ] 2.6 Provar concorrência, invalidação, integridade e rollback com conexões reais e barreiras controladas; executar os gates do backend.
+- [x] 2.1 Adicionar entidades e constraints ao schema, gerar migration e validar aplicação em banco isolado sem alterar os textos processuais existentes.
+- [x] 2.2 Implementar leitura integral em lotes e transações de observação da fonte, revisão e leitura de resumo atual; preservar ordenação pública do histórico.
+- [x] 2.3 Implementar reserva, número de tentativa, cooldown, despacho condicional e transições terminais com prazo persistido.
+- [x] 2.4 Implementar publicação atômica de resumo/evidências e consultas para reconciliação após falha de confirmação.
+- [x] 2.5 Implementar gravação serializada de feedback, idempotência, timestamps e preservação de votos antigos.
+- [x] 2.6 Provar concorrência, invalidação, integridade e rollback com conexões reais e barreiras controladas; executar os gates do backend.
 
 ## Detalhes de implementação
 
@@ -78,14 +78,14 @@ Nesta tarefa, TI-03/04/05/07/08/09/13/14 exercitam as garantias dos repositories
 
 ### Testes de integração
 
-- [ ] TI-03 — Concorrência em dois services/clientes compartilha tentativa
-- [ ] TI-04 — Mudança de cada campo da fonte invalida leitura e publicação
-- [ ] TI-05 — Reinício preserva resumo e expira tentativa sem reenvio
-- [ ] TI-07 — Falha/commit incerto da persistência não publica sucesso aparente
-- [ ] TI-08 — Voto repetido, trocado e concorrente mantém uma linha
-- [ ] TI-09 — Nova versão preserva voto antigo e snapshot após remoção
-- [ ] TI-13 — Fonte revertida e regras alteradas geram nova identidade
-- [ ] TI-14 — Locks incluem escrita direta e encerramento interrompe operações
+- [x] TI-03 — Concorrência em dois services/clientes compartilha tentativa
+- [x] TI-04 — Mudança de cada campo da fonte invalida leitura e publicação
+- [x] TI-05 — Reinício preserva resumo e expira tentativa sem reenvio
+- [x] TI-07 — Falha/commit incerto da persistência não publica sucesso aparente
+- [x] TI-08 — Voto repetido, trocado e concorrente mantém uma linha
+- [x] TI-09 — Nova versão preserva voto antigo e snapshot após remoção
+- [x] TI-13 — Fonte revertida e regras alteradas geram nova identidade
+- [x] TI-14 — Locks incluem escrita direta e encerramento interrompe operações
 
 ## Arquivos relevantes
 

@@ -35,3 +35,28 @@ export type SummaryCapacity = {
   fits: boolean;
   estimatorVersion: 'utf8-upper-bound-v1';
 };
+
+export type SummarySourceSnapshot = {
+  source: PreparedSummarySource;
+  sourceRevision: number;
+  lastSummaryVersion: number;
+};
+
+export type SummaryReservationInput = {
+  processId: number;
+  rulesVersion: string;
+  configuration: Record<string, unknown>;
+  configurationHash: string;
+  now: Date;
+  deadlineAt: Date;
+  retryAt: Date;
+};
+
+export type SummaryReservation = {
+  outcome: 'created' | 'joined' | 'reused' | 'cooldown' | 'source_changed';
+  slotId: string | null;
+  attemptId: string | null;
+  attemptNumber: number | null;
+  deadlineAt: Date | null;
+  retryAt: Date | null;
+};
