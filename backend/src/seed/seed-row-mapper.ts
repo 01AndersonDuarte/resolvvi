@@ -1,4 +1,4 @@
-import type { SeedMovement, SeedProcess } from './seed-data.js';
+import type { SeedMovement, SeedProcess } from '../types/seed.js';
 
 export const SEED_HEADERS = [
   'lawsuit_number',

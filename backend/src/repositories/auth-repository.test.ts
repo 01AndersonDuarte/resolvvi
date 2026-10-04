@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { getEmissionRetryAfter } from './verification-rate-limit.js';
+import { getEmissionRetryAfter } from './auth-repository.js';
 
 const now = new Date('2026-10-03T20:00:00.000Z');
 

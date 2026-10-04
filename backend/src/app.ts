@@ -1,18 +1,15 @@
 import cors from 'cors';
-import express, { type Express, type RequestHandler, type Router } from 'express';
+import express, { type Express } from 'express';
 
 import { errorMiddleware } from './middlewares/error-middleware.js';
 import { createOriginMiddleware } from './middlewares/origin-middleware.js';
 import { requestContextMiddleware } from './middlewares/request-context-middleware.js';
 import { createHealthRouter } from './routers/health-router.js';
+import type { AppDependencies } from './types/http.js';
 
 const BODY_LIMIT = '8kb';
 
-export type AppDependencies = {
-  publicAppUrl: string;
-  healthHandler?: RequestHandler;
-  authRouter?: Router;
-};
+export type { AppDependencies };
 
 export function createApp(dependencies: AppDependencies): Express {
   const app = express();

@@ -1,6 +1,6 @@
 import dotenv from 'dotenv';
 
-import type { ApplicationEnvironment } from '../protocols.js';
+import type { ApplicationEnvironment } from '../types/config.js';
 import { parseEnvironment } from './environment-schema.js';
 
 const DEFAULT_NODE_ENVIRONMENT = 'development';

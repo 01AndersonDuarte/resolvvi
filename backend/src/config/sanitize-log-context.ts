@@ -1,4 +1,4 @@
-import type { LogContext } from '../protocols.js';
+import type { LogContext } from '../types/config.js';
 
 const REDACTED = '[REDACTED]';
 const CIRCULAR = '[CIRCULAR]';

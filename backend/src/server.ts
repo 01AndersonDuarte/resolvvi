@@ -4,10 +4,9 @@ import { createApp } from './app.js';
 import { prisma } from './config/database.js';
 import { parseHttpEnvironment } from './config/http-environment-schema.js';
 import { logger } from './config/logger.js';
-import type { HttpEnvironment } from './protocols.js';
+import type { HttpEnvironment } from './types/config.js';
 import { createShutdown } from './shutdown.js';
-import { createUserRepository } from './repositories/user-repository.js';
-import { createVerificationRepository } from './repositories/verification-repository.js';
+import { createAuthRepository } from './repositories/auth-repository.js';
 import { createAuthRouter } from './routers/auth-router.js';
 import { createAuthService } from './services/auth-service.js';
 import { createResendService } from './services/resend-service.js';
@@ -37,8 +36,7 @@ function registerProcessHandlers(server: Server): void {
 function buildHttpServer(configuration: HttpEnvironment): Server {
   const authService = createAuthService({
     publicAppUrl: configuration.publicAppUrl,
-    users: createUserRepository(prisma),
-    verifications: createVerificationRepository(prisma),
+    repositories: createAuthRepository(prisma),
     sender: createResendService({
       apiKey: configuration.resendApiKey ?? '',
       from: configuration.resendFrom ?? '',

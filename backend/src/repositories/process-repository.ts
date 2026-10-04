@@ -1,18 +1,20 @@
-import type { PrismaClient, Process } from '../generated/prisma/client.js';
+import type { PrismaClient } from '../generated/prisma/client.js';
+import type { Process } from '../generated/prisma/client.js';
+import type { CreateProcessInput, ProcessRepository } from '../types/process.js';
 
-export type CreateProcessInput = Pick<
-  Process,
-  'cnj' | 'forum' | 'court' | 'lawsuitValue' | 'numberOfAuthors'
->;
+export type { CreateProcessInput, ProcessRepository };
 
-export type ProcessRepository = {
-  create: (input: CreateProcessInput) => Promise<Process>;
-  findByCnj: (cnj: string) => Promise<Process | null>;
-};
+export function createProcess(input: CreateProcessInput, client: PrismaClient): Promise<Process> {
+  return client.process.create({ data: input });
+}
+
+export function findProcessByCnj(cnj: string, client: PrismaClient): Promise<Process | null> {
+  return client.process.findUnique({ where: { cnj } });
+}
 
 export function createProcessRepository(client: PrismaClient): ProcessRepository {
   return {
-    create: (input) => client.process.create({ data: input }),
-    findByCnj: (cnj) => client.process.findUnique({ where: { cnj } }),
+    create: (input) => createProcess(input, client),
+    findByCnj: (cnj) => findProcessByCnj(cnj, client),
   };
 }

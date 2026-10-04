@@ -1,51 +1,29 @@
 import { ApplicationError, invalidInput } from '../errors/application-error.js';
 import { Prisma } from '../generated/prisma/client.js';
-import type { AuthenticationUser } from '../protocols.js';
-import type { UserRepository } from '../repositories/user-repository.js';
-import type { VerificationRepository } from '../repositories/verification-repository.js';
-import { validateAndNormalizeEmail } from '../schemas/email-schema.js';
-import { validatePassword } from '../schemas/password-schema.js';
-import { createSecret, digestSecret } from './token-service.js';
-import { hashPassword } from './password-service.js';
-import type { VerificationSender } from './resend-service.js';
+import { validateAndNormalizeEmail, validatePassword } from '../schemas/auth-schema.js';
+import type { AuthenticationUser, AuthRepository, AuthService, AuthServiceDependencies, EmailInput, MessageResponse, RegistrationInput } from '../types/auth.js';
+import type { DeliveryResult } from '../types/resend.js';
+import { createSecret, digestSecret, hashPassword } from './security-service.js';
 
 const REGISTRATION_MESSAGE = 'Confira seu e-mail para continuar. Se já possui conta confirmada, entre.';
 const RESEND_MESSAGE = 'Se houver confirmação pendente para este e-mail, enviaremos as instruções.';
 const REQUEST_TIMEOUT_MS = 12_000;
 
-export type MessageResponse = { message: string };
-
-export type AuthService = {
-  register: (input: { email: string; password: string }) => Promise<MessageResponse>;
-  resend: (input: { email: string }) => Promise<MessageResponse>;
-};
-
-type AuthDependencies = {
-  publicAppUrl: string;
-  users: UserRepository;
-  verifications: VerificationRepository;
-  sender: VerificationSender;
-  now?: () => Date;
-};
-
-export function createAuthService(dependencies: AuthDependencies): AuthService {
-  const now = dependencies.now ?? (() => new Date());
+export function createAuthService(dependencies: AuthServiceDependencies): AuthService {
   return {
-    register: (input) => registerAccount(input, dependencies, now),
-    resend: (input) => resendConfirmation(input, dependencies, now),
+    register: (input) => register(input, dependencies),
+    resend: (input) => resend(input, dependencies),
   };
 }
 
-async function registerAccount(
-  input: { email: string; password: string }, dependencies: AuthDependencies, now: () => Date,
-): Promise<MessageResponse> {
+export async function register(input: RegistrationInput, dependencies: AuthServiceDependencies): Promise<MessageResponse> {
   const email = normalizeEmail(input.email);
   assertPassword(input.password);
   try {
-    const existingUser = await dependencies.users.findByEmail(email);
-    const user = existingUser ?? await createOrReadUser(dependencies.users, email, input.password);
+    const existingUser = await dependencies.repositories.findUserByEmail(email);
+    const user = existingUser ?? await createOrReadUser(dependencies.repositories, email, input.password);
     if (user.emailVerifiedAt) return { message: REGISTRATION_MESSAGE };
-    await issueVerification({ dependencies, userId: user.id, email, requestTime: now() });
+    await issueVerification({ dependencies, userId: user.id, email, requestTime: getCurrentTime(dependencies) });
     return { message: REGISTRATION_MESSAGE };
   } catch (error: unknown) {
     throw mapServiceFailure(error);
@@ -53,29 +31,29 @@ async function registerAccount(
 }
 
 async function createOrReadUser(
-  users: UserRepository,
+  users: AuthServiceDependencies['repositories'],
   email: string,
   password: string,
 ): Promise<AuthenticationUser> {
   const passwordHash = await hashPassword(password, Date.now() + REQUEST_TIMEOUT_MS);
   try {
-    return await users.create({ email, passwordHash });
+    return await users.createUser({ email, passwordHash });
   } catch (error: unknown) {
     if (!(error instanceof Prisma.PrismaClientKnownRequestError) || error.code !== 'P2002') throw error;
-    const existingUser = await users.findByEmail(email);
+    const existingUser = await users.findUserByEmail(email);
     if (!existingUser) throw error;
     return existingUser;
   }
 }
 
 async function issueVerification(input: {
-  dependencies: AuthDependencies;
+  dependencies: AuthServiceDependencies;
   userId: string;
   email: string;
   requestTime: Date;
 }): Promise<void> {
   const token = createSecret();
-  const reservation = await input.dependencies.verifications.reserve({
+  const reservation = await input.dependencies.repositories.reserveVerification({
     userId: input.userId, tokenHash: digestSecret(token),
   });
   if (reservation.status === 'confirmed') return;
@@ -88,18 +66,18 @@ async function issueVerification(input: {
     expiresAt: reservation.emission.expiresAt,
     deadline: new Date(input.requestTime.getTime() + REQUEST_TIMEOUT_MS),
   });
-  await persistDelivery(input.dependencies.verifications, reservation.emission.id, delivery);
+  await persistDelivery(input.dependencies.repositories, reservation.emission.id, delivery);
   if (delivery.status === 'failed') throw createFailedDeliveryError();
   if (delivery.status === 'unknown') throw createUnknownDeliveryError();
 }
 
 async function persistDelivery(
-  repository: VerificationRepository,
+  repository: AuthRepository,
   emissionId: string,
-  delivery: Awaited<ReturnType<VerificationSender['send']>>,
+  delivery: DeliveryResult,
 ): Promise<void> {
   if (delivery.status === 'unknown') return;
-  await repository.updateDelivery(
+  await repository.updateVerificationDelivery(
     emissionId,
     delivery.status === 'accepted' ? 'ACCEPTED' : 'FAILED',
     delivery.providerMessageId,
@@ -129,18 +107,20 @@ function createUnknownDeliveryError(): ApplicationError {
   });
 }
 
-async function resendConfirmation(
-  input: { email: string }, dependencies: AuthDependencies, now: () => Date,
-): Promise<MessageResponse> {
+export async function resend(input: EmailInput, dependencies: AuthServiceDependencies): Promise<MessageResponse> {
   const email = normalizeEmail(input.email);
   try {
-    const user = await dependencies.users.findByEmail(email);
+    const user = await dependencies.repositories.findUserByEmail(email);
     if (!user || user.emailVerifiedAt) return { message: RESEND_MESSAGE };
-    await issueVerification({ dependencies, userId: user.id, email, requestTime: now() });
+    await issueVerification({ dependencies, userId: user.id, email, requestTime: getCurrentTime(dependencies) });
     return { message: RESEND_MESSAGE };
   } catch (error: unknown) {
     throw mapServiceFailure(error);
   }
+}
+
+function getCurrentTime(dependencies: AuthServiceDependencies): Date {
+  return dependencies.now?.() ?? new Date();
 }
 
 function mapServiceFailure(error: unknown): Error {

@@ -4,11 +4,8 @@ import { describe, expect, it, vi } from 'vitest';
 import { createApp } from '../app.js';
 import { createAuthRouter } from './auth-router.js';
 import { createAuthService } from '../services/auth-service.js';
-import type { AuthService } from '../services/auth-service.js';
-import type { AuthenticationUser } from '../protocols.js';
-import type { UserRepository } from '../repositories/user-repository.js';
-import type { VerificationRepository } from '../repositories/verification-repository.js';
-import type { VerificationSender } from '../services/resend-service.js';
+import type { AuthenticationUser, AuthRepository, AuthService } from '../types/auth.js';
+import type { VerificationSender } from '../types/resend.js';
 
 const PUBLIC_APP_URL = 'http://localhost:5173';
 
@@ -54,11 +51,10 @@ function createTestApp(): ReturnType<typeof createApp> {
     id: 'user-id', email: 'person@example.test', passwordHash: 'hash',
     emailVerifiedAt: new Date('2026-10-03T20:00:00Z'), createdAt: new Date('2026-10-03T20:00:00Z'),
   };
-  const users = { findByEmail: vi.fn().mockResolvedValue(user) } as unknown as UserRepository;
-  const verifications = {} as VerificationRepository;
+  const repositories = { findUserByEmail: vi.fn().mockResolvedValue(user) } as unknown as AuthRepository;
   const sender = {} as VerificationSender;
   const service: AuthService = createAuthService({
-    publicAppUrl: PUBLIC_APP_URL, users, verifications, sender,
+    publicAppUrl: PUBLIC_APP_URL, repositories, sender,
   });
   return createApp({ authRouter: createAuthRouter(service), publicAppUrl: PUBLIC_APP_URL });
 }

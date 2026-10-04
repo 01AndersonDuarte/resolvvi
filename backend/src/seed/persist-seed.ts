@@ -1,5 +1,5 @@
 import { Prisma, type PrismaClient } from '../generated/prisma/client.js';
-import type { SeedProcess } from './seed-data.js';
+import type { SeedProcess } from '../types/seed.js';
 
 export async function persistSeed(data: SeedProcess[], client: PrismaClient): Promise<void> {
   await client.$transaction(async (transaction) => {

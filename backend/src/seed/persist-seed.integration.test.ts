@@ -3,7 +3,7 @@ import dotenv from 'dotenv';
 
 import { parseSeedFile } from './parse-seed-file.js';
 import { persistSeed } from './persist-seed.js';
-import type { SeedProcess } from './seed-data.js';
+import type { SeedProcess } from '../types/seed.js';
 
 dotenv.config({ path: '.env.test', quiet: true });
 

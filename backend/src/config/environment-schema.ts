@@ -1,7 +1,7 @@
 import Joi from 'joi';
 
 import { configurationError } from '../errors/index.js';
-import type { ApplicationEnvironment } from '../protocols.js';
+import type { ApplicationEnvironment } from '../types/config.js';
 
 type RawEnvironment = {
   DATABASE_LABEL: string;

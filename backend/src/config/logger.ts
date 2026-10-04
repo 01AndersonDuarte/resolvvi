@@ -1,4 +1,4 @@
-import type { LogContext } from '../protocols.js';
+import type { LogContext } from '../types/config.js';
 import { sanitizeLogContext, sanitizeLogMessage } from './sanitize-log-context.js';
 
 type LogLevel = 'error' | 'info' | 'warn';

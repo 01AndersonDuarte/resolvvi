@@ -1,7 +1,7 @@
 import Joi from 'joi';
 
 import { configurationError } from '../errors/index.js';
-import type { HttpEnvironment } from '../protocols.js';
+import type { HttpEnvironment } from '../types/config.js';
 
 type RawHttpEnvironment = {
   PORT: number;

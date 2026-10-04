@@ -1,21 +1,22 @@
 import type { Movement, PrismaClient } from '../generated/prisma/client.js';
+import type { CreateMovementInput, MovementRepository } from '../types/process.js';
 
-export type CreateMovementInput = Pick<
-  Movement,
-  'processId' | 'movementDate' | 'movementTitle' | 'movementContent' | 'sourceOrder'
->;
+export type { CreateMovementInput, MovementRepository };
 
-export type MovementRepository = {
-  create: (input: CreateMovementInput) => Promise<Movement>;
-  listByProcess: (processId: number) => Promise<Movement[]>;
-};
+export function createMovement(input: CreateMovementInput, client: PrismaClient): Promise<Movement> {
+  return client.movement.create({ data: input });
+}
+
+export function listMovementsByProcess(processId: number, client: PrismaClient): Promise<Movement[]> {
+  return client.movement.findMany({
+    where: { processId },
+    orderBy: [{ movementDate: 'asc' }, { sourceOrder: 'asc' }],
+  });
+}
 
 export function createMovementRepository(client: PrismaClient): MovementRepository {
   return {
-    create: (input) => client.movement.create({ data: input }),
-    listByProcess: (processId) => client.movement.findMany({
-      where: { processId },
-      orderBy: [{ movementDate: 'asc' }, { sourceOrder: 'asc' }],
-    }),
+    create: (input) => createMovement(input, client),
+    listByProcess: (processId) => listMovementsByProcess(processId, client),
   };
 }
