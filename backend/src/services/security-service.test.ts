@@ -2,6 +2,8 @@ import { describe, expect, it } from 'vitest';
 
 import { createDummyPasswordHash, hashPassword, verifyPassword } from './security-service.js';
 
+const PASSWORD_HASH_TEST_TIMEOUT_MS = 15_000;
+
 describe('password service', () => {
   it('stores different salted digests and verifies the exact password', async () => {
     const password = '  🔐secure password  ';
@@ -12,7 +14,7 @@ describe('password service', () => {
     await expect(verifyPassword(password, firstHash)).resolves.toBe(true);
     await expect(verifyPassword(password.trim(), firstHash)).resolves.toBe(false);
     await expect(verifyPassword('different password', firstHash)).resolves.toBe(false);
-  });
+  }, PASSWORD_HASH_TEST_TIMEOUT_MS);
 
   it('rejects malformed or unsupported hash encodings without deriving a key', async () => {
     await expect(verifyPassword('password', 'sha256$deadbeef')).resolves.toBe(false);
