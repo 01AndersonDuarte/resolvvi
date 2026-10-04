@@ -4,11 +4,11 @@ Estrutura aprovada pelo usuário. Referências: [PRD](./prd.md) e [TechSpec](./t
 
 O validador CNJ permanece um pré-requisito da fundação, confirmado pelo usuário, e sua implementação não integra este plano. A tarefa 6 e a entrega completa ficam bloqueadas até sua disponibilização. As tarefas 7 e 8 podem avançar após suas dependências, independentemente desse bloqueio; a numeração não impõe dependências adicionais.
 
-Todas as tarefas estão pendentes. A aprovação desta decomposição autoriza a geração dos documentos; iniciar implementação exige a confirmação prevista pela skill criar-tasks. Marcar itens somente após implementação, testes e verificações pertinentes. Aceite real do Resend e verificações manuais de acessibilidade estão na tarefa 10.
+A tarefa 1.0 foi concluída; as demais permanecem pendentes. A aprovação desta decomposição autorizou a geração dos documentos; a execução explícita da tarefa 1.0 autorizou sua implementação. Marcar itens somente após implementação, testes e verificações pertinentes. Aceite real do Resend e verificações manuais de acessibilidade estão na tarefa 10.
 
 ## Tarefas
 
-- [ ] 1.0 [Infraestrutura HTTP, configuração, erros, logs e ambiente de testes](./task_1.md) — depende de fundação existente.
+- [x] 1.0 [Infraestrutura HTTP, configuração, erros, logs e ambiente de testes](./task_1.md) — depende de fundação existente.
 - [ ] 2.0 [Persistência de autenticação e segurança de senhas e tokens](./task_2.md) — depende de 1.0.
 - [ ] 3.0 [Cadastro e reenvio pelo Resend com limites e recuperação](./task_3.md) — depende de 2.0.
 - [ ] 4.0 [Confirmação de e-mail de uso único e controle de concorrência](./task_4.md) — depende de 3.0.

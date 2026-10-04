@@ -34,12 +34,12 @@ Preservar Prisma 7, singleton existente e direção das dependências. Middlewar
 
 ## Subtarefas
 
-- [ ] 1.1 Adicionar Express 5, CORS, tipos e Supertest; configurar os scripts HTTP preservando os scripts de qualidade e o lock npm.
-- [ ] 1.2 Criar composição injetável em app.ts, servidor e health check, com desligamento idempotente e tratamento de falhas fatais.
-- [ ] 1.3 Acrescentar configuração HTTP validada antes de listen, sem tornar opções de e-mail obrigatórias para a fundação.
-- [ ] 1.4 Criar contexto de requisição, proteção de origem, validação JSON, limite de corpo, middleware de erros e orçamento de processamento.
-- [ ] 1.5 Ampliar o logger/sanitizador e preparar fixtures de HTTP e banco isolado, sem integrações obrigatórias silenciosamente ignoradas.
-- [ ] 1.6 Implementar os testes mapeados, executar as verificações do backend e documentar execução/configuração.
+- [x] 1.1 Adicionar Express 5, CORS, tipos e Supertest; configurar os scripts HTTP preservando os scripts de qualidade e o lock npm.
+- [x] 1.2 Criar composição injetável em app.ts, servidor e health check, com desligamento idempotente e tratamento de falhas fatais.
+- [x] 1.3 Acrescentar configuração HTTP validada antes de listen, sem tornar opções de e-mail obrigatórias para a fundação.
+- [x] 1.4 Criar contexto de requisição, proteção de origem, validação JSON, limite de corpo, middleware de erros e orçamento de processamento.
+- [x] 1.5 Ampliar o logger/sanitizador e preparar fixtures de HTTP e banco isolado, sem integrações obrigatórias silenciosamente ignoradas.
+- [x] 1.6 Implementar os testes mapeados, executar as verificações do backend e documentar execução/configuração.
 
 ## Detalhes de implementação
 
@@ -70,13 +70,13 @@ IDs e nomes abaixo vêm da [abordagem de testes da TechSpec](./techspec.md#abord
 
 ### Testes de unidade (se aplicável)
 
-- [ ] TU-16 — Configuração, erros e logs seguros. Escopo nesta tarefa: Configuração comum/HTTP, sanitização e tradução pública dos erros; preservar seed sem Resend.
+- [x] TU-16 — Configuração, erros e logs seguros. Escopo nesta tarefa: Configuração comum/HTTP, sanitização e tradução pública dos erros; preservar seed sem Resend.
 
 ### Testes de integração (se aplicável)
 
-- [ ] TI-11 — Cookie, origem e proteção direta. Escopo nesta tarefa: Faceta de origem e limites HTTP; cookies/sessão pertencem à tarefa 5 e proteção da consulta à tarefa 6.
-- [ ] TI-16 — Falhas de dependências e prazos HTTP. Escopo nesta tarefa: Faceta de orçamento HTTP e erro de dependência em aplicação de teste; resultados dos recursos reais serão exercitados nas tarefas 3, 5 e 6.
-- [ ] TI-17 — Bootstrap e desligamento. Escopo nesta tarefa: Caso completo de inicialização e desligamento.
+- [x] TI-11 — Cookie, origem e proteção direta. Escopo nesta tarefa: Faceta de origem e limites HTTP; cookies/sessão pertencem à tarefa 5 e proteção da consulta à tarefa 6.
+- [x] TI-16 — Falhas de dependências e prazos HTTP. Escopo nesta tarefa: Faceta de orçamento HTTP e erro de dependência em aplicação de teste; resultados dos recursos reais serão exercitados nas tarefas 3, 5 e 6.
+- [x] TI-17 — Bootstrap e desligamento. Escopo nesta tarefa: Caso completo de inicialização e desligamento.
 
 ### Testes E2E (se aplicável)
 

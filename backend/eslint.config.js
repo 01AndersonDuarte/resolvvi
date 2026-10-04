@@ -32,6 +32,10 @@ export default tseslint.config(
     rules: { 'no-console': 'off' },
   },
   {
+    files: ['src/middlewares/error-middleware.ts'],
+    rules: { 'max-params': 'off' },
+  },
+  {
     files: ['**/*.js'],
     extends: [tseslint.configs.disableTypeChecked],
   },

@@ -24,6 +24,16 @@ Os arquivos `.env` reais não são versionados. O Compose inicia o projeto e o b
 NODE_ENV=test npx prisma migrate deploy
 ```
 
+## Servidor HTTP
+
+Configure `PORT` e `PUBLIC_APP_URL` no `.env.development`. O servidor valida essas opções antes de abrir a porta; `PUBLIC_APP_URL` deve ser uma origem sem caminho, credenciais, query ou fragmento. O seed e as migrations usam apenas a configuração de banco e não exigem credenciais do Resend.
+
+```bash
+npm run dev
+```
+
+O health check `GET /health` confirma somente que o processo HTTP está respondendo. Solicitações de escrita exigem `Origin` igual a `PUBLIC_APP_URL`, conteúdo `application/json` e corpo de até 8 KiB.
+
 Encerre o PostgreSQL local com `docker compose down`.
 
 ## Carga inicial do CSV
@@ -48,4 +58,4 @@ npm run test:coverage
 npm run build
 ```
 
-`npm test` e `npm run test:coverage` executam os testes de integração no PostgreSQL quando `.env.test` existe e contém `DATABASE_URL`.
+`npm test` e `npm run test:coverage` exigem `.env.test` com `NODE_ENV=test`, `DATABASE_URL` e um `DATABASE_LABEL` terminado em `_test`. A suíte falha explicitamente se o banco isolado não estiver configurado; ela não ignora testes de integração silenciosamente.

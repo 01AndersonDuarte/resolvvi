@@ -2,7 +2,7 @@ import type { LogContext } from '../protocols.js';
 
 const REDACTED = '[REDACTED]';
 const CIRCULAR = '[CIRCULAR]';
-const SENSITIVE_KEY = /(authorization|connection|string|credential|database.?url|password|path|secret|token)/i;
+const SENSITIVE_KEY = /(authorization|cnj|connection|string|cookie|credential|database.?url|email|password|path|secret|token)/i;
 const CREDENTIAL_URL = /[a-z][a-z0-9+.-]*:\/\/[^\s/:@]+:[^\s@]+@/gi;
 
 type SanitizeState = {
@@ -59,4 +59,3 @@ export function sanitizeLogContext(context: LogContext = {}): LogContext {
 export function sanitizeLogMessage(message: string): string {
   return sanitizeString(message);
 }
-

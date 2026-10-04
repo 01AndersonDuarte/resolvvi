@@ -8,12 +8,25 @@ import type { SeedProcess } from './seed-data.js';
 dotenv.config({ path: '.env.test', quiet: true });
 
 const databaseUrl = process.env.DATABASE_URL;
-const integration = databaseUrl ? describe : describe.skip;
+if (
+  process.env.NODE_ENV !== 'test' ||
+  !databaseUrl ||
+  !new URL(databaseUrl).pathname.includes('_test') ||
+  !process.env.DATABASE_LABEL?.endsWith('_test')
+) {
+  throw new Error('Testes de integração exigem NODE_ENV=test e DATABASE_LABEL isolado com sufixo _test.');
+}
 const fixturePath = new URL('../../../lawsuits_movements.csv', import.meta.url);
 const rollbackCnj = 'seed-rollback-integration-cnj';
 let database: import('../generated/prisma/client.js').PrismaClient | undefined;
 
-integration('persistência do seed CSV', () => {
+function getDatabase(): import('../generated/prisma/client.js').PrismaClient {
+  if (!database) throw new Error('Banco de integração não foi conectado.');
+
+  return database;
+}
+
+describe('persistência do seed CSV', () => {
   beforeAll(connectDatabase);
   afterAll(disconnectDatabase);
 
@@ -22,32 +35,30 @@ integration('persistência do seed CSV', () => {
 });
 
 async function persistFullFixture(): Promise<void> {
-  if (!database) return;
-
+  const connection = getDatabase();
   const data = await parseSeedFile(fixturePath.pathname);
   const cnjs = data.map((process) => process.cnj);
-  await database.process.deleteMany({ where: { cnj: { in: cnjs } } });
-  await persistSeed(data, database);
+  await connection.process.deleteMany({ where: { cnj: { in: cnjs } } });
+  await persistSeed(data, connection);
 
-  const processCount = await database.process.count({ where: { cnj: { in: cnjs } } });
-  const movementCount = await database.movement.count({ where: { process: { cnj: { in: cnjs } } } });
+  const processCount = await connection.process.count({ where: { cnj: { in: cnjs } } });
+  const movementCount = await connection.movement.count({ where: { process: { cnj: { in: cnjs } } } });
   const firstCnj = cnjs[0];
   if (!firstCnj) throw new Error('Fixture do CSV não contém processos');
 
   expect(processCount).toBe(100);
   expect(movementCount).toBe(5568);
-  expect(await database.process.findUnique({ where: { cnj: firstCnj } })).not.toBeNull();
+  expect(await connection.process.findUnique({ where: { cnj: firstCnj } })).not.toBeNull();
 }
 
 async function rollbackFailedSeed(): Promise<void> {
-  if (!database) return;
-
-  await database.process.deleteMany({ where: { cnj: rollbackCnj } });
+  const connection = getDatabase();
+  await connection.process.deleteMany({ where: { cnj: rollbackCnj } });
   const data = [makeRollbackProcess(), makeRollbackProcess()];
 
-  await expect(persistSeed(data, database)).rejects.toMatchObject({ code: 'P2002' });
-  expect(await database.process.count({ where: { cnj: rollbackCnj } })).toBe(0);
-  expect(await database.movement.count({ where: { process: { cnj: rollbackCnj } } })).toBe(0);
+  await expect(persistSeed(data, connection)).rejects.toMatchObject({ code: 'P2002' });
+  expect(await connection.process.count({ where: { cnj: rollbackCnj } })).toBe(0);
+  expect(await connection.movement.count({ where: { process: { cnj: rollbackCnj } } })).toBe(0);
 }
 
 function makeRollbackProcess(): SeedProcess {

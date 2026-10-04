@@ -9,7 +9,14 @@ import { createProcessRepository } from './process-repository.js';
 dotenv.config({ path: '.env.test', quiet: true });
 
 const databaseUrl = process.env.DATABASE_URL;
-const integration = databaseUrl ? describe : describe.skip;
+if (
+  process.env.NODE_ENV !== 'test' ||
+  !databaseUrl ||
+  !new URL(databaseUrl).pathname.includes('_test') ||
+  !process.env.DATABASE_LABEL?.endsWith('_test')
+) {
+  throw new Error('Testes de integração exigem NODE_ENV=test e DATABASE_LABEL isolado com sufixo _test.');
+}
 const processData = {
   cnj: 'integration-process-cnj',
   forum: 'Foro de integração',
@@ -19,7 +26,7 @@ const processData = {
 };
 let database: PrismaClient | undefined;
 
-integration('persistência de processos e movimentações', () => {
+describe('persistência de processos e movimentações', () => {
   beforeAll(connectDatabase);
   beforeEach(removeProcessFixture);
   afterAll(disconnectDatabase);
@@ -82,8 +89,6 @@ function makeMovement(processId: number, date: string, sourceOrder: number): {
 }
 
 async function connectDatabase(): Promise<void> {
-  if (!databaseUrl) return;
-
   const connection = await import('../config/database.js');
   database = connection.prisma;
   await database.$connect();
