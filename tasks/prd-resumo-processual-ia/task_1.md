@@ -36,12 +36,12 @@ Após cada incremento coeso validado, revisar o diff, selecionar arquivos explic
 
 ## Subtarefas
 
-- [ ] 1.1 Definir tipos do domínio/provedor e schemas Joi de fonte e saída, com limites e erros tipados.
-- [ ] 1.2 Implementar representação canônica, ordenação, referências locais, hash, elegibilidade e estimador de contexto; prever processamento em lotes dentro do orçamento.
-- [ ] 1.3 Implementar prompt versionado e montagem do payload mínimo, separando instruções dos textos não confiáveis.
-- [ ] 1.4 Implementar validação de conclusão, formato, idioma, referências e violações detectáveis; adicionar franc-min com lock file do backend.
-- [ ] 1.5 Criar fixtures sintéticas para ambiguidade, sentença sem resultado, contradição, empate de data, pouca informação, fato fora da primeira página e entrada maliciosa.
-- [ ] 1.6 Implementar os casos unitários mapeados e executar lint, tipos, testes, cobertura e build do backend.
+- [x] 1.1 Definir tipos do domínio/provedor e schemas Joi de fonte e saída, com limites e erros tipados.
+- [x] 1.2 Implementar representação canônica, ordenação, referências locais, hash, elegibilidade e estimador de contexto; prever processamento em lotes dentro do orçamento.
+- [x] 1.3 Implementar prompt versionado e montagem do payload mínimo, separando instruções dos textos não confiáveis.
+- [x] 1.4 Implementar validação de conclusão, formato, idioma, referências e violações detectáveis; adicionar franc-min com lock file do backend.
+- [x] 1.5 Criar fixtures sintéticas para ambiguidade, sentença sem resultado, contradição, empate de data, pouca informação, fato fora da primeira página e entrada maliciosa.
+- [x] 1.6 Implementar os casos unitários mapeados e executar lint, tipos, testes, cobertura e build do backend.
 
 ## Detalhes de implementação
 
@@ -75,15 +75,15 @@ TU-18 cobre o conjunto preservado e as regras determinísticas nesta tarefa. A t
 
 ### Testes de unidade
 
-- [ ] TU-01 — Fonte canônica inclui cada campo, todos os eventos e desempate estável
-- [ ] TU-02 — Elegibilidade distingue vazio, placeholders e título informativo
-- [ ] TU-03 — Capacidade conta instruções, schema, fonte e reservas
-- [ ] TU-04 — Validador aceita um e três parágrafos e rejeita quatro/vazio
-- [ ] TU-05 — Saída malformada, truncada, recusada ou em outro idioma falha
-- [ ] TU-06 — Cada frase possui referências da fonte correta
-- [ ] TU-07 — Prompt e payload separam dados maliciosos das instruções
-- [ ] TU-08 — Política rejeita marcação, conversa e aconselhamento detectado
-- [ ] TU-18 — Regras de fixtures semânticas têm fatos e proibições explícitas
+- [x] TU-01 — Fonte canônica inclui cada campo, todos os eventos e desempate estável
+- [x] TU-02 — Elegibilidade distingue vazio, placeholders e título informativo
+- [x] TU-03 — Capacidade conta instruções, schema, fonte e reservas
+- [x] TU-04 — Validador aceita um e três parágrafos e rejeita quatro/vazio
+- [x] TU-05 — Saída malformada, truncada, recusada ou em outro idioma falha
+- [x] TU-06 — Cada frase possui referências da fonte correta
+- [x] TU-07 — Prompt e payload separam dados maliciosos das instruções
+- [x] TU-08 — Política rejeita marcação, conversa e aconselhamento detectado
+- [x] TU-18 — Regras de fixtures semânticas têm fatos e proibições explícitas
 
 ## Arquivos relevantes
 

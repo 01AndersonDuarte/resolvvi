@@ -2,7 +2,7 @@
 
 ## Tarefas
 
-- [ ] 1.0 [Fonte integral, contratos, prompt e validação](./task_1.md)
+- [x] 1.0 [Fonte integral, contratos, prompt e validação](./task_1.md)
 - [ ] 2.0 [Persistência, versionamento e concorrência](./task_2.md)
 - [ ] 3.0 [Provedor, execução, API, avaliações e métricas](./task_3.md)
 - [ ] 4.0 [Interface de geração, referências e avaliação](./task_4.md)
@@ -10,7 +10,7 @@
 
 ## Escopo aprovado
 
-Planejamento em cinco entregas incrementais, conforme [prd.md](./prd.md) e [techspec.md](./techspec.md). A implementação ainda não foi iniciada.
+Planejamento em cinco entregas incrementais, conforme [prd.md](./prd.md) e [techspec.md](./techspec.md). A tarefa 1.0 está implementada e validada; as tarefas 2.0–5.0 permanecem pendentes.
 
 - Avaliação sem comprovante HMAC de apresentação; servidor mantém sessão, acesso, vínculo e versão atual. A exibição prévia é uma condição da interface.
 - Referências por frase com data e título, conferidas manualmente no histórico. Sem endpoint de localização, salto, expansão ou foco automático.

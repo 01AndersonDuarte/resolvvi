@@ -33,3 +33,19 @@ export type {
   ProcessSummary,
 } from './process.js';
 export type { SeedMovement, SeedProcess } from './seed.js';
+export type {
+  PreparedSummarySource,
+  ProviderSummaryOutput,
+  SourceMovement,
+  SummaryCapacity,
+  SummaryParagraph,
+  SummaryReference,
+  SummarySentence,
+} from './process-ai-summary.js';
+export type {
+  SummaryProvider,
+  SummaryProviderConfiguration,
+  SummaryProviderInput,
+  SummaryProviderResult,
+  ValidatedSummary,
+} from './summary-provider.js';
