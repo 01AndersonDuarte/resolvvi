@@ -20,7 +20,7 @@ const processDetails: ProcessDetails = {
   lawsuitValue: '10.000,00',
   numberOfAuthors: 0,
 };
-const api = vi.hoisted(() => ({ searchProcess: vi.fn(), getProcessById: vi.fn() }));
+const api = vi.hoisted(() => ({ searchProcess: vi.fn(), getProcessById: vi.fn(), getProcessMovements: vi.fn() }));
 
 vi.mock('../services/process-service', () => api);
 
@@ -28,6 +28,7 @@ beforeEach(() => {
   window.sessionStorage.clear();
   api.searchProcess.mockReset();
   api.getProcessById.mockReset().mockResolvedValue(processDetails);
+  api.getProcessMovements.mockReset().mockResolvedValue({ processId: 17, items: [], page: 1, pageSize: 20, total: 0, totalPages: 0 });
 });
 
 describe('protected process journey', () => {

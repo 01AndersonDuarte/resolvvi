@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useCallback, useEffect } from 'react';
 import { getProcessDetailsError } from '../services/process-feedback';
 import { getProcessById } from '../services/process-service';
 import type { ProcessDetails } from '../types/process-details';
@@ -9,6 +9,7 @@ export function useProcessDetails(id: string | undefined) {
   const { state: session, invalidate } = useSession();
   const request = useRequest(getProcessById, { generation: session.generation, invalidateSession: invalidate });
   const { cancel, run } = request;
+  const retry = useCallback(() => id === undefined ? Promise.resolve({ status: 'stale' } as const) : run(id), [id, run]);
 
   useEffect(() => {
     if (id !== undefined && session.status === 'authenticated') void run(id);
@@ -18,7 +19,7 @@ export function useProcessDetails(id: string | undefined) {
   return {
     state: request.state,
     errorMessage: getDetailsMessage(request.state),
-    retry: () => id === undefined ? Promise.resolve({ status: 'stale' } as const) : run(id),
+    retry,
   };
 }
 

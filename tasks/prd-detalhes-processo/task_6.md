@@ -6,7 +6,7 @@ Compor o histórico com leitura integral dos textos, expansão independente, nav
 
 **Dependências:** [4.0](./task_4.md), [5.0](./task_5.md)
 
-**Status:** pendente de implementação.
+**Status:** concluída e validada.
 
 <skills>
 ### Conformidade com skills
@@ -34,13 +34,13 @@ Requisitos relacionados: RF1, RF2, RF3, RF6, RF7, RF8, RF9, RF10, RF11, RF12, RF
 
 ## Subtarefas
 
-- [ ] 6.1 Implementar movement-content e MovementItem com prévia Unicode, expansão independente e renderização textual segura.
-- [ ] 6.2 Criar MovementPagination com intervalo derivado da página confirmada, limites e controles apenas quando necessários.
-- [ ] 6.3 Criar ProcessMovements com carga, vazio, erros locais, retry e integração ao hook; montar o histórico após sucesso dos detalhes.
-- [ ] 6.4 Ligar onProcessMissing à revalidação dos detalhes e garantir remoção dos dados antigos durante revalidação e invalidação de sessão.
-- [ ] 6.5 Implementar testes unitários de conteúdo, estados defensivos, recuperação e teclado, incluindo limites de paginação e reset de expansão.
-- [ ] 6.6 Implementar TI-08 com Router, contexto e clientes reais, transporte controlado, troca de processo, acesso direto, recuperação e preservação do último CNJ.
-- [ ] 6.7 Executar as validações da tarefa e registrar evidências; atualizar os checklists e criar o commit local do incremento.
+- [x] 6.1 Implementar movement-content e MovementItem com prévia Unicode, expansão independente e renderização textual segura.
+- [x] 6.2 Criar MovementPagination com intervalo derivado da página confirmada, limites e controles apenas quando necessários.
+- [x] 6.3 Criar ProcessMovements com carga, vazio, erros locais, retry e integração ao hook; montar o histórico após sucesso dos detalhes.
+- [x] 6.4 Ligar onProcessMissing à revalidação dos detalhes e garantir remoção dos dados antigos durante revalidação e invalidação de sessão.
+- [x] 6.5 Implementar testes unitários de conteúdo, estados defensivos, recuperação e teclado, incluindo limites de paginação e reset de expansão.
+- [x] 6.6 Implementar TI-08 com Router, contexto e clientes reais, transporte controlado, troca de processo, acesso direto, recuperação e preservação do último CNJ.
+- [x] 6.7 Executar as validações da tarefa e registrar evidências; atualizar os checklists e criar o commit local do incremento.
 
 ## Detalhes de implementação
 
@@ -83,20 +83,22 @@ IDs, nomes e resultados esperados preservados da TechSpec. Casos compartilhados 
 
 ### Testes de unidade
 
-- [ ] TU-08 — Prévia respeita 500 grafemas. Limites 500/501, emoji e acentos combinados não cortados; conteúdo de 15.266 caracteres integralmente recuperável.
-- [ ] TU-09 — Expansão afeta apenas o evento acionado. Expandir/recolher mantém outros eventos e reinicia após troca confirmada de página.
-- [ ] TU-12 — Falha de histórico preserva detalhes. Nova tentativa localizada; página antiga permanece inclusive após timeout.
-- [ ] TU-15 — Eventos vazios e incompletos têm apresentação explícita. Rótulos definidos, eventos sem data no final da fixture global paginada e zero eventos sem controles.
-- [ ] TU-16 — Conteúdo é renderizado literalmente. Marcação/script/URL são texto, sem execução ou requisição adicional.
-- [ ] TU-17 — Controles nativos permitem operação por teclado. Tab/Enter/Espaço operam ações; sem exigência de foco automático ou leitores de tela.
+- [x] TU-08 — Prévia respeita 500 grafemas. Limites 500/501, emoji e acentos combinados não cortados; conteúdo de 15.266 caracteres integralmente recuperável.
+- [x] TU-09 — Expansão afeta apenas o evento acionado. Expandir/recolher mantém outros eventos e reinicia após troca confirmada de página.
+- [x] TU-12 — Falha de histórico preserva detalhes. Nova tentativa localizada; página antiga permanece inclusive após timeout.
+- [x] TU-15 — Eventos vazios e incompletos têm apresentação explícita. Rótulos defensivos cobertos, e histórico vazio não mostra paginação.
+- [x] TU-16 — Conteúdo é renderizado literalmente. Marcação/script/URL são texto, sem execução ou requisição adicional.
+- [x] TU-17 — Controles nativos permitem operação por teclado. Expansão, recolhimento, paginação, retry e retorno operados por teclado; sem foco automático ou leitores de tela.
 
 ### Testes de integração
 
-- [ ] TI-08 — View e cliente HTTP preservam recuperação e retorno. React Router/contexto/clientes reais com transporte controlado; rascunho da consulta preservado e nenhum dado de outra página/processo.
+- [x] TI-08 — View e cliente HTTP preservam recuperação e retorno. React Router/contexto/clientes reais com transporte controlado; rascunho da consulta preservado e nenhum dado de outra página/processo.
 
 ### Validações de conclusão
 
 Executar `npm run lint`, `npm run typecheck`, `npm test`, `npm run test:coverage` e `npm run build` no aplicativo afetado. Os scripts atuais existem em ambos os aplicativos; prevalecem sobre as observações antigas de ausência de lint/testes. Não reduzir os limites de cobertura nem excluir código novo para atingir o percentual.
+
+**Evidências:** os cinco comandos passaram em `frontend/`; `npm test` executou 131 testes em 22 arquivos. A cobertura global foi 93,53% em statements, 91,26% em branches, 95,65% em funções e 95,88% em linhas. O build de produção terminou com sucesso. TI-08 usou o Router, contexto, serviços HTTP e leitor de respostas reais, com `fetch` controlado; cobriu acesso direto, falha e retry, retorno com o CNJ salvo e troca de processo sem reapresentar movimentações antigas.
 
 ## Arquivos relevantes
 
