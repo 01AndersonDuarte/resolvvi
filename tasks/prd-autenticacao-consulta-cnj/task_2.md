@@ -35,12 +35,12 @@ Preservar Prisma 7, singleton existente e direção das dependências. Middlewar
 
 ## Subtarefas
 
-- [ ] 2.1 Adicionar User, Session e EmailVerification ao schema e gerar migration aditiva com o Prisma.
-- [ ] 2.2 Criar contratos derivados dos modelos e repositórios de autenticação, com fronteiras de transação e injeção do cliente.
-- [ ] 2.3 Implementar normalização/validação do e-mail e validação da senha com preservação integral de seu conteúdo.
-- [ ] 2.4 Implementar derivação/verificação assíncrona de senhas e limites de concorrência de trabalho, conforme a TechSpec.
-- [ ] 2.5 Implementar geração de segredos independentes e digests para persistência; garantir que o segredo transitório não apareça em logs ou contratos públicos.
-- [ ] 2.6 Testar unicidade concorrente, persistência e primitivas de segurança no escopo definido abaixo; executar migration em banco isolado e as verificações do backend.
+- [x] 2.1 Adicionar User, Session e EmailVerification ao schema e gerar migration aditiva com o Prisma.
+- [x] 2.2 Criar contratos derivados dos modelos e repositórios de autenticação, com fronteiras de transação e injeção do cliente.
+- [x] 2.3 Implementar normalização/validação do e-mail e validação da senha com preservação integral de seu conteúdo.
+- [x] 2.4 Implementar derivação/verificação assíncrona de senhas e limites de concorrência de trabalho, conforme a TechSpec.
+- [x] 2.5 Implementar geração de segredos independentes e digests para persistência; garantir que o segredo transitório não apareça em logs ou contratos públicos.
+- [x] 2.6 Testar unicidade concorrente, persistência e primitivas de segurança no escopo definido abaixo; executar migration em banco isolado e as verificações do backend.
 
 ## Detalhes de implementação
 
@@ -75,14 +75,20 @@ IDs e nomes abaixo vêm da [abordagem de testes da TechSpec](./techspec.md#abord
 
 ### Testes de unidade (se aplicável)
 
-- [ ] TU-01 — Normalização e validação de identidade. Escopo nesta tarefa: Regras backend de identidade.
-- [ ] TU-02 — Política de senha e preservação Unicode. Escopo nesta tarefa: Política backend, limites Unicode e preservação.
-- [ ] TU-03 — Verificação de senha e erro comum. Escopo nesta tarefa: Faceta de hash/verificação, salt, conteúdo preservado e hash fictício; a decisão de login será concluída na tarefa 5.
+- [x] TU-01 — Normalização e validação de identidade. Escopo nesta tarefa: Regras backend de identidade.
+- [x] TU-02 — Política de senha e preservação Unicode. Escopo nesta tarefa: Política backend, limites Unicode e preservação.
+- [x] TU-03 — Verificação de senha e erro comum. Escopo nesta tarefa: Faceta de hash/verificação, salt, conteúdo preservado e hash fictício; a decisão de login será concluída na tarefa 5.
 
 ### Testes de integração (se aplicável)
 
-- [ ] TI-03 — Cadastros simultâneos equivalentes. Escopo nesta tarefa: Faceta de unicidade no repositório e preservação de senha em disputa; emissão e contrato HTTP serão concluídos na tarefa 3.
-- [ ] TI-12 — Expiração e logout revogável. Escopo nesta tarefa: Faceta de persistência de sessão e revogação; a autorização HTTP será concluída na tarefa 5.
+- [x] TI-03 — Cadastros simultâneos equivalentes. Escopo nesta tarefa: Faceta de unicidade no repositório e preservação da senha aceita; emissão e contrato HTTP serão concluídos na tarefa 3.
+- [x] TI-12 — Expiração e logout revogável. Escopo nesta tarefa: Faceta de persistência de sessão e revogação; a autorização HTTP será concluída na tarefa 5.
+
+## Evidências de conclusão
+
+- Migration `20261004014334_authentication_persistence` aplicada ao banco isolado `dev_test_resolvvi_test_template`; alterações somente nas entidades de autenticação.
+- `npm run lint`, `npm run typecheck`, `npm test`, `npm run test:coverage` e `npm run build` aprovados no backend.
+- Cobertura: 92,46% statements, 92,68% branches, 90,83% functions e 94,38% lines; 21 arquivos e 64 testes aprovados.
 
 ### Testes E2E (se aplicável)
 
