@@ -37,12 +37,12 @@ No frontend, manter componentes até 30 linhas, props explícitas, acesso HTTP e
 
 ## Subtarefas
 
-- [ ] 7.1 Criar React 19, TypeScript, Vite e Tailwind com lock independente, scripts de qualidade e proxy configurável na mesma origem.
-- [ ] 7.2 Definir a base visual funcional com impeccable e criar componentes de formulário, mensagem e título conforme React e o PRD.
-- [ ] 7.3 Implementar cliente HTTP, contratos e hook de requisição com cancelamento, prazo e identificação da tentativa/geração de sessão.
-- [ ] 7.4 Implementar AuthProvider, useSession e ProtectedRoute com bootstrap remoto, expiração e tratamento seguro de falhas.
-- [ ] 7.5 Implementar invalidação entre abas, retomada/retorno do navegador e saída pendente, sem armazenar credenciais em Web Storage.
-- [ ] 7.6 Configurar Vitest/V8, Testing Library e ambiente DOM; testar os componentes e infraestrutura deste incremento e executar as verificações do frontend.
+- [x] 7.1 Criar React 19, TypeScript, Vite e Tailwind com lock independente, scripts de qualidade e proxy configurável na mesma origem.
+- [x] 7.2 Definir a base visual funcional com impeccable e criar componentes de formulário, mensagem e título conforme React e o PRD.
+- [x] 7.3 Implementar cliente HTTP, contratos e hook de requisição com cancelamento, prazo e identificação da tentativa/geração de sessão.
+- [x] 7.4 Implementar AuthProvider, useSession e ProtectedRoute com bootstrap remoto, expiração e tratamento seguro de falhas.
+- [x] 7.5 Implementar invalidação entre abas, retomada/retorno do navegador e saída pendente, sem armazenar credenciais em Web Storage.
+- [x] 7.6 Configurar Vitest/V8, Testing Library e ambiente DOM; testar os componentes e infraestrutura deste incremento e executar as verificações do frontend.
 
 ## Detalhes de implementação
 
@@ -77,10 +77,10 @@ IDs e nomes abaixo vêm da [abordagem de testes da TechSpec](./techspec.md#abord
 
 ### Testes de unidade (se aplicável)
 
-- [ ] TU-13 — Timeout e descarte de respostas obsoletas. Escopo nesta tarefa: Faceta compartilhada de prazo, cancelamento e geração de sessão; telas reais serão integradas nas tarefas 8 e 9.
-- [ ] TU-15 — Semântica, foco e mensagens acessíveis. Escopo nesta tarefa: Faceta dos componentes reutilizáveis e navegação/foco.
-- [ ] TU-16 — Configuração, erros e logs seguros. Escopo nesta tarefa: Faceta frontend: configuração pública sem segredos, erros seguros e ausência de logs de dados sensíveis.
-- [ ] TU-17 — Saída sem conexão e login com resposta tardia. Escopo nesta tarefa: Faceta do gerenciador de sessão e recuperação de saída; resposta tardia no formulário será integrada na tarefa 8.
+- [x] TU-13 — Timeout e descarte de respostas obsoletas. Escopo nesta tarefa: Faceta compartilhada de prazo, cancelamento e geração de sessão; telas reais serão integradas nas tarefas 8 e 9.
+- [x] TU-15 — Semântica, foco e mensagens acessíveis. Escopo nesta tarefa: Faceta dos componentes reutilizáveis e navegação/foco.
+- [x] TU-16 — Configuração, erros e logs seguros. Escopo nesta tarefa: Faceta frontend: configuração pública sem segredos, erros seguros e ausência de logs de dados sensíveis.
+- [x] TU-17 — Saída sem conexão e login com resposta tardia. Escopo nesta tarefa: Faceta do gerenciador de sessão e recuperação de saída; resposta tardia no formulário será integrada na tarefa 8.
 
 ### Testes de integração (se aplicável)
 
@@ -111,3 +111,10 @@ Não aplicável como entrega desta tarefa; as jornadas completas estão atribuí
 - `AGENTS.md`
 - Testes `*.test.ts`/`*.test.tsx` adjacentes aos módulos implementados, quando aplicável.
 - `tasks/prd-autenticacao-consulta-cnj/task_7.md` e `tasks.md` para atualização de progresso ao concluir a implementação.
+
+## Evidências de conclusão
+
+- Executados em `frontend/`: `npm run lint`, `npm run typecheck`, `npm test`, `npm run test:coverage` e `npm run build`; todos aprovados.
+- Vitest: 48 testes aprovados; cobertura V8: 95,91% statements, 94% branches, 97,24% funções e 97,02% linhas.
+- Detector visual impeccable executado uma vez nos arquivos alterados: sem achados. Capturas desktop e móvel em `.impeccable/screenshots/`; contrato de direção presente no `frontend/dist/index.html` após o build.
+- Revisão visual de acabamento: PASS, sem ajustes materiais pendentes; capturas comparadas à composição C aprovada. O sistema visual está registrado em `DESIGN.md` e `.impeccable/design.json`.

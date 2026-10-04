@@ -1,0 +1,65 @@
+@import 'tailwindcss';
+
+@theme {
+  --color-canvas: #f2f5f9;
+  --color-graphite: #1b2735;
+  --color-ink: #162435;
+  --color-line: #cfdae5;
+  --color-muted: #edf2f7;
+  --color-muted-ink: #4e6073;
+  --color-route: #155eef;
+  --color-route-strong: #0e46bb;
+  --color-protected: #e8eef5;
+  --color-danger: #a12b22;
+  --color-danger-soft: #fff1ef;
+  --color-danger-ink: #76211b;
+  --color-success: #08724f;
+  --color-success-soft: #e8f6ef;
+  --color-success-ink: #07573d;
+  --color-amber: #8c4b00;
+  --shadow-panel: 0 18px 42px -30px rgb(31 49 68 / 38%);
+}
+
+:root {
+  color-scheme: light;
+  font-family: "Segoe UI Variable", "Aptos", system-ui, sans-serif;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  font-optical-sizing: auto;
+  background: var(--color-canvas);
+  color: var(--color-ink);
+}
+
+html {
+  min-width: 320px;
+  min-height: 100%;
+}
+
+body {
+  min-width: 320px;
+  min-height: 100vh;
+  margin: 0;
+}
+
+button,
+input {
+  font: inherit;
+}
+
+::selection {
+  background: #cfe0ff;
+  color: #102b58;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+  }
+}

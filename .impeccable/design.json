@@ -1,0 +1,117 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-10-04T04:59:35Z",
+  "title": "Design System: Consulta de processos",
+  "extensions": {
+    "colorMeta": {
+      "canvas": { "role": "neutral", "displayName": "Tela fria", "canonical": "#f2f5f9", "tonalRamp": ["oklch(15% 0.012 250)", "oklch(25% 0.012 250)", "oklch(35% 0.012 250)", "oklch(45% 0.012 250)", "oklch(55% 0.012 250)", "oklch(65% 0.012 250)", "oklch(80% 0.012 250)", "oklch(95% 0.012 250)"] },
+      "graphite": { "role": "neutral", "displayName": "Grafite de moldura", "canonical": "#1b2735", "tonalRamp": ["oklch(15% 0.025 250)", "oklch(25% 0.025 250)", "oklch(35% 0.025 250)", "oklch(45% 0.025 250)", "oklch(55% 0.025 250)", "oklch(65% 0.025 250)", "oklch(80% 0.025 250)", "oklch(95% 0.025 250)"] },
+      "ink": { "role": "neutral", "displayName": "Tinta azul-grafite", "canonical": "#162435", "tonalRamp": ["oklch(15% 0.03 250)", "oklch(25% 0.03 250)", "oklch(35% 0.03 250)", "oklch(45% 0.03 250)", "oklch(55% 0.03 250)", "oklch(65% 0.03 250)", "oklch(80% 0.03 250)", "oklch(95% 0.03 250)"] },
+      "line": { "role": "neutral", "displayName": "Linha fria", "canonical": "#cfdae5", "tonalRamp": ["oklch(15% 0.025 250)", "oklch(25% 0.025 250)", "oklch(35% 0.025 250)", "oklch(45% 0.025 250)", "oklch(55% 0.025 250)", "oklch(65% 0.025 250)", "oklch(80% 0.025 250)", "oklch(95% 0.025 250)"] },
+      "muted": { "role": "neutral", "displayName": "Cinza suave", "canonical": "#edf2f7", "tonalRamp": ["oklch(15% 0.018 250)", "oklch(25% 0.018 250)", "oklch(35% 0.018 250)", "oklch(45% 0.018 250)", "oklch(55% 0.018 250)", "oklch(65% 0.018 250)", "oklch(80% 0.018 250)", "oklch(95% 0.018 250)"] },
+      "muted-ink": { "role": "neutral", "displayName": "Tinta secundária", "canonical": "#4e6073", "tonalRamp": ["oklch(15% 0.035 250)", "oklch(25% 0.035 250)", "oklch(35% 0.035 250)", "oklch(45% 0.035 250)", "oklch(55% 0.035 250)", "oklch(65% 0.035 250)", "oklch(80% 0.035 250)", "oklch(95% 0.035 250)"] },
+      "route": { "role": "primary", "displayName": "Azul de rota", "canonical": "#155eef", "tonalRamp": ["oklch(15% 0.18 260)", "oklch(25% 0.18 260)", "oklch(35% 0.18 260)", "oklch(45% 0.18 260)", "oklch(55% 0.18 260)", "oklch(65% 0.18 260)", "oklch(80% 0.18 260)", "oklch(95% 0.18 260)"] },
+      "route-strong": { "role": "primary", "displayName": "Azul de rota profundo", "canonical": "#0e46bb", "tonalRamp": ["oklch(15% 0.18 260)", "oklch(25% 0.18 260)", "oklch(35% 0.18 260)", "oklch(45% 0.18 260)", "oklch(55% 0.18 260)", "oklch(65% 0.18 260)", "oklch(80% 0.18 260)", "oklch(95% 0.18 260)"] },
+      "protected": { "role": "neutral", "displayName": "Destino protegido", "canonical": "#e8eef5", "tonalRamp": ["oklch(15% 0.02 250)", "oklch(25% 0.02 250)", "oklch(35% 0.02 250)", "oklch(45% 0.02 250)", "oklch(55% 0.02 250)", "oklch(65% 0.02 250)", "oklch(80% 0.02 250)", "oklch(95% 0.02 250)"] },
+      "danger": { "role": "tertiary", "displayName": "Vermelho de erro", "canonical": "#a12b22", "tonalRamp": ["oklch(15% 0.14 25)", "oklch(25% 0.14 25)", "oklch(35% 0.14 25)", "oklch(45% 0.14 25)", "oklch(55% 0.14 25)", "oklch(65% 0.14 25)", "oklch(80% 0.14 25)", "oklch(95% 0.14 25)"] },
+      "danger-soft": { "role": "tertiary", "displayName": "Fundo de erro", "canonical": "#fff1ef", "tonalRamp": ["oklch(15% 0.035 25)", "oklch(25% 0.035 25)", "oklch(35% 0.035 25)", "oklch(45% 0.035 25)", "oklch(55% 0.035 25)", "oklch(65% 0.035 25)", "oklch(80% 0.035 25)", "oklch(95% 0.035 25)"] },
+      "danger-ink": { "role": "tertiary", "displayName": "Tinta de erro", "canonical": "#76211b", "tonalRamp": ["oklch(15% 0.14 25)", "oklch(25% 0.14 25)", "oklch(35% 0.14 25)", "oklch(45% 0.14 25)", "oklch(55% 0.14 25)", "oklch(65% 0.14 25)", "oklch(80% 0.14 25)", "oklch(95% 0.14 25)"] },
+      "success": { "role": "secondary", "displayName": "Verde de sucesso", "canonical": "#08724f", "tonalRamp": ["oklch(15% 0.12 160)", "oklch(25% 0.12 160)", "oklch(35% 0.12 160)", "oklch(45% 0.12 160)", "oklch(55% 0.12 160)", "oklch(65% 0.12 160)", "oklch(80% 0.12 160)", "oklch(95% 0.12 160)"] },
+      "success-soft": { "role": "secondary", "displayName": "Fundo de sucesso", "canonical": "#e8f6ef", "tonalRamp": ["oklch(15% 0.03 160)", "oklch(25% 0.03 160)", "oklch(35% 0.03 160)", "oklch(45% 0.03 160)", "oklch(55% 0.03 160)", "oklch(65% 0.03 160)", "oklch(80% 0.03 160)", "oklch(95% 0.03 160)"] },
+      "success-ink": { "role": "secondary", "displayName": "Tinta de sucesso", "canonical": "#07573d", "tonalRamp": ["oklch(15% 0.12 160)", "oklch(25% 0.12 160)", "oklch(35% 0.12 160)", "oklch(45% 0.12 160)", "oklch(55% 0.12 160)", "oklch(65% 0.12 160)", "oklch(80% 0.12 160)", "oklch(95% 0.12 160)"] },
+      "amber": { "role": "tertiary", "displayName": "Âmbar de exceção", "canonical": "#8c4b00", "tonalRamp": ["oklch(15% 0.12 55)", "oklch(25% 0.12 55)", "oklch(35% 0.12 55)", "oklch(45% 0.12 55)", "oklch(55% 0.12 55)", "oklch(65% 0.12 55)", "oklch(80% 0.12 55)", "oklch(95% 0.12 55)"] }
+    },
+    "typographyMeta": {
+      "headline": { "displayName": "Título de página", "purpose": "Cabeçalho principal no painel de acesso." },
+      "body": { "displayName": "Texto de interface", "purpose": "Descrições, instruções e conteúdo de leitura." },
+      "label": { "displayName": "Rótulo operacional", "purpose": "Rótulos de campos e mensagens compactas." }
+    },
+    "shadows": [
+      { "name": "panel", "value": "0 18px 42px -30px rgb(31 49 68 / 38%)", "purpose": "Separação suave do painel de trabalho em relação ao canvas." }
+    ],
+    "motion": [
+      { "name": "progress-width", "value": "width 300ms", "purpose": "Mudança da largura de progresso na trilha de etapas." },
+      { "name": "reduced-motion", "value": "prefers-reduced-motion: transitions and animations 0.01ms", "purpose": "Reduzir movimento quando o sistema operacional solicita." }
+    ],
+    "breakpoints": [
+      { "name": "sm", "value": "640px" },
+      { "name": "lg", "value": "1024px" }
+    ]
+  },
+  "components": [
+    {
+      "name": "Ação primária",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "Ação principal para avançar no fluxo de acesso ou consulta.",
+      "html": "<button class=\"ds-button-primary\" type=\"button\">Continuar</button>",
+      "css": ".ds-button-primary { display: inline-flex; min-height: 48px; align-items: center; justify-content: center; gap: 12px; padding: 0 20px; border: 0; border-radius: 8px; background: var(--color-route); color: #fff; font: 600 14px/20px \"Segoe UI Variable\", \"Aptos\", system-ui, sans-serif; cursor: pointer; transition: background-color 150ms ease; } .ds-button-primary:hover { background: var(--color-route-strong); } .ds-button-primary:focus-visible { outline: none; box-shadow: 0 0 0 4px rgb(21 94 239 / 30%); } .ds-button-primary:active { background: var(--color-route-strong); } .ds-button-primary:disabled { background: var(--color-muted-ink); cursor: wait; }"
+    },
+    {
+      "name": "Campo de formulário",
+      "kind": "input",
+      "refersTo": "input",
+      "description": "Campo de texto com rótulo associado e foco visível.",
+      "html": "<label class=\"ds-field\"><span class=\"ds-field-label\">E-mail</span><input class=\"ds-field-input\" type=\"email\" placeholder=\"seu@email.com\" /></label>",
+      "css": ".ds-field { display: grid; gap: 8px; color: var(--color-ink); font: 600 14px/20px \"Segoe UI Variable\", \"Aptos\", system-ui, sans-serif; } .ds-field-input { width: 100%; min-height: 48px; padding: 0 16px; border: 1px solid var(--color-line); border-radius: 8px; outline: none; background: #fff; color: var(--color-ink); font: 400 16px/28px \"Segoe UI Variable\", \"Aptos\", system-ui, sans-serif; transition: border-color 150ms ease, box-shadow 150ms ease; } .ds-field-input:focus-visible { border-color: var(--color-route); box-shadow: 0 0 0 4px rgb(21 94 239 / 20%); } .ds-field-input:disabled { background: var(--color-muted); color: var(--color-muted-ink); }"
+    },
+    {
+      "name": "Painel de acesso",
+      "kind": "card",
+      "refersTo": "access-panel",
+      "description": "Superfície central de trabalho para título, descrição e formulário.",
+      "html": "<section class=\"ds-access-panel\"><h2 class=\"ds-access-title\">Entre para continuar</h2><p class=\"ds-access-description\">Confirme seu acesso antes de consultar um processo.</p></section>",
+      "css": ".ds-access-panel { display: grid; justify-items: center; gap: 32px; width: 100%; max-width: 56rem; margin: 0 auto; padding: 20px; border: 1px solid var(--color-line); border-radius: 16px; background: #fff; color: var(--color-ink); text-align: center; box-shadow: var(--shadow-panel); } .ds-access-title { max-width: 48rem; margin: 0; color: var(--color-ink); font: 600 30px/36px \"Segoe UI Variable\", \"Aptos\", system-ui, sans-serif; letter-spacing: -0.025em; } .ds-access-description { max-width: 42rem; margin: 0; color: var(--color-muted-ink); font: 400 16px/28px \"Segoe UI Variable\", \"Aptos\", system-ui, sans-serif; } @media (min-width: 640px) { .ds-access-panel { padding: 32px; } .ds-access-title { font-size: 36px; line-height: 40px; } } @media (min-width: 1024px) { .ds-access-panel { padding: 40px; } }"
+    },
+    {
+      "name": "Trilha de etapas",
+      "kind": "nav",
+      "refersTo": "progress-rail",
+      "description": "Navegação sequencial com estado atual, concluído e futuro.",
+      "html": "<nav class=\"ds-progress\" aria-label=\"Etapas da consulta\"><ol><li class=\"ds-progress-step is-complete\"><span>1</span><b>Acesso</b></li><li class=\"ds-progress-step is-current\" aria-current=\"step\"><span>2</span><b>Consulta</b></li><li class=\"ds-progress-step\"><span>3</span><b>Processo</b></li></ol></nav>",
+      "css": ".ds-progress { width: 100%; max-width: 48rem; margin: 0 auto; color: var(--color-muted-ink); font: 600 12px/16px \"Segoe UI Variable\", \"Aptos\", system-ui, sans-serif; } .ds-progress ol { position: relative; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); margin: 0; padding: 0; list-style: none; } .ds-progress ol::before { position: absolute; top: 16px; right: 16.66%; left: 16.66%; height: 2px; background: var(--color-line); content: \"\"; } .ds-progress-step { position: relative; z-index: 1; display: grid; justify-items: center; gap: 8px; text-align: center; } .ds-progress-step span { display: grid; width: 32px; height: 32px; place-items: center; border: 2px solid var(--color-line); border-radius: 9999px; background: var(--color-canvas); color: var(--color-muted-ink); font-size: 12px; font-weight: 700; } .ds-progress-step.is-complete span { border-color: var(--color-route); background: #fff; color: var(--color-route); } .ds-progress-step.is-current { color: var(--color-ink); } .ds-progress-step.is-current span { border-color: var(--color-route); background: var(--color-route); color: #fff; } @media (min-width: 640px) { .ds-progress { font-size: 14px; line-height: 20px; } }"
+    },
+    {
+      "name": "Faixa de estado",
+      "kind": "custom",
+      "refersTo": "status-message",
+      "description": "Mensagem informativa, de erro ou sucesso em superfície tonal compacta.",
+      "html": "<div class=\"ds-status is-info\" role=\"status\">Aguarde enquanto verificamos sua sessão.</div>",
+      "css": ".ds-status { padding: 12px 16px; border: 1px solid var(--color-line); border-radius: 8px; color: var(--color-ink); font: 400 14px/20px \"Segoe UI Variable\", \"Aptos\", system-ui, sans-serif; } .ds-status.is-info { border-color: var(--color-line); background: var(--color-muted); color: var(--color-ink); } .ds-status.is-success { border-color: rgb(8 114 79 / 40%); background: var(--color-success-soft); color: var(--color-success-ink); } .ds-status.is-error { border-color: rgb(161 43 34 / 40%); background: var(--color-danger-soft); color: var(--color-danger-ink); } .ds-status:focus-visible { outline: 4px solid rgb(21 94 239 / 30%); outline-offset: 2px; }"
+    },
+    {
+      "name": "Limite protegido",
+      "kind": "custom",
+      "refersTo": "protected-boundary",
+      "description": "Destino indisponível até a confirmação remota da sessão.",
+      "html": "<section class=\"ds-protected\" aria-label=\"Área protegida\" aria-busy=\"true\"><div class=\"ds-protected-content\"><svg aria-hidden=\"true\" viewBox=\"0 0 24 24\" width=\"28\" height=\"28\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\"><rect x=\"4.5\" y=\"10\" width=\"15\" height=\"11\" rx=\"2\"></rect><path d=\"M8 10V7a4 4 0 0 1 8 0v3\"></path><circle cx=\"12\" cy=\"15\" r=\"1\"></circle></svg><strong>Acesso em validação</strong><p>O conteúdo protegido só aparece depois que confirmarmos sua sessão.</p></div></section>",
+      "css": ".ds-protected { display: grid; min-height: 160px; place-items: center; padding: 28px 20px; border: 1px solid var(--color-line); border-radius: 16px; background: var(--color-protected); color: var(--color-muted-ink); text-align: center; } .ds-protected-content { display: grid; justify-items: center; gap: 12px; } .ds-protected-content strong { color: var(--color-muted-ink); font: 600 16px/24px \"Segoe UI Variable\", \"Aptos\", system-ui, sans-serif; } .ds-protected-content p { max-width: 28rem; margin: 0; color: var(--color-muted-ink); font: 400 14px/24px \"Segoe UI Variable\", \"Aptos\", system-ui, sans-serif; } .ds-protected:focus-visible { outline: 4px solid rgb(21 94 239 / 30%); outline-offset: 2px; }"
+    }
+  ],
+  "narrative": {
+    "northStar": "Mesa de despacho verificada",
+    "overview": "A interface organiza uma tarefa sensível como uma mesa de despacho contemporânea: estrutura grafite, área de trabalho branca e fria, percurso em azul cobalto e estados de sessão sempre legíveis. A composição é sóbria e operacional. Tipografia sem serifa, hierarquia curta e alinhamento consistente ajudam pessoas sem familiaridade jurídica a entender onde estão e qual etapa vem a seguir.\n\nA confiança é comunicada pela própria estrutura. O progresso mostra três etapas, mensagens ocupam uma faixa compacta e a área protegida permanece visualmente contida até a sessão ser confirmada. O âmbar fica reservado a exceções; tons de sucesso e erro mantêm significado sem competir com a rota azul. Preserve o português do Brasil e não introduza exemplos de processos ou resultados fictícios.",
+    "keyCharacteristics": [
+      "Estrutura operacional em grafite, branco frio e azul cobalto.",
+      "Hierarquia compacta, sans-serif e estados de sessão explícitos.",
+      "Conteúdo protegido separado e indisponível antes da validação."
+    ],
+    "rules": [
+      { "name": "The Route Accent Rule", "body": "Azul identifica ações e avanço da jornada; âmbar aparece apenas para exceções.", "section": "colors" },
+      { "name": "The Tonal Boundary Rule", "body": "Distinga áreas protegidas com superfície e contorno; não eleve o destino protegido como se fosse uma ação disponível.", "section": "elevation" }
+    ],
+    "dos": [
+      "Do: mantenha textos e mensagens em português do Brasil.",
+      "Do: use azul de rota para ações primárias e avanço da jornada.",
+      "Do: mantenha visível o estado de validação da sessão e a fronteira do conteúdo protegido.",
+      "Do: preserve foco de teclado, rótulos associados, mensagens semânticas e redução de movimento.",
+      "Do: use a região protegida sem linhas de processos de exemplo ou resultados inventados."
+    ],
+    "donts": [
+      "Don't: use âmbar como cor de ação comum; reserve-o para exceções.",
+      "Don't: revele conteúdo protegido antes da validação da sessão.",
+      "Don't: adicione fotografias, gradientes, superfícies de vidro, serifas display ou ornamentos jurídicos à interface operacional.",
+      "Don't: substitua a paleta fria por fundos creme ou use sombras fortes fora do painel de trabalho."
+    ]
+  }
+}
