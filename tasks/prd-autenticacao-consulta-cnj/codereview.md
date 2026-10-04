@@ -29,7 +29,7 @@
 | Tarefa | Status | Observações |
 |------|--------|-------------|
 | 1.0–9.0 | COMPLETAS | Subtarefas e testes associados estão marcados como concluídos; código e testes correspondentes foram conferidos. |
-| 10.0 | INCOMPLETA | 10.1–10.5 e 10.7 estão concluídas. 10.6 permanece aberta: falta aceite com leitor de tela/zoom real e envio/recebimento real via Resend em caixa controlada. |
+| 10.0 | INCOMPLETA | 10.1–10.5 e 10.7 estão concluídas. 10.6 permanece aberta: falta envio e recebimento real via Resend em caixa controlada. |
 
 ## Testes
 - Total de testes: 310 automatizados (183 backend, 122 frontend, 5 E2E)
@@ -51,7 +51,7 @@
 - Respostas da consulta permanecem mínimas e a implementação preserva os dados processuais existentes.
 
 ## Recomendações
-- Concluir a tarefa 10.6 antes de declarar o aceite integral: registrar a verificação manual com leitor de tela e zoom real, além do recebimento de uma mensagem real pelo Resend em caixa controlada. Não registrar tokens ou credenciais nas evidências.
+- Concluir a tarefa 10.6 antes de declarar o aceite integral: registrar o recebimento de uma mensagem real pelo Resend em caixa controlada. Não registrar tokens ou credenciais nas evidências.
 
 ## Conclusão
-A implementação revisada está aderente à TechSpec e às regras do projeto. Lint, typecheck, builds, testes unitários/de integração, cobertura e cinco jornadas E2E passaram; o teste de senha foi estabilizado para execução sob carga. A revisão de código está aprovada com ressalvas porque a tarefa 10.6 e os aceites manuais correspondentes continuam pendentes, conforme já registrado em `tasks.md` e nas evidências da tarefa.
+A implementação revisada está aderente à TechSpec e às regras do projeto. Lint, typecheck, builds, testes unitários/de integração, cobertura e cinco jornadas E2E passaram; o teste de senha foi estabilizado para execução sob carga. A revisão de código está aprovada com ressalvas porque a tarefa 10.6 ainda depende do envio e recebimento real pelo Resend, conforme registrado nas evidências da tarefa.

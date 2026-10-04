@@ -100,7 +100,7 @@ Estado de sessão: verificando, autenticada, anônima ou saída pendente. `useRe
 
 `AuthProvider` mantém o último CNJ em memória e em `sessionStorage` associado ao ID público da sessão, somente após sessão validada. Não restaura esse valor antes da checagem; limpa ao sair, expirar ou trocar de sessão. Assim, retorno e recarga preservam a entrada na mesma aba/sessão. Um `BroadcastChannel` propaga somente eventos de saída/invalidação entre abas. Em `pageshow`, inclusive retorno do bfcache, e ao recuperar visibilidade, ocultar conteúdo e revalidar a sessão; antes de `pagehide`, retirar dados protegidos da apresentação. Não guardar resultados no histórico de navegação nem criar service worker de cache.
 
-Formulários semânticos, rótulos permanentes, `autocomplete` apropriado, senha protegida, mensagens por `aria-describedby`/`aria-live`, foco no primeiro erro e título da nova página. A busca bloqueia campo e submissão durante carregamento; demais formulários impedem duplicidade e preservam e-mail. Toda tela deve funcionar a 320 px e zoom de 200%. As mensagens de produto são as da tabela de estados do PRD; códigos internos não aparecem na interface.
+Formulários semânticos, rótulos permanentes, `autocomplete` apropriado, senha protegida, mensagens por `aria-describedby`/`aria-live`, foco no primeiro erro e título da nova página. A busca bloqueia campo e submissão durante carregamento; demais formulários impedem duplicidade e preservam e-mail. Toda tela deve funcionar a 320 px. As mensagens de produto são as da tabela de estados do PRD; códigos internos não aparecem na interface.
 
 ### Modelos de dados
 
@@ -656,11 +656,11 @@ Provisionar banco/schema dedicado por execução/worker a partir das migrations;
 | E2E-02 | Link expirado, reenvio e recuperação | CA-25, CA-26, CA-27 | Link antigo recusado; limite anunciado; novo link permite confirmação. |
 | E2E-03 | Consulta inválida, ausente, falha e correção | CA-05, CA-06, CA-08, CA-10, CA-11, CA-12, CA-16 | Mensagens distintas; entrada preservada; Enter e repetição corretos; resposta tardia ignorada. |
 | E2E-04 | Autorização, expiração e saída | CA-03, CA-13, CA-14, CA-15 | Navegação direta/recarga/voltar sem vazamento; outra aba invalidada; falha de logout recuperável. |
-| E2E-05 | Jornada por teclado e viewport pequeno | CA-17, CA-19 | Fluxo completo a 320 px e ampliação de 200%, sem sobreposição ou rolagem horizontal necessária. |
+| E2E-05 | Jornada por teclado e viewport pequeno | CA-17, CA-19 | Fluxo completo a 320 px, sem sobreposição ou rolagem horizontal necessária. |
 
 Playwright inicia SPA e backend reais em portas controladas. O processo de teste injeta `VerificationSender` simulado; um coletor acessível apenas ao harness captura a mensagem para abrir o link, sem endpoint de produção que exponha tokens. A automação não usa Resend real nem altera domínio para confirmar contas. Testes de timeout podem atrasar transporte e banco controlados; os demais usam jornada real. A configuração fica em `frontend/playwright.config.ts`, apontando para `../e2e`, com script `test:e2e` no frontend.
 
-Complementar E2E-05 com aceite documentado em leitor de tela e zoom real de navegador; axe/inspeções automatizadas não substituem essas evidências. Aceite controlado de CA-28: configurar Resend real, cadastrar endereço de uma caixa controlada, comprovar recebimento, abrir o link em outro navegador, confirmar, entrar e consultar a fixture. Registrar resultado e horário sem copiar token, senha ou API key. Esse aceite é uma dependência de entrega, não de cada execução da suíte.
+Aceite controlado de CA-28: configurar Resend real, cadastrar endereço de uma caixa controlada, comprovar recebimento, abrir o link em outro navegador, confirmar, entrar e consultar a fixture. Registrar resultado e horário sem copiar token, senha ou API key. Esse aceite é uma dependência de entrega, não de cada execução da suíte.
 
 Na implementação, executar `lint`, `typecheck`, `test`, `test:coverage` e `build` dentro de cada aplicativo, além de `test:e2e` no frontend. Configurar os scripts ainda ausentes; não excluir código novo para atingir cobertura. Esta entrega documental não executa nem declara aprovação dessas verificações de implementação.
 

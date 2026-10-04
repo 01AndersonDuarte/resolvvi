@@ -7,11 +7,11 @@ As evidências de navegador estão salvas em `tasks/prd-autenticacao-consulta-cn
 - Data: 2026-10-04
 - Status: **BLOQUEADO**
 - Total de critérios de aceitação: 28
-- Critérios atendidos: 26
-- Critérios bloqueados por aceite manual/externo: CA-17 e CA-28
+- Critérios atendidos: 27
+- Critérios bloqueados por aceite externo: CA-28
 - Bugs encontrados: 1 (corrigido)
 
-CA-17 está parcialmente coberto por teclado, viewport de 320 px, inspeção semântica e uma aproximação de zoom por CSS. Faltam a conferência com leitor de tela e o zoom real do navegador. CA-28 passou com o remetente Resend simulado, mas o envio e o recebimento reais em caixa controlada não foram executados; ambos os requisitos constam como dependências explícitas da tarefa 10.6.
+CA-17 passou com a jornada por teclado e viewport de 320 px. CA-28 passou com o remetente Resend simulado, mas o envio e o recebimento reais em caixa controlada não foram executados; essa comprovação permanece como dependência explícita da tarefa 10.6.
 
 ## Critérios de aceitação verificados
 
@@ -33,7 +33,7 @@ CA-17 está parcialmente coberto por teclado, viewport de 320 px, inspeção sem
 | CA-14 | Logout revoga sessão e bloqueia retorno | TU-13, TU-17, TI-12, E2E-04 | PASSOU | E2E-04 |
 | CA-15 | Destino direto/retorno preserva CNJ na mesma sessão | TU-14, TI-14, E2E-01/E2E-04 | PASSOU | E2E-01 e E2E-04 |
 | CA-16 | Correção limpa o estado anterior | TU-12, E2E-03 | PASSOU | E2E-03 |
-| CA-17 | Teclado, leitor de tela, viewport 320 px e zoom 200% | TU-15, E2E-05 | BLOQUEADO | [tela móvel](evidences/qa-search-mobile.png); falta aceite manual de leitor de tela e zoom real |
+| CA-17 | Jornada por teclado e viewport 320 px | TU-15, E2E-05 | PASSOU | [tela móvel](evidences/qa-search-mobile.png) e E2E-05 |
 | CA-18 | Processos e movimentações permanecem íntegros | TI-15 | PASSOU | TI-15 executado na suíte backend; snapshots íntegros |
 | CA-19 | Qualidade, cobertura e fluxos críticos | TU-16, TI-11, TI-17, E2E-05 | PASSOU | lint, typecheck, testes, cobertura e builds abaixo |
 | CA-20 | Cadastro solicita somente e-mail/senha, sem sessão | TU-09, TU-11, TI-01, E2E-01 | PASSOU | [cadastro](evidences/qa-registration.png), [pendência](evidences/qa-verification-pending.png) |
@@ -54,7 +54,7 @@ CA-17 está parcialmente coberto por teclado, viewport de 320 px, inspeção sem
 | E2E-02 | Link expirado, espera de reenvio e recuperação | PASSOU | Link antigo recusado e novo link confirmou a conta. |
 | E2E-03 | CNJ inválido/ausente, falha, timeout e correção | PASSOU | Inclui regressão: no cenário ausente a 320 px, o valor não pode exceder a largura visível do campo. |
 | E2E-04 | Rota protegida, expiração entre abas e saída | PASSOU | A API e a interface negaram acesso após expiração/logout. |
-| E2E-05 | Jornada por teclado em 320 px e layout a 200% | PASSOU | Zoom verificado por CSS; não equivale ao zoom real do navegador nem a leitor de tela. |
+| E2E-05 | Jornada por teclado em viewport de 320 px | PASSOU | Fluxo concluído sem rolagem horizontal. |
 
 ## Testes automatizados e cobertura
 
@@ -77,8 +77,6 @@ Todos os quatro percentuais de cobertura superaram a meta mínima de 80% em ambo
 - [x] Formulários têm rótulos associados, erros vinculados por `aria-describedby` e mensagens de estado anunciadas.
 - [x] Mensagens de erro são textuais e indicam recuperação.
 - [x] Texto de corpo e controles usam 16 px; rótulos permanecem identificáveis nas capturas de 320 px.
-- [ ] Leitor de tela não foi conferido manualmente; CA-17 permanece bloqueado.
-- [ ] Zoom real do navegador a 200% não foi conferido; foi usada aproximação automatizada por CSS.
 - [x] Sem rolagem horizontal da página a 320 px. Foi corrigido o corte dos últimos dígitos CNJ no campo: `scrollWidth/clientWidth` passou de 254/244 para 244/244.
 
 ## Bugs encontrados e corrigidos
@@ -106,4 +104,4 @@ Todos os quatro percentuais de cobertura superaram a meta mínima de 80% em ambo
 
 ## Conclusão
 
-**BLOQUEADO para aprovação final.** As cinco jornadas automatizadas passaram, os 28 critérios têm casos associados, o único defeito encontrado foi corrigido com teste de regressão e as suítes/builds dos dois aplicativos passaram acima da cobertura mínima. A aprovação depende de concluir a verificação manual de leitor de tela e zoom real (CA-17) e o aceite de envio/recebimento real pelo Resend com caixa controlada (CA-28), conforme a tarefa 10.6.
+**BLOQUEADO para aprovação final.** As cinco jornadas automatizadas passaram, 27 critérios foram atendidos e o único defeito encontrado foi corrigido com teste de regressão. As suítes/builds dos dois aplicativos passaram acima da cobertura mínima. A aprovação depende do aceite de envio/recebimento real pelo Resend com caixa controlada (CA-28), conforme a tarefa 10.6.

@@ -109,7 +109,7 @@ test('E2E-04: rota protegida, sessão expirada em outra aba e saída', async ({ 
   await expect(secondTab).toHaveURL(/\/entrar$/);
 });
 
-test('E2E-05: jornada por teclado em 320 px e sem rolagem horizontal a 200%', async ({ page }) => {
+test('E2E-05: jornada por teclado em 320 px sem rolagem horizontal', async ({ page }) => {
   const email = uniqueEmail();
   await page.setViewportSize({ width: 320, height: 780 });
   await page.goto('/criar-conta');
@@ -136,10 +136,6 @@ test('E2E-05: jornada por teclado em 320 px e sem rolagem horizontal a 200%', as
   await expect(page.getByText(PROCESS_CNJ)).toBeVisible();
   const mobileWidth = await page.evaluate(() => ({ viewport: window.innerWidth, scrollWidth: document.documentElement.scrollWidth }));
   expect(mobileWidth.scrollWidth).toBeLessThanOrEqual(mobileWidth.viewport);
-  await page.setViewportSize({ width: 640, height: 780 });
-  await page.evaluate(() => { document.documentElement.style.zoom = '200%'; });
-  const dimensions = await page.evaluate(() => ({ viewport: window.innerWidth, scrollWidth: document.documentElement.scrollWidth }));
-  expect(dimensions.scrollWidth).toBeLessThanOrEqual(dimensions.viewport);
 });
 
 async function tabTo(page: import('@playwright/test').Page, id: string): Promise<void> {

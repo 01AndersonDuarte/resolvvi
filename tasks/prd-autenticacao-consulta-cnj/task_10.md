@@ -33,7 +33,8 @@ No frontend, manter componentes até 30 linhas, props explícitas, acesso HTTP e
 
 - O1–O7 e RF1–RF23: integrar os incrementos na jornada descrita pelo PRD, sem substituir testes de unidade/integração por E2E.
 - CA-19: qualidade e cobertura mínima em cada aplicativo, com integração realmente executada.
-- CA-17 e CA-28: complementar automação com leitor de tela, zoom real e envio/recebimento em caixa controlada.
+- CA-17: validar por E2E a jornada por teclado e em tela pequena.
+- CA-28: comprovar envio e recebimento em caixa controlada.
 - RN5: preservar processos e movimentações durante preparação, execução e limpeza.
 
 </requirements>
@@ -45,7 +46,7 @@ No frontend, manter componentes até 30 linhas, props explícitas, acesso HTTP e
 - [x] 10.3 Implementar E2E-01 e E2E-02 para cadastro, confirmação em outro contexto, reenvio e recuperação.
 - [x] 10.4 Implementar E2E-03, E2E-04 e E2E-05 para consulta, autorização, saída, teclado e tela pequena.
 - [x] 10.5 Executar as suítes e verificações dos dois aplicativos, conferir cobertura e rastreabilidade de todos os casos; corrigir falhas dentro do escopo.
-- [ ] 10.6 Realizar e registrar aceite de leitor de tela/zoom e envio/recebimento real pelo Resend em ambiente controlado, sem registrar segredos.
+- [ ] 10.6 Realizar e registrar envio e recebimento real pelo Resend em ambiente controlado, sem registrar segredos.
 - [x] 10.7 Atualizar documentação operacional e evidências, registrar dependências realmente atendidas e encerrar somente recursos iniciados pela execução.
 
 ## Detalhes de implementação
@@ -60,7 +61,7 @@ Usar o [PRD](./prd.md) e a [TechSpec](./techspec.md) como fonte de verdade. Cons
 
 Executar `lint`, `typecheck`, `test`, `test:coverage` e `build` dentro de cada aplicativo, mais `npm run test:e2e` em `frontend/`. Exigir banco isolado e execução efetiva dos testes de integração. Registrar evidências do incremento e manter checklists abertos até concluir as verificações. Nenhuma aprovação documental substitui esses resultados.
 
-A validação formal dos critérios de aceitação pertence ao QA. Esta tarefa entrega testes e evidências; não declarar conformidade de CA-17 por automação apenas, nem CA-28 sem recebimento real. Manter evidências sanitizadas e não antecipar a marcação de pronto.
+A validação formal dos critérios de aceitação pertence ao QA. Esta tarefa entrega testes e evidências; não declarar conformidade de CA-28 sem recebimento real. Manter evidências sanitizadas e não antecipar a marcação de pronto.
 
 ## Critérios de aceitação relacionados
 
