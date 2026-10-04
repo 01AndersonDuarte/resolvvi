@@ -6,7 +6,7 @@ Ampliar o GET existente para entregar informações gerais formatadas e protegid
 
 **Dependências:** Nenhuma tarefa desta decomposição; requer fundação de dados, autenticação e busca existentes.
 
-**Status:** pendente de implementação.
+**Status:** concluída e validada.
 
 <skills>
 ### Conformidade com skills

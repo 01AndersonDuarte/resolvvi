@@ -5,11 +5,11 @@ As evidências de navegador desta execução estão em `tasks/prd-detalhes-proce
 ## Resumo
 
 - Data: 2026-10-04
-- Status: BLOQUEADO
+- Status: APROVADO
 - Total de critérios de aceitação: 22
-- Critérios de aceitação atendidos: 21
+- Critérios de aceitação atendidos: 22
 - Bugs encontrados: 1 (corrigido)
-- Bloqueio restante: CA-20 requer verificação visual manual com zoom nativo do navegador a 200%. O Playwright validou viewport e ampliação CSS de 200%, que não comprovam o zoom nativo.
+- Bloqueio restante: nenhum. O usuário confirmou a verificação manual de CA-20 com zoom nativo do navegador a 200% em 2026-10-04.
 
 ## Critérios de aceitação verificados
 
@@ -34,7 +34,7 @@ As evidências de navegador desta execução estão em `tasks/prd-detalhes-proce
 | CA-17 | Retorno preserva CNJ existente e acesso direto volta à consulta sem histórico inventado. | TI-08, E2E-01, E2E-02 | PASSOU | E2E-01 e E2E-02 |
 | CA-18 | Títulos e conteúdos são tratados como texto literal. | TU-16 | PASSOU | TU-16 |
 | CA-19 | Títulos, ações e navegação funcionam por teclado com foco visível. | TU-09, TU-17, E2E-01, E2E-03, E2E-05 | PASSOU | E2E-05 |
-| CA-20 | Layout se mantém utilizável em celular, desktop e ampliação. | E2E-05 | BLOQUEADO | [Celular](./evidences/processo-mobile-dados.png), [CSS 200%](./evidences/processo-mobile-zoom-css-200.png); zoom nativo pendente |
+| CA-20 | Layout se mantém utilizável em celular, desktop e ampliação. | E2E-05 e verificação manual | PASSOU | [Celular](./evidences/processo-mobile-dados.png), [CSS 200%](./evidences/processo-mobile-zoom-css-200.png); zoom nativo 200% confirmado pelo usuário em 2026-10-04 |
 | CA-21 | Leituras não alteram registros nem consultam serviços externos. | TU-16, TU-18, TU-19, TI-06, TI-07 | PASSOU | TI-06 e TI-07 |
 | CA-22 | Suítes, builds e cobertura mínima passam nos aplicativos afetados. | TU-01–TU-19, TI-01–TI-08, E2E-01–E2E-05 | PASSOU | Gates registrados abaixo |
 
@@ -46,8 +46,9 @@ As evidências de navegador desta execução estão em `tasks/prd-detalhes-proce
 | E2E-02 | Acesso direto, recarga, destino inválido e processo ausente. | PASSOU | Sessão autenticada. |
 | E2E-03 | Falha isolada de histórico, preservação de detalhes e retry. | PASSOU | Segunda requisição concluiu a página solicitada. |
 | E2E-04 | Expiração de sessão durante leitura protegida. | PASSOU | Detalhes removidos e encaminhamento à entrada. |
-| E2E-05 | Teclado, celular/desktop e ampliação CSS de 200%. | PASSOU | Zoom nativo do navegador continua sem comprovação. |
-| QA visual | Estados com dados, vazio, erro e viewport móvel. | PASSOU | Cenário temporário de captura passou; imagens preservadas na pasta de evidências. |
+| E2E-05 | Teclado, celular/desktop e ampliação CSS de 200%. | PASSOU | Playwright verificou teclado e layout em 320 px e 1280 px; zoom CSS não representa zoom nativo. |
+| Verificação manual | Zoom nativo do navegador a 200%. | PASSOU | Confirmação do usuário registrada em 2026-10-04; a emulação CSS foi reportada separadamente. |
+| QA visual | Estados com dados, vazio, erro e viewport móvel. | PASSOU | Capturas existentes na pasta de evidências foram inspecionadas nesta execução. |
 
 ## Testes automatizados e cobertura
 
@@ -56,23 +57,33 @@ As evidências de navegador desta execução estão em `tasks/prd-detalhes-proce
 | Unidade/integração frontend | TU-01–TU-17 | PASSOU | `frontend/npm test` | 131 testes em 22 arquivos. |
 | Unidade/integração backend | TU-01–TU-07, TU-18–TU-19, TI-01–TI-07 | PASSOU | `backend/npm test` | 167 testes em 32 arquivos. |
 | Integração frontend | TI-08 | PASSOU | `frontend/npm test` | View, contexto, cliente HTTP e transporte controlado. |
-| E2E | E2E-01–E2E-05 | PASSOU | `frontend/npm run test:e2e` | 10 E2E do repositório; execução final incluiu também o cenário temporário de captura (11 no total). |
+| E2E | E2E-01–E2E-05 | PASSOU | `frontend/npm run test:e2e` | 10 testes do repositório passaram nesta execução. |
 | Frontend | Gates | PASSOU | `npm run lint`, `npm run typecheck`, `npm test`, `npm run test:coverage`, `npm run build` | Todos executados em `frontend/`. |
 | Backend | Gates | PASSOU | `npm run lint`, `npm run typecheck`, `npm test`, `npm run test:coverage`, `npm run build` | Todos executados em `backend/`. |
 
 - Cobertura frontend: statements 93,53%; branches 91,26%; funções 95,65%; linhas 95,88%.
 - Cobertura backend: statements 87,98%; branches 85,50%; funções 86,86%; linhas 90,16%.
-- Medição de TI-02: 1.000 movimentações, 50 páginas, 127.877 bytes e 1.073 ms nesta execução. É observacional, sem meta de latência acordada.
+- Medição de TI-02: 1.000 movimentações, 50 páginas, 127.877 bytes e 723,48 ms na execução de `npm test` (815,18 ms durante cobertura). São medições observacionais, sem meta de latência acordada.
 
 ## Acessibilidade
 
-- [x] Teclado: Tab e Enter operaram expansão, paginação e retorno; retry por teclado também coberto por TU-17.
+- [x] Teclado: Tab e Enter operaram expansão, paginação e retorno; retry por teclado também coberto por TU-17. Escape foi pressionado na tela de detalhes e a página permaneceu utilizável; os dois E2E-05 passaram na revalidação direcionada.
 - [x] Elementos interativos: botões e links têm nomes acessíveis; navegação possui rótulo descritivo.
 - [x] Imagens: não há imagens de conteúdo na tela de detalhes.
 - [x] Contraste: inspeção visual das capturas encontrou texto e controles legíveis nos fundos usados.
 - [x] Formulários: não há campos de formulário na tela de detalhes.
-- [x] Erros: mensagem de histórico usa `role="alert"` e inclui ação nomeada para nova tentativa.
+- [x] Erros: mensagem de histórico fica visível e inclui ação nomeada para nova tentativa; anúncios dinâmicos estão excluídos pelo escopo de acessibilidade do PRD.
 - [x] Fonte e quebra: textos permanecem legíveis e títulos/conteúdos longos quebram em viewport de 320 px.
+- [x] Zoom nativo: verificação manual em 200% confirmada pelo usuário em 2026-10-04.
+
+### Revalidação em 2026-10-04
+
+- `frontend`: lint, typecheck, build, 131 testes em 22 arquivos, cobertura e 10 testes Playwright aprovados.
+- Revalidação de teclado após acrescentar a verificação de Escape ao E2E-05: os dois testes E2E-05 do repositório passaram.
+- `backend`: lint, typecheck, build, 167 testes em 32 arquivos e cobertura aprovados no banco isolado `dev_test_resolvvi_test_template`.
+- Cobertura observada: frontend 93,53% statements, 91,26% branches, 95,65% funções e 95,88% linhas; backend 87,98% statements, 85,50% branches, 86,86% funções e 90,16% linhas.
+- E2E usou API `127.0.0.1:3050`, controle `127.0.0.1:3051`, frontend `127.0.0.1:5100` e banco E2E `dev_test_resolvvi_e2e_test` em `127.0.0.1:55432`.
+- As capturas de dados desktop, erro, histórico vazio, dados mobile e CSS zoom 200% foram inspecionadas. A execução Playwright não gera capturas adicionais; os arquivos existentes permanecem como evidências visuais.
 
 ## Bugs encontrados e corrigidos
 
@@ -82,7 +93,7 @@ As evidências de navegador desta execução estão em `tasks/prd-detalhes-proce
 
 ## Conclusão
 
-Os testes automatizados, builds, lint, tipos e cobertura passaram. O defeito de texto do estado vazio foi corrigido e revalidado. Os estados com dados, vazio e erro, além de celular, foram capturados. O QA fica **BLOQUEADO** porque CA-20 exige a checagem visual de zoom nativo a 200%, e esta execução só pôde comprovar ampliação CSS via Playwright. As instruções e evidências anteriores da tarefa 7 também registram essa checagem manual como pendente. Após essa verificação nativa, CA-20 poderá ser fechado e o parecer final recalculado.
+Os testes automatizados, builds, lint, tipos e cobertura passaram novamente em 2026-10-04. O defeito de texto do estado vazio permanece corrigido e coberto por teste de regressão. Os estados com dados, vazio e erro, além de celular e ampliação CSS, têm evidências visuais inspecionadas. O QA está **APROVADO**: CA-20 inclui o teste de layout do Playwright e a confirmação manual do usuário de que a página está utilizável com zoom nativo do navegador a 200%; essa confirmação não possui captura automatizada.
 
 ### Ambiente e limpeza
 

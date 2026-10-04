@@ -6,7 +6,7 @@ Automatizar as cinco jornadas críticas com a aplicação real e consolidar as e
 
 **Dependências:** [3.0](./task_3.md), [6.0](./task_6.md)
 
-**Status:** implementação validada; pendente verificação manual de zoom nativo de 200%.
+**Status:** concluída e validada.
 
 <skills>
 ### Conformidade com skills
@@ -36,7 +36,7 @@ Requisitos relacionados: RF1, RF2, RF3, RF4, RF5, RF6, RF7, RF8, RF9, RF10, RF11
 - [x] 7.1 Preparar banco E2E isolado com migrations existentes e fixture, reutilizando Playwright e servidores de aplicação/controle existentes.
 - [x] 7.2 Criar e2e/process-details.spec.ts com E2E-01 e E2E-02, cobrindo retorno com e sem consulta prévia e destinos inválido/ausente.
 - [x] 7.3 Implementar E2E-03 com interceptação apenas da falha específica do histórico e E2E-04 com o controle /expire-session existente.
-- [ ] 7.4 Implementar E2E-05 em celular e desktop com textos longos, teclado e ampliação CSS de 200%; complementar com verificação pontual de zoom nativo de 200% e registrar a diferença.
+- [x] 7.4 Implementar E2E-05 em celular e desktop com textos longos, teclado e ampliação CSS de 200%; complementar com verificação pontual de zoom nativo de 200% e registrar a diferença.
 - [x] 7.5 Executar lint, tipos, testes, cobertura e build em cada aplicativo e test:e2e no frontend; corrigir regressões e repetir as verificações afetadas.
 - [x] 7.6 Consolidar evidências dos critérios, resultados das suítes, cobertura e medições de 1.000 eventos da tarefa 2; atualizar checklists somente após validação.
 - [x] 7.7 Executar as validações concluídas desta etapa e registrar evidências; atualizar os checklists e criar o commit local do incremento.
@@ -89,7 +89,7 @@ IDs, nomes e resultados esperados preservados da TechSpec. Casos compartilhados 
 - [x] E2E-02 — Acesso direto e recarga independem da busca. Destino válido abre página 1; variantes inválida/ausente oferecem retorno.
 - [x] E2E-03 — Histórico recupera falha sem apagar processo. Falha controlada na requisição de movimentos, nova tentativa e confirmação da página correta.
 - [x] E2E-04 — Expiração durante detalhes bloqueia paginação. Controle de expiração existente força sessão inválida; dados saem da tela.
-- [x] E2E-05 — Operação por teclado e emulação de layout ampliado. Celular/desktop, expansão, paginação, retorno e CSS zoom de 200% passaram; verificação nativa continua pendente na subtarefa 7.4.
+- [x] E2E-05 — Operação por teclado e layout ampliado. Celular/desktop, expansão, paginação, retorno e CSS zoom de 200% passaram; o usuário confirmou manualmente que o zoom nativo do navegador a 200% também está utilizável.
 
 ### Validações de conclusão
 
@@ -106,7 +106,7 @@ Executar também `npm run test:e2e` dentro de `frontend/`. Registrar a verifica�
 - `npm run test:coverage`: frontend com 93,53% statements, 91,26% branches, 95,65% funções e 95,88% linhas; backend com 87,98% statements, 85,50% branches, 86,86% funções e 90,16% linhas.
 - `npm run test:e2e`: 10 testes aprovados, incluindo os cinco cenários desta tarefa.
 - TI-02, dataset de 1.000 eventos: 50 páginas, 127.877 bytes no total e 961,13 ms observados nesta execução. Medição observacional; não constitui SLA.
-- CSS zoom de 200% foi exercitado como emulação de layout em celular e desktop. Em Chromium visível, os atalhos `Ctrl+=` e `Ctrl+Shift+=` não alteraram `devicePixelRatio` nem `innerWidth`; portanto, isso não demonstra zoom nativo. A checagem visual manual em navegador com zoom nativo de 200% permanece pendente.
+- CSS zoom de 200% foi exercitado como emulação de layout em celular e desktop. Em Chromium visível, os atalhos `Ctrl+=` e `Ctrl+Shift+=` não alteraram `devicePixelRatio` nem `innerWidth`; portanto, isso não demonstra zoom nativo. Em 2026-10-04, o usuário confirmou a checagem manual no zoom nativo de 200% e informou que está tudo utilizável.
 
 ## Arquivos relevantes
 

@@ -8,13 +8,13 @@
 - [x] 4.0 [Cliente HTTP e hooks de detalhes e histórico](./task_4.md)
 - [x] 5.0 [Página de informações gerais e estados de detalhes](./task_5.md)
 - [x] 6.0 [Interface de movimentações e integração da página](./task_6.md)
-- [ ] 7.0 [Jornadas E2E e validação final](./task_7.md)
+- [x] 7.0 [Jornadas E2E e validação final](./task_7.md)
 
 ## Escopo e dependências
 
-Estrutura aprovada pelo usuário. Fonte: [PRD](./prd.md) e [TechSpec](./techspec.md). As tarefas 1.0 a 6.0 foram implementadas e validadas; a tarefa 7.0 continua pendente.
+Estrutura aprovada pelo usuário. Fonte: [PRD](./prd.md) e [TechSpec](./techspec.md). As tarefas 1.0 a 7.0 foram implementadas e validadas.
 
-A fundação de dados, a autenticação e a busca CNJ existentes são pré-requisitos. As tarefas 1.0 a 6.0 foram implementadas e validadas; a tarefa 7.0 continua pendente. A ordem abaixo coloca as dependências antes de seus consumidores.
+A fundação de dados, a autenticação e a busca CNJ existentes são pré-requisitos. As tarefas 1.0 a 7.0 foram implementadas e validadas. A ordem abaixo coloca as dependências antes de seus consumidores.
 
 | Tarefa | Dependências diretas | Skills aplicáveis |
 | --- | --- | --- |
@@ -129,4 +129,4 @@ Inventário completo: 19 casos unitários, oito de integração e cinco E2E. As 
 - Acessibilidade segue o limite do PRD: semântica, teclado, responsividade e zoom nativo de 200%, distinguindo-o de CSS zoom automatizado.
 - Marcar checklists somente após a conclusão e validação do incremento; seguir os commits locais previstos nas rules.
 
-A tarefa 7.0 tem os cinco E2E e os gates automatizados aprovados. Ela permanece pendente até a verificação visual manual de zoom nativo do navegador em 200%; a emulação de CSS zoom foi registrada separadamente em [task_7.md](./task_7.md).
+A tarefa 7.0 tem os cinco E2E e os gates automatizados aprovados. O usuário confirmou a verificação visual manual de zoom nativo do navegador em 200%; a emulação de CSS zoom está registrada separadamente em [task_7.md](./task_7.md).
