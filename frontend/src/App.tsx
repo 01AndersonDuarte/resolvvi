@@ -1,49 +1,33 @@
+import type { ReactNode } from 'react';
 import { Navigate, Route, Routes } from 'react-router-dom';
 import { AccessPanel, DispatchLayout } from './components/DispatchLayout';
 import { FormMessage } from './components/FormMessage';
 import { ProtectedBoundary } from './components/ProtectedBoundary';
 import { ProtectedRoute } from './components/ProtectedRoute';
-import { SessionStatus } from './components/SessionStatus';
-import type { SessionState } from './contexts/session-state';
+import { PublicSessionGate } from './components/PublicSessionGate';
 import { useSession } from './hooks/useSession';
+import { EmailVerificationView } from './views/EmailVerificationView';
+import { LoginView } from './views/LoginView';
+import { ResendVerificationView } from './views/ResendVerificationView';
+import { SignUpView } from './views/SignUpView';
+import { VerificationPendingView } from './views/VerificationPendingView';
 
-export function App() {
+export function App({ verificationToken = null }: { verificationToken?: string | null }) {
   return (
     <Routes>
-      <Route path="/entrar" element={<EntryPage />} />
+      <Route path="/entrar" element={<PublicPage><LoginView /></PublicPage>} />
+      <Route path="/criar-conta" element={<PublicPage><SignUpView /></PublicPage>} />
+      <Route path="/confirmacao-pendente" element={<PublicPage><VerificationPendingView /></PublicPage>} />
+      <Route path="/confirmar-email" element={<EmailVerificationView token={verificationToken} />} />
+      <Route path="/reenviar-confirmacao" element={<PublicPage><ResendVerificationView /></PublicPage>} />
       <Route path="/consulta" element={<ProtectedRoute><VerifiedPage /></ProtectedRoute>} />
       <Route path="*" element={<EntryRedirect />} />
     </Routes>
   );
 }
 
-function EntryPage() {
-  const { state, refresh, logout } = useSession();
-  if (state.status === 'authenticated') return <Navigate to="/consulta" replace />;
-
-  return (
-    <DispatchLayout currentStep={1}>
-      <AccessPanel title="Entre para continuar" description="Confirme seu acesso antes de consultar um processo." />
-      <div className="mx-auto w-full max-w-3xl"><EntryStatus state={state} refresh={refresh} logout={logout} /></div>
-      <ProtectedBoundary authenticated={false} />
-    </DispatchLayout>
-  );
-}
-
-function EntryStatus(props: {
-  state: SessionState;
-  refresh: () => void;
-  logout: () => Promise<boolean>;
-}) {
-  if (props.state.status === 'checking' || props.state.status === 'unavailable') {
-    return <SessionStatus status={props.state.status} message={props.state.message} onRetry={props.refresh} />;
-  }
-
-  if (props.state.status === 'logout-pending') {
-    return <SessionStatus status={props.state.status} message={props.state.message} onRetry={() => void props.logout()} />;
-  }
-
-  return <FormMessage message="As opções de acesso estarão disponíveis aqui." tone="info" />;
+function PublicPage({ children }: { children: ReactNode }) {
+  return <PublicSessionGate>{children}</PublicSessionGate>;
 }
 
 function VerifiedPage() {

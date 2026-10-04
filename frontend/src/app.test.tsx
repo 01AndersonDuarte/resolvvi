@@ -1,4 +1,4 @@
-import { render, screen, waitFor } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import { describe, expect, it, vi } from 'vitest';
 import { App } from './App';
@@ -30,7 +30,7 @@ describe('application routes', () => {
     const value = sessionValue('unavailable');
     render(<AuthContext.Provider value={value}><MemoryRouter initialEntries={['/qualquer-lugar']}><App /></MemoryRouter></AuthContext.Provider>);
     expect(await screen.findByRole('button', { name: 'Tentar novamente' })).toBeInTheDocument();
-    await waitFor(() => expect(screen.getByRole('heading', { name: 'Entre para continuar' })).toBeInTheDocument());
+    expect(screen.getByRole('heading', { name: 'Verificando seu acesso' })).toBeInTheDocument();
   });
 
   it('routes authenticated users away from entry and shows pending logout recovery', () => {
@@ -44,6 +44,6 @@ describe('application routes', () => {
   it('shows the checking status on entry while session confirmation is pending', () => {
     render(<AuthContext.Provider value={sessionValue('checking')}><MemoryRouter initialEntries={['/entrar']}><App /></MemoryRouter></AuthContext.Provider>);
     expect(screen.getByText('Verificando acesso…')).toBeInTheDocument();
-    expect(screen.getByText(/só aparece depois/)).toBeInTheDocument();
+    expect(screen.queryByRole('textbox', { name: 'E-mail' })).not.toBeInTheDocument();
   });
 });

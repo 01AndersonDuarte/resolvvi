@@ -30,9 +30,10 @@ The key moment is a protected region remaining visibly unavailable until the rem
 | Product title and central work area | Semantic HTML and Tailwind/CSS |
 | Three-step progress rail | Accessible React component and CSS geometry |
 | Form fields, action, status strip | Semantic React components and CSS states |
+| Login, registration, email confirmation, and resend | Public screens share the dispatch panel, accessible inline feedback, and explicit actions |
 | Protected boundary/empty region | Semantic HTML/CSS; no sample process rows |
 | Focus, error, disabled, and pending states | Native controls, ARIA relationships, CSS |
 
 ## Unresolved decisions
 
-Authentication and registration copy/screens are implemented in task 8; process search and destination are implemented in tasks 6 and 9. Full visual interaction review is limited to this shared foundation.
+Process search and destination are implemented in tasks 6 and 9. The public authentication screens are implemented in task 8 and inherit the approved dispatch-panel composition. Full visual interaction review remains part of task 10.

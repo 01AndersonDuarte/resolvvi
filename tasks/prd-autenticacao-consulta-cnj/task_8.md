@@ -36,12 +36,12 @@ No frontend, manter componentes até 30 linhas, props explícitas, acesso HTTP e
 
 ## Subtarefas
 
-- [ ] 8.1 Criar LoginView, SignUpView, VerificationPendingView, EmailVerificationView e ResendVerificationView com as rotas previstas.
-- [ ] 8.2 Integrar services e hooks de cadastro/login, preservando identidade e senha conforme o contrato e impedindo duplicidade.
-- [ ] 8.3 Implementar leitura e remoção do token do fragmento e confirmação por ação explícita, sem consumo automático em efeito.
-- [ ] 8.4 Integrar reenvio e contagem de espera, inclusive quando é necessário informar o e-mail novamente.
-- [ ] 8.5 Integrar respostas neutras, pendência, falhas e resultado desconhecido com as mensagens do PRD, incluindo login tardio e saída pendente.
-- [ ] 8.6 Implementar testes de componentes e jornadas públicas no escopo unitário, conferir teclado/responsividade e executar as verificações do frontend.
+- [x] 8.1 Criar LoginView, SignUpView, VerificationPendingView, EmailVerificationView e ResendVerificationView com as rotas previstas.
+- [x] 8.2 Integrar services e hooks de cadastro/login, preservando identidade e senha conforme o contrato e impedindo duplicidade.
+- [x] 8.3 Implementar leitura e remoção do token do fragmento e confirmação por ação explícita, sem consumo automático em efeito.
+- [x] 8.4 Integrar reenvio e contagem de espera, inclusive quando é necessário informar o e-mail novamente.
+- [x] 8.5 Integrar respostas neutras, pendência, falhas e resultado desconhecido com as mensagens do PRD, incluindo login tardio e saída pendente.
+- [x] 8.6 Implementar testes de componentes e jornadas públicas no escopo unitário, conferir teclado/responsividade e executar as verificações do frontend.
 
 ## Detalhes de implementação
 
@@ -80,13 +80,13 @@ IDs e nomes abaixo vêm da [abordagem de testes da TechSpec](./techspec.md#abord
 
 ### Testes de unidade (se aplicável)
 
-- [ ] TU-01 — Normalização e validação de identidade. Escopo nesta tarefa: Faceta frontend de entrada e feedback do e-mail.
-- [ ] TU-02 — Política de senha e preservação Unicode. Escopo nesta tarefa: Faceta frontend dos limites e preservação da senha.
-- [ ] TU-03 — Verificação de senha e erro comum. Escopo nesta tarefa: Faceta de exibição de credenciais recusadas e conta pendente, sem hash no frontend.
-- [ ] TU-11 — Estados e recuperação de cadastro/reenvio. Escopo nesta tarefa: Caso completo de estados e recuperação de cadastro/reenvio.
-- [ ] TU-13 — Timeout e descarte de respostas obsoletas. Escopo nesta tarefa: Faceta das telas públicas e confirmação, incluindo resposta após timeout.
-- [ ] TU-15 — Semântica, foco e mensagens acessíveis. Escopo nesta tarefa: Faceta de formulários públicos, foco, anúncios e senha colável.
-- [ ] TU-17 — Saída sem conexão e login com resposta tardia. Escopo nesta tarefa: Completar resposta tardia de login integrada ao formulário e gerenciador de sessão.
+- [x] TU-01 — Normalização e validação de identidade. Escopo nesta tarefa: Faceta frontend de entrada e feedback do e-mail.
+- [x] TU-02 — Política de senha e preservação Unicode. Escopo nesta tarefa: Faceta frontend dos limites e preservação da senha.
+- [x] TU-03 — Verificação de senha e erro comum. Escopo nesta tarefa: Faceta de exibição de credenciais recusadas e conta pendente, sem hash no frontend.
+- [x] TU-11 — Estados e recuperação de cadastro/reenvio. Escopo nesta tarefa: Caso completo de estados e recuperação de cadastro/reenvio.
+- [x] TU-13 — Timeout e descarte de respostas obsoletas. Escopo nesta tarefa: Faceta das telas públicas e confirmação, incluindo resposta após timeout.
+- [x] TU-15 — Semântica, foco e mensagens acessíveis. Escopo nesta tarefa: Faceta de formulários públicos, foco, anúncios e senha colável.
+- [x] TU-17 — Saída sem conexão e login com resposta tardia. Escopo nesta tarefa: Completar resposta tardia de login integrada ao formulário e gerenciador de sessão.
 
 ### Testes de integração (se aplicável)
 
@@ -108,3 +108,10 @@ Não aplicável como entrega desta tarefa; as jornadas completas estão atribuí
 - `frontend/src/App.tsx`
 - Testes `*.test.ts`/`*.test.tsx` adjacentes aos módulos implementados, quando aplicável.
 - `tasks/prd-autenticacao-consulta-cnj/task_8.md` e `tasks.md` para atualização de progresso ao concluir a implementação.
+
+## Evidências de conclusão
+
+- Frontend: `npm run lint`, `npm run typecheck` e `npm run build` concluídos com sucesso.
+- Testes: `npm test` — 13 arquivos, 105 testes aprovados. `npm run test:coverage` — 94,57% statements, 90,88% branches, 97,09% funções e 96,82% linhas.
+- Detector Impeccable executado uma vez nos alvos de interface; resultado sem observações (`[]`).
+- Testes de interface verificam foco inicial, validação focada, operação por teclado/Enter, anúncios acessíveis e prevenção de ações duplicadas. Captura/revisão visual em navegador permanece para a tarefa 10; não há navegador headless disponível neste ambiente.

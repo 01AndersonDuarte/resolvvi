@@ -12,11 +12,11 @@ describe('useRequest', () => {
     let resolveRequest: (value: string) => void = () => undefined;
     const request = vi.fn(() => new Promise<string>((resolve) => { resolveRequest = resolve; }));
     const { result } = renderHook(() => useRequest(request, { generation: 1, invalidateSession: vi.fn() }));
-    let pending: Promise<void>;
+    let pending: Promise<unknown>;
     act(() => { pending = result.current.run('process'); });
     expect(result.current.state.status).toBe('pending');
     await act(async () => { resolveRequest('ready'); await pending; });
-    expect(result.current.state).toEqual({ status: 'success', data: 'ready', error: null });
+    expect(result.current.state).toEqual({ status: 'success', data: 'ready', error: null, failure: null });
     act(() => result.current.cancel());
     expect(result.current.state.status).toBe('idle');
   });
@@ -43,7 +43,7 @@ describe('useRequest', () => {
       return new Promise<string>((resolve) => { resolveRequest = resolve; });
     });
     const { result, rerender } = renderHook(({ generation }) => useRequest(request, { generation, invalidateSession: vi.fn() }), { initialProps: { generation: 1 } });
-    let pending: Promise<void>;
+    let pending: Promise<unknown>;
     act(() => { pending = result.current.run('old'); });
     rerender({ generation: 2 });
     expect(capturedSignal?.aborted).toBe(true);
@@ -58,7 +58,7 @@ describe('useRequest', () => {
       signal.addEventListener('abort', () => reject(new DOMException('Aborted', 'AbortError')));
     }));
     const { result } = renderHook(() => useRequest(request, { generation: 0, timeoutMs: 50, invalidateSession: vi.fn() }));
-    let pending: Promise<void>;
+    let pending: Promise<unknown>;
     act(() => { pending = result.current.run('slow'); });
     await act(async () => { await vi.advanceTimersByTimeAsync(50); await pending; });
     expect(result.current.state).toMatchObject({ status: 'error', error: 'A solicitação excedeu o tempo limite. Tente novamente.' });
