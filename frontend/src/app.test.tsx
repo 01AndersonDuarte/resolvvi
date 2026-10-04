@@ -17,8 +17,8 @@ describe('application routes', () => {
   it('renders the protected route only when authenticated', async () => {
     const value = sessionValue('authenticated');
     render(<AuthContext.Provider value={value}><MemoryRouter initialEntries={['/consulta']}><App /></MemoryRouter></AuthContext.Provider>);
-    expect(await screen.findByText('Área protegida')).toBeInTheDocument();
-    expect(screen.getByText(/estará disponível/)).toBeInTheDocument();
+    expect(await screen.findByRole('heading', { name: 'Consultar processo' })).toBeInTheDocument();
+    expect(screen.getByRole('textbox', { name: 'Número do processo (CNJ)' })).toBeInTheDocument();
   });
 
   it('redirects anonymous protected routes to the access screen', async () => {
@@ -36,7 +36,7 @@ describe('application routes', () => {
   it('routes authenticated users away from entry and shows pending logout recovery', () => {
     const signedIn = sessionValue('authenticated');
     const { rerender } = render(<AuthContext.Provider value={signedIn}><MemoryRouter initialEntries={['/entrar']}><App /></MemoryRouter></AuthContext.Provider>);
-    expect(screen.getByRole('heading', { name: 'Acesso confirmado' })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: 'Consultar processo' })).toBeInTheDocument();
     rerender(<AuthContext.Provider value={sessionValue('logout-pending')}><MemoryRouter initialEntries={['/entrar']}><App /></MemoryRouter></AuthContext.Provider>);
     expect(screen.getByRole('button', { name: 'Concluir saída' })).toBeInTheDocument();
   });

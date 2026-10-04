@@ -37,12 +37,12 @@ No frontend, manter componentes até 30 linhas, props explícitas, acesso HTTP e
 
 ## Subtarefas
 
-- [ ] 9.1 Criar ProcessSearchView com campo CNJ, ação principal e ajuda, validação de formato e estados previstos no PRD.
-- [ ] 9.2 Integrar useProcessSearch e serviços de consulta, bloqueando campo/submissão durante a tentativa e preservando entrada nas falhas.
-- [ ] 9.3 Criar ProcessFoundView e useProcessDetails com leitura por ID, destino ausente e navegação direta/recarga.
-- [ ] 9.4 Implementar retenção do último CNJ vinculada à sessão e limpeza ao sair, expirar ou trocar de sessão.
-- [ ] 9.5 Integrar LogoutButton, recuperação de erros e descarte de respostas tardias nas telas protegidas.
-- [ ] 9.6 Implementar testes de comportamento/foco e layout responsivo, sem duplicar o algoritmo CNJ; executar as verificações do frontend.
+- [x] 9.1 Criar ProcessSearchView com campo CNJ, ação principal e ajuda, validação de formato e estados previstos no PRD.
+- [x] 9.2 Integrar useProcessSearch e serviços de consulta, bloqueando campo/submissão durante a tentativa e preservando entrada nas falhas.
+- [x] 9.3 Criar ProcessFoundView e useProcessDetails com leitura por ID, destino ausente e navegação direta/recarga.
+- [x] 9.4 Implementar retenção do último CNJ vinculada à sessão e limpeza ao sair, expirar ou trocar de sessão.
+- [x] 9.5 Integrar LogoutButton, recuperação de erros e descarte de respostas tardias nas telas protegidas.
+- [x] 9.6 Implementar testes de comportamento/foco e layout responsivo, sem duplicar o algoritmo CNJ; executar as verificações do frontend.
 
 ## Detalhes de implementação
 
@@ -82,11 +82,11 @@ IDs e nomes abaixo vêm da [abordagem de testes da TechSpec](./techspec.md#abord
 
 ### Testes de unidade (se aplicável)
 
-- [ ] TU-04 — Entrada CNJ vazia e estrutura estrita. Escopo nesta tarefa: Faceta frontend de obrigatoriedade/formato; sem cálculo de dígito verificador.
-- [ ] TU-12 — Consulta por Enter e prevenção de duplicidade. Escopo nesta tarefa: Caso completo de Enter, bloqueio do campo e substituição do estado anterior.
-- [ ] TU-13 — Timeout e descarte de respostas obsoletas. Escopo nesta tarefa: Faceta processual: timeout/expiração/saída impedem resultado tardio.
-- [ ] TU-14 — Destino, retorno e isolamento de sessão. Escopo nesta tarefa: Caso completo de destino, retorno e isolamento da entrada por sessão.
-- [ ] TU-15 — Semântica, foco e mensagens acessíveis. Escopo nesta tarefa: Faceta das telas protegidas, rótulos, mensagens e foco.
+- [x] TU-04 — Entrada CNJ vazia e estrutura estrita. Escopo nesta tarefa: Faceta frontend de obrigatoriedade/formato; sem cálculo de dígito verificador.
+- [x] TU-12 — Consulta por Enter e prevenção de duplicidade. Escopo nesta tarefa: Caso completo de Enter, bloqueio do campo e substituição do estado anterior.
+- [x] TU-13 — Timeout e descarte de respostas obsoletas. Escopo nesta tarefa: Faceta processual: timeout/expiração/saída impedem resultado tardio.
+- [x] TU-14 — Destino, retorno e isolamento de sessão. Escopo nesta tarefa: Caso completo de destino, retorno e isolamento da entrada por sessão.
+- [x] TU-15 — Semântica, foco e mensagens acessíveis. Escopo nesta tarefa: Faceta das telas protegidas, rótulos, mensagens e foco.
 
 ### Testes de integração (se aplicável)
 
@@ -109,3 +109,10 @@ Não aplicável como entrega desta tarefa; as jornadas completas estão atribuí
 - `frontend/src/App.tsx`
 - Testes `*.test.ts`/`*.test.tsx` adjacentes aos módulos implementados, quando aplicável.
 - `tasks/prd-autenticacao-consulta-cnj/task_9.md` e `tasks.md` para atualização de progresso ao concluir a implementação.
+
+## Evidências de conclusão
+
+- Frontend: `npm run lint`, `npm run typecheck` e `npm run build` concluídos com sucesso.
+- Testes: `npm test` e `npm run test:coverage` — 18 arquivos, 122 testes aprovados; 95,21% statements, 90,52% branches, 97,11% funções e 97,23% linhas.
+- Detector Impeccable executado nos alvos visuais: resultado sem observações (`[]`).
+- Busca e destino usam somente os contratos `POST /api/processes/search` e `GET /api/processes/:id`; a página de destino exibe somente o CNJ da resposta. A inspeção visual manual em navegador permanece na tarefa 10.

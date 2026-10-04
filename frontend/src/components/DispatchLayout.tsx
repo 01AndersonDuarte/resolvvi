@@ -2,12 +2,12 @@ import type { ReactNode } from 'react';
 import { PageTitle } from './PageTitle';
 import { ProgressRail } from './ProgressRail';
 
-type DispatchLayoutProps = { children: ReactNode; currentStep: 1 | 2 | 3 };
+type DispatchLayoutProps = { children: ReactNode; currentStep: 1 | 2 | 3; action?: ReactNode };
 
-export function DispatchLayout({ children, currentStep }: DispatchLayoutProps) {
+export function DispatchLayout({ children, currentStep, action }: DispatchLayoutProps) {
   return (
     <main className="min-h-screen bg-canvas text-ink">
-      <DispatchHeader />
+      <DispatchHeader action={action} />
       <div className="mx-auto grid w-full max-w-6xl gap-8 px-4 py-8 sm:px-8 sm:py-12">
         <ProgressRail currentStep={currentStep} />
         {children}
@@ -16,11 +16,12 @@ export function DispatchLayout({ children, currentStep }: DispatchLayoutProps) {
   );
 }
 
-function DispatchHeader() {
+function DispatchHeader({ action }: { action?: ReactNode }) {
   return (
     <header className="border-b border-white/10 bg-graphite text-white">
       <div className="mx-auto flex min-h-14 max-w-6xl items-center justify-between px-4 sm:px-8">
         <p className="text-sm font-semibold tracking-wide">Consulta de processos</p>
+        {action}
       </div>
     </header>
   );

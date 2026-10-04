@@ -4,7 +4,7 @@ Estrutura aprovada pelo usuário. Referências: [PRD](./prd.md) e [TechSpec](./t
 
 Na tarefa 6, a entrada CNJ é validada somente pela estrutura completa e pelos 20 dígitos ASCII; o cálculo dos dígitos verificadores não integra esta entrega. As tarefas 7 e 8 podem avançar após suas dependências próprias; a numeração não impõe dependências adicionais.
 
-As tarefas 1.0 a 8.0 foram concluídas; as demais permanecem pendentes. A aprovação desta decomposição autorizou a geração dos documentos; a execução explícita das tarefas anteriores autorizou suas implementações. Marcar itens somente após implementação, testes e verificações pertinentes. Aceite real do Resend e verificações manuais de acessibilidade estão na tarefa 10.
+As tarefas 1.0 a 9.0 foram concluídas; a tarefa 10.0 permanece pendente. A aprovação desta decomposição autorizou a geração dos documentos; a execução explícita das tarefas anteriores autorizou suas implementações. Marcar itens somente após implementação, testes e verificações pertinentes. Aceite real do Resend e verificações manuais de acessibilidade estão na tarefa 10.
 
 ## Tarefas
 
@@ -16,5 +16,5 @@ As tarefas 1.0 a 8.0 foram concluídas; as demais permanecem pendentes. A aprova
 - [x] 6.0 [API protegida de consulta CNJ e destino mínimo do processo](./task_6.md) — depende de 5.0.
 - [x] 7.0 [Base React, cliente HTTP, controle de sessão e rotas protegidas](./task_7.md) — depende de 5.0.
 - [x] 8.0 [Telas de cadastro, confirmação, reenvio e login](./task_8.md) — depende de 3.0, 4.0, 7.0.
-- [ ] 9.0 [Interface de consulta, resultado, retorno e recuperação de erros](./task_9.md) — depende de 6.0, 7.0, 8.0.
+- [x] 9.0 [Interface de consulta, resultado, retorno e recuperação de erros](./task_9.md) — depende de 6.0, 7.0, 8.0.
 - [ ] 10.0 [Jornadas E2E, qualidade, documentação e aceite real do Resend](./task_10.md) — depende de 1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0.
