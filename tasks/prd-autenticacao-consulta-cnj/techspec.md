@@ -4,7 +4,7 @@
 
 Esta especificação atende ao [PRD de autenticação e consulta CNJ](./prd.md), especialmente RF1–RF23 e CA-01–CA-28. A solução acrescenta uma API Express 5 ao backend existente e cria um frontend React 19 com TypeScript, Vite e Tailwind. Contas, confirmações e sessões revogáveis ficam no PostgreSQL via Prisma 7. O envio de confirmação usa a API do Resend; a consulta reutiliza o repositório de processos, com resposta restrita ao identificador e ao CNJ formatado.
 
-Exploração realizada em 03/10/2026: há persistência, seed, configuração e testes no backend; não há frontend, servidor HTTP, autenticação nem validador reutilizável de CNJ. O usuário confirmou a publicação sob uma mesma origem HTTPS, com cookie HttpOnly e revogação no PostgreSQL, e a disponibilização do validador como pré-requisito da fundação. **A integração real da consulta depende desse validador; este documento define seu contrato esperado, mas não declara a dependência resolvida nem inclui sua implementação.** Mantêm-se as premissas P1–P7 do PRD. Os objetivos, o escopo e as métricas de aceitação permanecem definidos no PRD.
+Exploração realizada em 03/10/2026: há persistência, seed, configuração e testes no backend; não há frontend, servidor HTTP ou autenticação. A publicação usa uma mesma origem HTTPS, cookie HttpOnly e revogação no PostgreSQL. Nesta entrega, a consulta valida somente a estrutura CNJ e os 20 dígitos ASCII; não calcula os dígitos verificadores. Mantêm-se as premissas P1–P7 do PRD. Os objetivos, o escopo e as métricas de aceitação permanecem definidos no PRD.
 
 ## Arquitetura do sistema
 
@@ -26,9 +26,9 @@ Fluxo principal: navegador → API de autenticação → serviços → repositó
 | `backend/src/services/auth-service.ts`, `process-service.ts` | Novos | Regras de conta, confirmação, sessão, limites e busca agrupadas por recurso. |
 | `backend/src/services/security-service.ts` | Novo | Hash assíncrono de senha; geração, validação e digest de segredos. Fila de trabalho mantida junto à segurança. |
 | `backend/src/services/resend-service.ts` | Novo | Adaptador de envio HTTPS e composição de HTML/texto; não depende de Express nem acessa banco. |
-| `backend/src/services/cnj-input-service.ts` | Novo adaptador | Validar entrada estrutural, consumir o validador da fundação e produzir a máscara usada na persistência. O algoritmo verificador não pertence a este adaptador. |
+| `backend/src/services/cnj-input-service.ts` | Novo | Validar estrutura e dígitos ASCII, aceitar os dois formatos definidos e produzir a máscara usada na persistência. Não calcular o dígito verificador. |
 | `backend/src/repositories/auth-repository.ts` | Novo | Acesso a contas, sessões e emissões, incluindo operações transacionais coesas; único ponto de acesso ao banco para autenticação. |
-| `backend/src/repositories/process-repository.ts` | Modificado | Preservar `create`/`findByCnj`; acrescentar `findSummaryById`, projetando apenas `id`/`cnj`. |
+| `backend/src/repositories/process-repository.ts` | Modificado | Preservar `create`/`findByCnj`; acrescentar projeções por CNJ e ID, selecionando somente `id`/`cnj`. |
 | `backend/src/errors/`, `backend/src/types/` | Modificados | Erros agrupados por contexto e contratos compartilhados agrupados por recurso, derivados dos modelos quando aplicável. |
 | `backend/prisma/schema.prisma`, `prisma/migrations/` | Adição | Criar `User`, `Session` e `EmailVerification`; não alterar modelos ou registros de processos/movimentações. |
 | `frontend/src/App.tsx`, `main.tsx`, `index.css` | Novos | Compor rotas, provedor de sessão e estilos Tailwind. |
@@ -67,18 +67,14 @@ interface ProcessQueryService {
   getById(id: number): Promise<ProcessSummary>;
 }
 
-interface CnjValidator {
-  validate(digits: string): boolean;
-}
-
 interface VerificationSender {
   send(input: VerificationEmailInput): Promise<DeliveryResult>;
 }
 ```
 
-`CnjValidator` é a porta a conectar ao módulo da fundação ainda não localizado: recebe exatamente 20 dígitos textuais e verifica o dígito pelo contrato RN3. Ausência do adaptador deve impedir a disponibilização da consulta; jamais usar uma implementação que retorne sempre verdadeiro. O frontend antecipa apenas obrigatoriedade/formato e exibe a reprovação semântica recebida do backend, evitando duplicar o algoritmo.
+O backend valida estrutura completa e dígitos ASCII antes da busca. Essa regra não calcula o dígito verificador; o frontend pode antecipar a mesma verificação estrutural para feedback, enquanto a autorização e a busca exata continuam decididas pelo backend.
 
-**Entrada CNJ e busca.** Primeiro autorizar; depois remover espaços externos e aceitar exclusivamente 20 dígitos ASCII ou a máscara completa `NNNNNNN-DD.AAAA.J.TR.OOOO`. Distinguir vazio, formato e dígito inválido. Remover apenas a pontuação já validada; nunca usar limpeza genérica de caracteres. Depois do validador, reconstruir a máscara e chamar `findByCnj`. Não converter CNJ para `number`. A referência de domínio é a [Resolução CNJ nº 65](https://atos.cnj.jus.br/atos/detalhar/119), especialmente seu Anexo VIII. A busca não modifica dados nem consulta movimentações.
+**Entrada CNJ e busca.** Primeiro autorizar; depois remover espaços externos e aceitar exclusivamente 20 dígitos ASCII ou a máscara completa `NNNNNNN-DD.AAAA.J.TR.OOOO`. Distinguir vazio e formato inválido. Remover apenas a pontuação já validada; nunca usar limpeza genérica de caracteres. Reconstruir a máscara e consultar uma projeção por CNJ. Não converter CNJ para `number` nem calcular o dígito verificador. A busca não modifica dados nem consulta movimentações.
 
 **Cadastro e concorrência.** Normalizar e-mail com remoção de espaços externos e conversão para minúsculas, sem regras específicas de Gmail ou alteração de pontos/aliases. Validar formato com Joi, domínio sem consulta DNS e limite técnico de 254 caracteres. Contar a senha em pontos de código Unicode, entre 8 e 128, sem normalização, remoção de espaços ou truncamento; rejeitar sequências Unicode inválidas. O login preserva o mesmo conteúdo. Criar usuário com índice único no e-mail normalizado; em conflito de unicidade, reler a conta e preservar senha/confirmação. Persistir conta antes da tentativa de emissão. Conta existente pendente segue a mesma emissão e os mesmos limites; conta confirmada retorna mensagem comum, sem envio.
 
@@ -612,7 +608,7 @@ Vitest para unidade/integração; React Testing Library e ambiente DOM no fronte
 | TU-02 | Política de senha e preservação Unicode | CA-21 | Limites 7/8/128/129 pontos, espaços e multibyte; nenhuma transformação. |
 | TU-03 | Verificação de senha e erro comum | CA-01, CA-02, CA-23 | Credenciais erradas indistinguíveis; pendência só após senha correta. |
 | TU-04 | Entrada CNJ vazia e estrutura estrita | CA-05, CA-06, CA-07 | Vazio/formato separados; zeros preservados; espaços internos recusados. |
-| TU-05 | Integração contratual do validador CNJ | CA-08 | Adaptador recusa reprovação antes de chamar busca; não calcula algoritmo alternativo. |
+| TU-05 | Contrato de normalização CNJ | CA-08 | Apenas estrutura completa e dígitos ASCII; nenhuma checagem matemática de `DD`. |
 | TU-06 | Expiração absoluta e revogação | CA-03, CA-13, CA-14 | Instante anterior válido, igualdade de oito horas inválida; leitura não renova. |
 | TU-07 | Limites móveis de emissão | CA-26 | 59,999 s recusado, 60 s permitido com vaga; sexta emissão recusada; fronteira de uma hora libera vaga. |
 | TU-08 | Validade e estados do link | CA-24, CA-25 | Igualdade de 24 h expira; consumido/substituído inválidos. |
@@ -626,7 +622,7 @@ Vitest para unidade/integração; React Testing Library e ambiente DOM no fronte
 | TU-16 | Configuração, erros e logs seguros | CA-03, CA-19, CA-28 | Segredos/CNJ/cookies não registrados; 5xx genérico; seed não exige Resend. |
 | TU-17 | Saída sem conexão e login com resposta tardia | CA-12, CA-14 | Estado público bloqueado e revogação retomada; nenhum sucesso remoto presumido. |
 
-Os testes da própria matemática de CNJ pertencem ao pré-requisito da fundação. Nesta entrega, TU-05 verifica a adaptação e os testes de integração devem usar o validador real quando disponibilizado. Não satisfazer CA-08 exclusivamente com um stub.
+Esta entrega não valida matematicamente `DD`. TU-05 cobre a estrutura e os dígitos ASCII; a consulta é literal após normalização, e a existência depende de correspondência exata na base.
 
 ### Testes de integração (se aplicável)
 
@@ -644,13 +640,13 @@ Os testes da própria matemática de CNJ pertencem ao pré-requisito da fundaç�
 | TI-10 | Login, credenciais erradas e pendência | CA-01, CA-02, CA-23 | Status, mensagens, cookie e verificação da senha obedecem contrato. |
 | TI-11 | Cookie, origem e proteção direta | CA-03, CA-19 | Sem sessão não há leitura de processos; origem indevida recusada; atributos corretos. |
 | TI-12 | Expiração e logout revogável | CA-13, CA-14 | Token capturado deixa de funcionar após logout; oito horas e conta pendente recusadas. |
-| TI-13 | CNJs equivalentes, inválidos e ausentes | CA-05, CA-06, CA-07, CA-08, CA-10 | Validador real antes da busca; máscara compatível com persistência. |
+| TI-13 | CNJs equivalentes, inválidos e ausentes | CA-05, CA-06, CA-07, CA-08, CA-10 | Estrutura estrita antes da busca; máscara compatível com persistência; nenhum cálculo de `DD`. |
 | TI-14 | Leitura mínima por CNJ e por ID | CA-04, CA-09, CA-15 | Duas contas acessam o mesmo registro; payload só id/cnj; ID inválido/ausente tratado. |
 | TI-15 | Integridade da base processual | CA-18 | Snapshot integral de processos/movimentos inalterado após sucesso, ausência e falha. |
 | TI-16 | Falhas de dependências e prazos HTTP | CA-12, CA-19, CA-27 | 5xx contextual, nunca 404 falso; cliente recuperável; sem cookies tardios. |
 | TI-17 | Bootstrap e desligamento | CA-19 | Configuração inválida impede listen; sinais repetidos seguros; conexões encerradas. |
 
-Provisionar banco/schema dedicado por execução/worker a partir das migrations; exigir explicitamente ambiente de teste e URL isolada. A suíte obrigatória deve falhar se não conseguir executar integração, sem sucesso por `describe.skip`. Preservar testes anteriores que exercitam carga/limpeza em suas bases isoladas. Fixtures: CNJ existente `1001399-31.2023.8.26.0070`, válido ausente `1002271-82.2025.8.26.0003`, mais um CNJ válido com zeros à esquerda confirmado pelo validador real. Nunca fixar o ID atribuído ao CSV; obter ID da fixture. Controlar tempos por relógio injetado em unidade e timestamps preparados no banco em integração; não aguardar horas reais.
+Provisionar banco/schema dedicado por execução/worker a partir das migrations; exigir explicitamente ambiente de teste e URL isolada. A suíte obrigatória deve falhar se não conseguir executar integração, sem sucesso por `describe.skip`. Preservar testes anteriores que exercitam carga/limpeza em suas bases isoladas. Fixtures: CNJ existente `1001399-31.2023.8.26.0070`, exemplo ausente `1002271-82.2025.8.26.0003` e uma entrada com zeros à esquerda. Nunca fixar o ID atribuído ao CSV; obter ID da fixture. Controlar tempos por relógio injetado em unidade e timestamps preparados no banco em integração; não aguardar horas reais.
 
 ### Testes E2E (se aplicável)
 
@@ -672,19 +668,18 @@ Na implementação, executar `lint`, `typecheck`, `test`, `test:coverage` e `bui
 
 ### Ordem de construção
 
-1. Resolver a entrega do validador da fundação: identificar arquivo/pacote e evidências, adaptar a porta e confirmar fixtures. A consulta não pode ser considerada implementável até esse pré-requisito; autenticação pode avançar de forma independente.
-2. Acrescentar modelos/migration de autenticação, contratos e repositórios transacionais; testar unicidade, confirmação e limites com concorrência.
-3. Criar configuração HTTP, bootstrap Express, cookies, middleware de erros/origem/sessão e prazos; preservar execução de seed/migrations sem Resend.
-4. Implementar hash, cadastro, confirmação, reenvio e adaptador Resend; validar falhas e recuperação antes de conectar a interface.
-5. Implementar login, leitura/revogação da sessão e endpoints processuais mínimos, reutilizando a busca existente e testando autorização antes do acesso aos processos.
-6. Criar frontend e infraestrutura de testes; implementar telas públicas, sessão, consulta/destino e comportamento acessível, com descarte de respostas antigas.
-7. Integrar E2E, cobertura por aplicativo, documentação operacional e aceite real de e-mail. Validar integridade da fundação e registrar evidências CA-01–CA-28.
+1. Acrescentar modelos/migration de autenticação, contratos e repositórios transacionais; testar unicidade, confirmação e limites com concorrência.
+2. Criar configuração HTTP, bootstrap Express, cookies, middleware de erros/origem/sessão e prazos; preservar execução de seed/migrations sem Resend.
+3. Implementar hash, cadastro, confirmação, reenvio e adaptador Resend; validar falhas e recuperação antes de conectar a interface.
+4. Implementar login, leitura/revogação da sessão e endpoints processuais mínimos, normalizando a estrutura CNJ e testando autorização antes do acesso aos processos.
+5. Criar frontend e infraestrutura de testes; implementar telas públicas, sessão, consulta/destino e comportamento acessível, com descarte de respostas antigas.
+6. Integrar E2E, cobertura por aplicativo, documentação operacional e aceite real de e-mail. Validar integridade da fundação e registrar evidências CA-01–CA-28.
 
 ### Dependências técnicas
 
 | Dependência | Situação e condição de conclusão |
 | --- | --- |
-| Validador de CNJ | Ausente. Usuário confirmou entrega como pré-requisito da fundação, com contrato `CnjValidator` e testes reais de dígitos. Bloqueia consulta/aceite CA-08, não a escrita desta TechSpec. |
+| Validação de CNJ | Escopo confirmado: estrutura completa e dígitos ASCII. O cálculo matemático de `DD` não faz parte desta entrega. |
 | Topologia | Usuário confirmou mesma origem HTTPS com proxy `/api`, cookie HttpOnly e revogação no PostgreSQL. Outra topologia exige revisar cookies/CORS/origem antes de implementar. |
 | Resend | Requer credencial protegida, domínio/remetente verificados, caixa de aceite e URL pública correta. Não necessário para suítes simuladas. |
 | Banco | PostgreSQL 17 local existente, Prisma 7, migrations aditivas e ambientes isolados de teste. |
@@ -717,7 +712,7 @@ Observar contagens e duração de respostas por rota/status, proporção de falh
 
 | Risco | Tratamento |
 | --- | --- |
-| Validador ausente versus pressuposto do PRD | Bloqueador explícito; localizar/entregar pela fundação antes da consulta. Se o usuário ampliar o escopo, revisar esta decisão e sua rastreabilidade. |
+| Dígito verificador não calculado | A entrada pode ser estruturalmente válida sem validação matemática de `DD`; a busca exata limita o resultado ao conteúdo já persistido. |
 | E-mail aceito não entregue, respostas fora de ordem ou queda após reserva | Mensagens não prometem entrega; recuperação por reenvio com invalidação dos anteriores; aceite real comprova caixa e fragmento. |
 | Reserva persistida sem envio por queda do processo | Estado inicial desconhecido; conta preservada e reenvio após intervalo. Outbox só se surgir requisito de entrega eventual automática. |
 | Ataques de custo ao cadastro/login | Hash assíncrono com concorrência/fila limitadas e tamanho de entrada; definir rate limit operacional no proxy antes de exposição ampla, sem alterar os limites funcionais de confirmação. |
@@ -766,4 +761,4 @@ Esta especificação não realiza implementação, revisão de código ou QA. O 
 | `frontend/package.json`, `package-lock.json`, `vite.config.ts`, `vitest.config.ts`, `playwright.config.ts`, `README.md`, `.env.development.example` | Novo aplicativo, qualidade e execução E2E. |
 | `e2e/*.spec.ts`, `e2e/support/` | Jornadas reais com serviços controlados. |
 
-Documento de arquitetura; não altera o PRD, não implementa código e não cria decomposição de tarefas. A conclusão da funcionalidade continua condicionada ao validador real e às evidências de aceitação definidas acima.
+Documento de arquitetura. A validação de entrada desta entrega limita-se à estrutura e aos dígitos ASCII; os testes e a aceitação seguem essa regra e as demais evidências descritas acima.

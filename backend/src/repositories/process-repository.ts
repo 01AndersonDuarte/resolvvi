@@ -12,9 +12,25 @@ export function findProcessByCnj(cnj: string, client: PrismaClient): Promise<Pro
   return client.process.findUnique({ where: { cnj } });
 }
 
+export function findProcessSummaryByCnj(
+  cnj: string,
+  client: PrismaClient,
+): Promise<Pick<Process, 'id' | 'cnj'> | null> {
+  return client.process.findUnique({ where: { cnj }, select: { id: true, cnj: true } });
+}
+
+export function findProcessSummaryById(
+  id: number,
+  client: PrismaClient,
+): Promise<Pick<Process, 'id' | 'cnj'> | null> {
+  return client.process.findUnique({ where: { id }, select: { id: true, cnj: true } });
+}
+
 export function createProcessRepository(client: PrismaClient): ProcessRepository {
   return {
     create: (input) => createProcess(input, client),
     findByCnj: (cnj) => findProcessByCnj(cnj, client),
+    findSummaryByCnj: (cnj) => findProcessSummaryByCnj(cnj, client),
+    findSummaryById: (id) => findProcessSummaryById(id, client),
   };
 }

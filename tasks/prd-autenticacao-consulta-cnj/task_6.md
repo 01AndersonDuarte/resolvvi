@@ -2,11 +2,11 @@
 
 ## Visão geral
 
-Integrar o validador real da fundação à busca literal existente e entregar os dois endpoints processuais protegidos, com projeção mínima e preservação da base.
+Validar a estrutura da entrada CNJ e entregar os dois endpoints processuais protegidos, com projeção mínima e preservação da base.
 
 **Dependências:** [5.0](./task_5.md)
 
-**Pré-requisito externo:** Bloqueada até a disponibilização do validador real de CNJ pela fundação. Antes de implementar a integração, registrar caminho/pacote, contrato e evidências. Não implementar outro algoritmo, enfraquecer a validação ou substituir essa dependência por um stub em produção ou no aceite. A indisponibilidade não bloqueia as tarefas 7 e 8 após suas dependências próprias.
+**Validação CNJ nesta tarefa:** conferir somente estrutura completa e dígitos ASCII, aceitando máscara padrão ou 20 dígitos sem pontuação. Não calcular os dígitos verificadores. A busca continua exata pelo CNJ normalizado.
 
 <skills>
 
@@ -29,7 +29,7 @@ Preservar Prisma 7, singleton existente e direção das dependências. Middlewar
 <requirements>
 
 - RF4 e RF5: autorizar antes de validar o domínio ou buscar processos; qualquer conta autenticada confirmada tem o mesmo acesso de leitura.
-- RF8, RF9 e RF11: entrada estrita, equivalência dos dois formatos, preservação de zeros e busca exata com validador real.
+- RF8, RF9 e RF11: entrada estrita, equivalência dos dois formatos, preservação de zeros e busca exata.
 - RF12–RF15: payload mínimo, destino estável e erros distintos de ausência, entrada inválida e infraestrutura.
 - RN2, RN5 e RN6: preservar identificador persistido e todo o conteúdo processual, sem carga nem consulta externa.
 
@@ -37,19 +37,19 @@ Preservar Prisma 7, singleton existente e direção das dependências. Middlewar
 
 ## Subtarefas
 
-- [ ] 6.1 Conferir a entrega externa do validador, suas evidências e fixtures; manter esta tarefa bloqueada se a dependência não estiver disponível.
-- [ ] 6.2 Criar o adaptador de entrada CNJ e integrar o validador, produzindo o formato textual esperado pelo repositório existente.
-- [ ] 6.3 Expor POST /api/processes/search com autorização antes da busca e tratamento distinto de validação, ausência e falha.
-- [ ] 6.4 Adicionar findSummaryById ao repositório e expor GET /api/processes/:id, projetando somente o contrato mínimo.
-- [ ] 6.5 Integrar revalidação de sessão, prazo e respostas sem cache; provar proteção contra chamadas diretas.
-- [ ] 6.6 Implementar testes com validador real e snapshots da base, preservando os testes da fundação; executar as verificações do backend.
+- [x] 6.1 Definir e cobrir entradas vazias, formatos inválidos, 20 dígitos ASCII, máscara padrão e zeros à esquerda, sem cálculo de dígito verificador.
+- [x] 6.2 Criar o adaptador de entrada CNJ e produzir o formato textual esperado pelo repositório existente.
+- [x] 6.3 Expor POST /api/processes/search com autorização antes da busca e tratamento distinto de validação, ausência e falha.
+- [x] 6.4 Adicionar projeções mínimas por CNJ e ID ao repositório e expor GET /api/processes/:id.
+- [x] 6.5 Integrar revalidação de sessão, prazo e respostas sem cache; provar proteção contra chamadas diretas.
+- [x] 6.6 Implementar testes de integração das rotas e snapshots da base, preservando os testes da fundação; executar as verificações do backend.
 
 ## Detalhes de implementação
 
 Usar o [PRD](./prd.md) e a [TechSpec](./techspec.md) como fonte de verdade. Consultar as seções:
 
-- Resumo: dependência confirmada do validador
-- Design de implementação → Principais interfaces: CnjValidator; Entrada CNJ e busca; Sessão e autorização
+- Resumo: regras de domínio e formatos aceitos
+- Design de implementação → Principais interfaces: Entrada CNJ e busca; Sessão e autorização
 - Design de implementação → Modelos de dados: CnjInput, ProcessIdInput e ProcessSummary
 - Design de implementação → Endpoints: POST /api/processes/search e GET /api/processes/:id
 - Sequenciamento do desenvolvimento → Dependências técnicas
@@ -80,16 +80,16 @@ IDs e nomes abaixo vêm da [abordagem de testes da TechSpec](./techspec.md#abord
 
 ### Testes de unidade (se aplicável)
 
-- [ ] TU-04 — Entrada CNJ vazia e estrutura estrita. Escopo nesta tarefa: Entrada vazia, formato estrito, máscara e zeros.
-- [ ] TU-05 — Integração contratual do validador CNJ. Escopo nesta tarefa: Contrato do adaptador; integração não pode ser aprovada somente com stub.
+- [x] TU-04 — Entrada CNJ vazia e estrutura estrita. Escopo nesta tarefa: Entrada vazia, formato estrito, máscara e zeros.
+- [x] TU-05 — Contrato de normalização CNJ. Escopo nesta tarefa: Apenas estrutura e dígitos ASCII; nenhum cálculo de dígito verificador.
 
 ### Testes de integração (se aplicável)
 
-- [ ] TI-11 — Cookie, origem e proteção direta. Escopo nesta tarefa: Completar proteção dos endpoints processuais antes de qualquer leitura.
-- [ ] TI-13 — CNJs equivalentes, inválidos e ausentes. Escopo nesta tarefa: Caso completo com validador real e CNJs equivalentes/inválidos/ausentes.
-- [ ] TI-14 — Leitura mínima por CNJ e por ID. Escopo nesta tarefa: Duas contas, busca e destino por ID com payload mínimo.
-- [ ] TI-15 — Integridade da base processual. Escopo nesta tarefa: Snapshot integral antes/depois, incluindo sucesso, ausência e falha.
-- [ ] TI-16 — Falhas de dependências e prazos HTTP. Escopo nesta tarefa: Faceta processual: falha/timeout nunca se tornam resultado ausente.
+- [x] TI-11 — Cookie, origem e proteção direta. Escopo nesta tarefa: Completar proteção dos endpoints processuais antes de qualquer leitura.
+- [x] TI-13 — CNJs equivalentes, inválidos e ausentes. Escopo nesta tarefa: CNJs equivalentes, formato inválido, resultado ausente e busca exata sem cálculo de dígito verificador.
+- [x] TI-14 — Leitura mínima por CNJ e por ID. Escopo nesta tarefa: Duas contas, busca e destino por ID com payload mínimo.
+- [x] TI-15 — Integridade da base processual. Escopo nesta tarefa: Snapshot integral antes/depois, incluindo sucesso, ausência e falha.
+- [x] TI-16 — Falhas de dependências e prazos HTTP. Escopo nesta tarefa: Faceta processual: falha/timeout nunca se tornam resultado ausente.
 
 ### Testes E2E (se aplicável)
 
@@ -109,3 +109,11 @@ Não aplicável como entrega desta tarefa; as jornadas completas estão atribuí
 - `backend/src/repositories/process-repository.integration.test.ts`
 - Testes `*.test.ts`/`*.test.tsx` adjacentes aos módulos implementados, quando aplicável.
 - `tasks/prd-autenticacao-consulta-cnj/task_6.md` e `tasks.md` para atualização de progresso ao concluir a implementação.
+
+## Evidências de validação
+
+- `npm run lint` — passou.
+- `npm run typecheck` — passou.
+- `npm test` — 183 testes em 37 arquivos passaram, incluindo integração PostgreSQL isolada e chamadas HTTP.
+- `npm run test:coverage` — passou; statements 92,11%, branches 85%, funções 95,18% e linhas 95,39%.
+- `npm run build` — passou.

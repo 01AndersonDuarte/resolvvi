@@ -26,6 +26,7 @@ export function createApp(dependencies: AppDependencies): Express {
   app.use(createOriginMiddleware(allowedOrigin));
   app.use(express.json({ limit: BODY_LIMIT, strict: true }));
   if (dependencies.authRouter) app.use('/api', dependencies.authRouter);
+  if (dependencies.processRouter) app.use('/api', dependencies.processRouter);
   app.use(createHealthRouter(dependencies.healthHandler));
   app.use((_request, response) => response.status(404).json({ error: { code: 'NOT_FOUND' } }));
   app.use(errorMiddleware);

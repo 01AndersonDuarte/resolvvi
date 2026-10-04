@@ -6,7 +6,7 @@ Entregar a infraestrutura e as jornadas E2E completas, consolidar evidências de
 
 **Dependências:** [1.0](./task_1.md), [2.0](./task_2.md), [3.0](./task_3.md), [4.0](./task_4.md), [5.0](./task_5.md), [6.0](./task_6.md), [7.0](./task_7.md), [8.0](./task_8.md), [9.0](./task_9.md)
 
-**Pré-requisito externo:** Requer o validador real integrado, infraestrutura de testes isolada e, para concluir o aceite externo, domínio/remetente Resend verificados, credencial protegida, URL pública correta e caixa controlada. Se faltar uma condição, registrar o bloqueio e manter os itens correspondentes abertos; aprovação das suítes simuladas não substitui recebimento real.
+**Pré-requisito externo:** Requer infraestrutura de testes isolada e, para concluir o aceite externo, domínio/remetente Resend verificados, credencial protegida, URL pública correta e caixa controlada. Se faltar uma condição, registrar o bloqueio e manter os itens correspondentes abertos; aprovação das suítes simuladas não substitui recebimento real.
 
 <skills>
 

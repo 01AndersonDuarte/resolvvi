@@ -8,8 +8,10 @@ import type { HttpEnvironment } from './types/config.js';
 import { createShutdown } from './shutdown.js';
 import { createAuthRepository } from './repositories/auth-repository.js';
 import { createAuthRouter } from './routers/auth-router.js';
+import { createProcessRouter } from './routers/process-router.js';
 import { createAuthService } from './services/auth-service.js';
 import { createResendService } from './services/resend-service.js';
+import { createProcessRepository } from './repositories/process-repository.js';
 import { configurationError } from './errors/configuration-error.js';
 
 function registerProcessHandlers(server: Server): void {
@@ -43,9 +45,13 @@ function buildHttpServer(configuration: HttpEnvironment): Server {
       from: configuration.resendFrom ?? '',
     }),
   });
+  const cookie = { name: secureCookie ? '__Host-session' : 'session', secure: secureCookie };
   return createServer(createApp({
-    authRouter: createAuthRouter(authService, {
-      name: secureCookie ? '__Host-session' : 'session', secure: secureCookie,
+    authRouter: createAuthRouter(authService, cookie),
+    processRouter: createProcessRouter({
+      authService,
+      processRepository: createProcessRepository(prisma),
+      cookie,
     }),
     publicAppUrl: configuration.publicAppUrl,
   }));

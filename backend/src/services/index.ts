@@ -10,3 +10,4 @@ export {
   verifyPassword,
 } from './security-service.js';
 export { createResendService, createVerificationEmailContent } from './resend-service.js';
+export { createProcessService, type ProcessService } from './process-service.js';

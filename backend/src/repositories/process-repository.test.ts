@@ -27,3 +27,27 @@ it('busca processo pelo CNJ único', async () => {
   await expect(repository.findByCnj(savedProcess.cnj)).resolves.toBe(savedProcess);
   expect(findUnique).toHaveBeenCalledWith({ where: { cnj: savedProcess.cnj } });
 });
+
+it('busca por CNJ projetando somente identificador e CNJ', async () => {
+  const summary = { id: savedProcess.id, cnj: savedProcess.cnj };
+  const findUnique = vi.fn().mockResolvedValue(summary);
+  const repository = createProcessRepository({ process: { findUnique } } as unknown as PrismaClient);
+
+  await expect(repository.findSummaryByCnj(savedProcess.cnj)).resolves.toBe(summary);
+  expect(findUnique).toHaveBeenCalledWith({
+    where: { cnj: savedProcess.cnj },
+    select: { id: true, cnj: true },
+  });
+});
+
+it('busca por ID projetando somente identificador e CNJ', async () => {
+  const summary = { id: savedProcess.id, cnj: savedProcess.cnj };
+  const findUnique = vi.fn().mockResolvedValue(summary);
+  const repository = createProcessRepository({ process: { findUnique } } as unknown as PrismaClient);
+
+  await expect(repository.findSummaryById(savedProcess.id)).resolves.toBe(summary);
+  expect(findUnique).toHaveBeenCalledWith({
+    where: { id: savedProcess.id },
+    select: { id: true, cnj: true },
+  });
+});

@@ -1,5 +1,8 @@
 export type PublicErrorCode =
   | 'INVALID_INPUT'
+  | 'CNJ_REQUIRED'
+  | 'CNJ_FORMAT_INVALID'
+  | 'PROCESS_NOT_FOUND'
   | 'VERIFICATION_RATE_LIMITED'
   | 'CONFIRMATION_SEND_FAILED'
   | 'CONFIRMATION_SEND_UNKNOWN'
@@ -9,4 +12,4 @@ export type PublicErrorCode =
   | 'EMAIL_UNCONFIRMED'
   | 'SESSION_INVALID';
 
-export type PublicErrorField = 'email' | 'password';
+export type PublicErrorField = 'email' | 'password' | 'cnj';

@@ -82,7 +82,7 @@ IDs e nomes abaixo vêm da [abordagem de testes da TechSpec](./techspec.md#abord
 
 ### Testes de unidade (se aplicável)
 
-- [ ] TU-04 — Entrada CNJ vazia e estrutura estrita. Escopo nesta tarefa: Faceta frontend de obrigatoriedade/formato; sem reimplementar dígito verificador.
+- [ ] TU-04 — Entrada CNJ vazia e estrutura estrita. Escopo nesta tarefa: Faceta frontend de obrigatoriedade/formato; sem cálculo de dígito verificador.
 - [ ] TU-12 — Consulta por Enter e prevenção de duplicidade. Escopo nesta tarefa: Caso completo de Enter, bloqueio do campo e substituição do estado anterior.
 - [ ] TU-13 — Timeout e descarte de respostas obsoletas. Escopo nesta tarefa: Faceta processual: timeout/expiração/saída impedem resultado tardio.
 - [ ] TU-14 — Destino, retorno e isolamento de sessão. Escopo nesta tarefa: Caso completo de destino, retorno e isolamento da entrada por sessão.
