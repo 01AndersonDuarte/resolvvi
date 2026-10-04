@@ -1,7 +1,7 @@
 import Joi from 'joi';
 
-import { invalidInput } from '../errors/application-error.js';
-import type { EmailInput, RegistrationInput } from '../types/auth.js';
+import { ApplicationError, invalidInput } from '../errors/application-error.js';
+import type { ConfirmationInput, EmailInput, RegistrationInput } from '../types/auth.js';
 
 const MAX_EMAIL_LENGTH = 254;
 const MIN_PASSWORD_CODE_POINTS = 8;
@@ -13,6 +13,7 @@ const credentialsSchema = Joi.object({
   email: Joi.string().required(),
   password: Joi.string().required(),
 }).unknown(false);
+const confirmationSchema = Joi.object({ token: Joi.string().required() }).unknown(false);
 
 export type EmailValidation =
   | { valid: true; normalizedEmail: string }
@@ -25,6 +26,21 @@ export function parseEmailInput(input: unknown): EmailInput {
   if (result.error) throw invalidInput('Informe um e-mail válido.', 'email');
 
   return result.value as EmailInput;
+}
+
+export function parseConfirmationInput(input: unknown): ConfirmationInput {
+  const result = confirmationSchema.validate(input, { abortEarly: false, convert: false });
+  if (result.error) throw verificationInvalid();
+
+  return result.value as ConfirmationInput;
+}
+
+export function verificationInvalid(): Error {
+  return new ApplicationError({
+    code: 'VERIFICATION_INVALID',
+    message: 'Este link não é mais válido. Entre ou solicite outro e-mail de confirmação.',
+    status: 400,
+  });
 }
 
 export function parseRegistrationInput(input: unknown): RegistrationInput {

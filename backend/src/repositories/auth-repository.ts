@@ -85,9 +85,10 @@ export function updateVerificationDelivery(
 export async function reserveVerification(
   input: { userId: string; tokenHash: string },
   client: AuthenticationDatabase,
+  deadline = new Date(Date.now() + 12_000),
 ): Promise<EmissionReservation> {
   if (!('$transaction' in client)) throw new Error('Serializable reservation requires PrismaClient.');
-  return reserveWithRetry(client as PrismaClient, input, 0);
+  return reserveWithRetry(client as PrismaClient, { ...input, deadline, attempt: 0 });
 }
 
 export function createAuthRepository(client: AuthenticationDatabase): AuthRepository {
@@ -105,26 +106,93 @@ export function createAuthRepository(client: AuthenticationDatabase): AuthReposi
       invalidateActiveVerifications(userId, invalidatedAt, client),
     updateVerificationDelivery: (id, status, providerMessageId) =>
       updateVerificationDelivery({ id, status, providerMessageId }, client),
-    reserveVerification: (input) => reserveVerification(input, client),
+    reserveVerification: (input, deadline) => reserveVerification(input, client, deadline),
+    consumeVerification: (tokenHash, deadline) => consumeVerification(tokenHash, client, deadline),
   };
+}
+
+export async function consumeVerification(
+  tokenHash: string,
+  client: AuthenticationDatabase,
+  deadline: Date,
+): Promise<boolean> {
+  if (!('$transaction' in client)) throw new Error('Serializable confirmation requires PrismaClient.');
+  return consumeWithRetry(client as PrismaClient, { tokenHash, deadline, attempt: 0 });
+}
+
+async function consumeWithRetry(
+  client: PrismaClient,
+  input: { tokenHash: string; deadline: Date; attempt: number },
+): Promise<boolean> {
+  try {
+    return await client.$transaction(
+      (transaction) => consumeInTransaction(transaction, input.tokenHash),
+      { isolationLevel: 'Serializable', maxWait: 2_000, timeout: 3_000 },
+    );
+  } catch (error: unknown) {
+    if (isSerializationConflict(error) && canRetry(input.attempt, input.deadline)) {
+      return consumeWithRetry(client, { ...input, attempt: input.attempt + 1 });
+    }
+    throw error;
+  }
+}
+
+async function consumeInTransaction(transaction: Prisma.TransactionClient, tokenHash: string): Promise<boolean> {
+  const [{ now } = {}] = await transaction.$queryRaw<{ now: Date }[]>`SELECT CURRENT_TIMESTAMP AS now`;
+  if (!(now instanceof Date)) throw new Error('Database clock is unavailable.');
+
+  const verification = await transaction.emailVerification.findUnique({ where: { tokenHash } });
+  if (!verification || verification.consumedAt || verification.invalidatedAt || verification.expiresAt <= now) {
+    return false;
+  }
+
+  return markVerificationConsumed(transaction, verification, now);
+}
+
+async function markVerificationConsumed(
+  transaction: Prisma.TransactionClient,
+  verification: EmailVerification,
+  now: Date,
+): Promise<boolean> {
+  const result = await transaction.emailVerification.updateMany({
+    where: {
+      id: verification.id,
+      consumedAt: null,
+      invalidatedAt: null,
+      expiresAt: { gt: now },
+      user: { emailVerifiedAt: null },
+    },
+    data: { consumedAt: now },
+  });
+  if (result.count !== 1) return false;
+
+  const user = await transaction.user.updateMany({
+    where: { id: verification.userId, emailVerifiedAt: null },
+    data: { emailVerifiedAt: now },
+  });
+  if (user.count !== 1) throw new Error('Confirmation state changed during transaction.');
+  return true;
 }
 
 async function reserveWithRetry(
   client: PrismaClient,
-  input: { userId: string; tokenHash: string },
-  attempt: number,
+  input: { userId: string; tokenHash: string; deadline: Date; attempt: number },
 ): Promise<EmissionReservation> {
   try {
     return await client.$transaction(
-      (transaction) => reserveInTransaction(transaction, input),
+      (transaction) => reserveInTransaction(transaction, { userId: input.userId, tokenHash: input.tokenHash }),
       { isolationLevel: 'Serializable', maxWait: 2_000, timeout: 3_000 },
     );
   } catch (error: unknown) {
-    if (isSerializationConflict(error) && attempt < MAX_SERIALIZATION_RETRIES) {
-      return reserveWithRetry(client, input, attempt + 1);
+    if (isSerializationConflict(error) && canRetry(input.attempt, input.deadline)) {
+      return reserveWithRetry(client, { ...input, attempt: input.attempt + 1 });
     }
     throw error;
   }
+}
+
+function canRetry(attempt: number, deadline: Date): boolean {
+  return attempt < MAX_SERIALIZATION_RETRIES && Date.now() < deadline.getTime();
 }
 
 async function reserveInTransaction(
@@ -183,7 +251,11 @@ export function getEmissionRetryAfter(emissions: { issuedAt: Date }[], now: Date
 }
 
 function isSerializationConflict(error: unknown): boolean {
-  return typeof error === 'object' && error !== null && 'code' in error && error.code === 'P2034';
+  if (typeof error !== 'object' || error === null) return false;
+  if ('code' in error && error.code === 'P2034') return true;
+  if ('originalCode' in error && (error.originalCode === '40001' || error.originalCode === 40001)) return true;
+  if ('kind' in error && error.kind === 'TransactionWriteConflict') return true;
+  return 'cause' in error && isSerializationConflict(error.cause);
 }
 
 export type { VerificationEmission };

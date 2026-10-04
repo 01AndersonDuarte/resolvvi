@@ -1,5 +1,6 @@
 export {
   parseEmailInput,
+  parseConfirmationInput,
   parseRegistrationInput,
   validateAndNormalizeEmail,
   validatePassword,

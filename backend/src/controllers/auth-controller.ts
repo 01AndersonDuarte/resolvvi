@@ -1,4 +1,4 @@
-import type { EmailInput, RegistrationInput } from '../types/auth.js';
+import type { ConfirmationInput, EmailInput, RegistrationInput } from '../types/auth.js';
 import type { AuthService } from '../types/auth.js';
 import type { AuthController } from '../types/http.js';
 
@@ -15,6 +15,11 @@ export function createAuthController(service: AuthService): AuthController {
       const input = request.body as EmailInput;
       const result = await service.resend(input);
       response.status(202).json(result);
+    },
+    confirm: async (request, response) => {
+      const input = request.body as ConfirmationInput;
+      const result = await service.confirm(input);
+      response.status(200).json(result);
     },
   };
 }

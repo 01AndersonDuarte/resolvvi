@@ -37,6 +37,8 @@ export type EmissionReservation =
   | { status: 'confirmed' }
   | { status: 'limited'; retryAfterSeconds: number };
 
+export type VerificationResult = 'confirmed' | 'invalid';
+
 export type AuthRepository = {
   createUser: (input: CreateUserInput) => Promise<AuthenticationUser>;
   findUserByEmail: (email: string) => Promise<AuthenticationUser | null>;
@@ -53,12 +55,14 @@ export type AuthRepository = {
     status: 'ACCEPTED' | 'FAILED',
     providerMessageId: string | null,
   ) => Promise<VerificationEmission>;
-  reserveVerification: (input: { userId: string; tokenHash: string }) => Promise<EmissionReservation>;
+  reserveVerification: (input: { userId: string; tokenHash: string }, deadline?: Date) => Promise<EmissionReservation>;
+  consumeVerification: (tokenHash: string, deadline: Date) => Promise<boolean>;
 };
 
 export type AuthService = {
   register: (input: RegistrationInput) => Promise<MessageResponse>;
   resend: (input: EmailInput) => Promise<MessageResponse>;
+  confirm: (input: ConfirmationInput) => Promise<MessageResponse>;
 };
 
 export type AuthServiceDependencies = {

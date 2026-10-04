@@ -11,7 +11,7 @@ As tarefas 1.0, 2.0 e 3.0 foram concluídas; as demais permanecem pendentes. A a
 - [x] 1.0 [Infraestrutura HTTP, configuração, erros, logs e ambiente de testes](./task_1.md) — depende de fundação existente.
 - [x] 2.0 [Persistência de autenticação e segurança de senhas e tokens](./task_2.md) — depende de 1.0.
 - [x] 3.0 [Cadastro e reenvio pelo Resend com limites e recuperação](./task_3.md) — depende de 2.0.
-- [ ] 4.0 [Confirmação de e-mail de uso único e controle de concorrência](./task_4.md) — depende de 3.0.
+- [x] 4.0 [Confirmação de e-mail de uso único e controle de concorrência](./task_4.md) — depende de 3.0.
 - [ ] 5.0 [Login, sessão, autorização e logout com revogação](./task_5.md) — depende de 4.0.
 - [ ] 6.0 [API protegida de consulta CNJ e destino mínimo do processo](./task_6.md) — depende de 5.0 e validador real da fundação (pendente).
 - [ ] 7.0 [Base React, cliente HTTP, controle de sessão e rotas protegidas](./task_7.md) — depende de 5.0.

@@ -35,11 +35,11 @@ Preservar Prisma 7, singleton existente e direção das dependências. Middlewar
 
 ## Subtarefas
 
-- [ ] 4.1 Expor POST /api/auth/verify-email com validação do segredo e resposta pública sem revelar destinatário.
-- [ ] 4.2 Implementar consumo e confirmação da conta na mesma transação, respeitando validade e estados do link.
-- [ ] 4.3 Integrar tratamento de conflitos e prazo restante nas disputas de confirmação simultânea e confirmação versus reenvio.
-- [ ] 4.4 Aplicar respostas de confirmação válida, link inválido e falha recuperável, sem criação de sessão ou cookie.
-- [ ] 4.5 Implementar testes de validade e concorrência com persistência real e executar as verificações do backend.
+- [x] 4.1 Expor POST /api/auth/verify-email com validação do segredo e resposta pública sem revelar destinatário.
+- [x] 4.2 Implementar consumo e confirmação da conta na mesma transação, respeitando validade e estados do link.
+- [x] 4.3 Integrar tratamento de conflitos e prazo restante nas disputas de confirmação simultânea e confirmação versus reenvio.
+- [x] 4.4 Aplicar respostas de confirmação válida, link inválido e falha recuperável, sem criação de sessão ou cookie.
+- [x] 4.5 Implementar testes de validade e concorrência com persistência real e executar as verificações do backend.
 
 ## Detalhes de implementação
 
@@ -66,13 +66,13 @@ IDs e nomes abaixo vêm da [abordagem de testes da TechSpec](./techspec.md#abord
 
 ### Testes de unidade (se aplicável)
 
-- [ ] TU-08 — Validade e estados do link. Escopo nesta tarefa: Todos os estados e fronteira de validade.
+- [x] TU-08 — Validade e estados do link. Escopo nesta tarefa: Todos os estados e fronteira de validade.
 
 ### Testes de integração (se aplicável)
 
-- [ ] TI-04 — Confirmação pública válida. Escopo nesta tarefa: Confirmação válida de uma única conta, sem sessão.
-- [ ] TI-05 — Links inválidos e consumo concorrente. Escopo nesta tarefa: Links inválidos e exatamente um sucesso sob consumo concorrente.
-- [ ] TI-07 — Disputa entre confirmação e reenvio. Escopo nesta tarefa: Ordenação consistente de confirmação versus reenvio.
+- [x] TI-04 — Confirmação pública válida. Escopo nesta tarefa: Confirmação válida de uma única conta, sem sessão.
+- [x] TI-05 — Links inválidos e consumo concorrente. Escopo nesta tarefa: Links inválidos e exatamente um sucesso sob consumo concorrente.
+- [x] TI-07 — Disputa entre confirmação e reenvio. Escopo nesta tarefa: Ordenação consistente de confirmação versus reenvio.
 
 ### Testes E2E (se aplicável)
 

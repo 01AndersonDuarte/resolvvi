@@ -1,7 +1,7 @@
 import { ApplicationError, invalidInput } from '../errors/application-error.js';
 import { Prisma } from '../generated/prisma/client.js';
-import { validateAndNormalizeEmail, validatePassword } from '../schemas/auth-schema.js';
-import type { AuthenticationUser, AuthRepository, AuthService, AuthServiceDependencies, EmailInput, MessageResponse, RegistrationInput } from '../types/auth.js';
+import { validateAndNormalizeEmail, validatePassword, verificationInvalid } from '../schemas/auth-schema.js';
+import type { AuthenticationUser, AuthRepository, AuthService, AuthServiceDependencies, ConfirmationInput, EmailInput, MessageResponse, RegistrationInput } from '../types/auth.js';
 import type { DeliveryResult } from '../types/resend.js';
 import { createSecret, digestSecret, hashPassword } from './security-service.js';
 
@@ -13,7 +13,32 @@ export function createAuthService(dependencies: AuthServiceDependencies): AuthSe
   return {
     register: (input) => register(input, dependencies),
     resend: (input) => resend(input, dependencies),
+    confirm: (input) => confirm(input, dependencies),
   };
+}
+
+export async function confirm(input: ConfirmationInput, dependencies: AuthServiceDependencies): Promise<MessageResponse> {
+  if (!isCanonicalVerificationToken(input.token)) throw verificationInvalid();
+
+  try {
+    const deadline = new Date(Date.now() + REQUEST_TIMEOUT_MS);
+    const confirmed = await dependencies.repositories.consumeVerification(digestSecret(input.token), deadline);
+    if (!confirmed) throw verificationInvalid();
+    return { message: 'E-mail confirmado. Agora você pode entrar.' };
+  } catch (error: unknown) {
+    if (error instanceof ApplicationError) throw error;
+    throw new ApplicationError({
+      code: 'SERVICE_UNAVAILABLE',
+      message: 'Não foi possível concluir a confirmação agora. Abra o link novamente ou tente entrar se já confirmou seu e-mail.',
+      status: 503,
+    });
+  }
+}
+
+function isCanonicalVerificationToken(token: string): boolean {
+  if (!/^[A-Za-z0-9_-]{43}$/.test(token)) return false;
+  const decoded = Buffer.from(token, 'base64url');
+  return decoded.length === 32 && decoded.toString('base64url') === token;
 }
 
 export async function register(input: RegistrationInput, dependencies: AuthServiceDependencies): Promise<MessageResponse> {
@@ -55,7 +80,7 @@ async function issueVerification(input: {
   const token = createSecret();
   const reservation = await input.dependencies.repositories.reserveVerification({
     userId: input.userId, tokenHash: digestSecret(token),
-  });
+  }, new Date(input.requestTime.getTime() + REQUEST_TIMEOUT_MS));
   if (reservation.status === 'confirmed') return;
   if (reservation.status === 'limited') throw createRateLimitError(reservation.retryAfterSeconds);
 
