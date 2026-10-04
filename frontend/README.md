@@ -19,4 +19,7 @@ npm run typecheck
 npm test
 npm run test:coverage
 npm run build
+npm run test:e2e
 ```
+
+As jornadas Playwright requerem a base `dev_test_resolvvi_e2e_test`, com migrations e fixture inicial carregadas conforme [`backend/README.md`](../backend/README.md#jornadas-e2e). A suíte inicia API e SPA reais, mais um coletor de confirmação restrito a loopback.

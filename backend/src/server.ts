@@ -13,6 +13,7 @@ import { createAuthService } from './services/auth-service.js';
 import { createResendService } from './services/resend-service.js';
 import { createProcessRepository } from './repositories/process-repository.js';
 import { configurationError } from './errors/configuration-error.js';
+import type { VerificationSender } from './types/resend.js';
 
 function registerProcessHandlers(server: Server): void {
   const shutdown = createShutdown({
@@ -35,12 +36,12 @@ function registerProcessHandlers(server: Server): void {
   process.on('uncaughtException', (error: Error) => crash('uncaughtException', error));
 }
 
-function buildHttpServer(configuration: HttpEnvironment): Server {
+function buildHttpServer(configuration: HttpEnvironment, sender?: VerificationSender): Server {
   const secureCookie = new URL(configuration.publicAppUrl).protocol === 'https:';
   const authService = createAuthService({
     publicAppUrl: configuration.publicAppUrl,
     repositories: createAuthRepository(prisma),
-    sender: createResendService({
+    sender: sender ?? createResendService({
       apiKey: configuration.resendApiKey ?? '',
       from: configuration.resendFrom ?? '',
     }),
@@ -57,8 +58,8 @@ function buildHttpServer(configuration: HttpEnvironment): Server {
   }));
 }
 
-export function createHttpServer(source: NodeJS.ProcessEnv): Server {
-  return buildHttpServer(parseHttpEnvironment(source));
+export function createHttpServer(source: NodeJS.ProcessEnv, sender?: VerificationSender): Server {
+  return buildHttpServer(parseHttpEnvironment(source), sender);
 }
 
 export function startServer(source: NodeJS.ProcessEnv = process.env): Server {

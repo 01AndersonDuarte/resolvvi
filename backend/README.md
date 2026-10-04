@@ -61,3 +61,18 @@ npm run build
 ```
 
 `npm test` e `npm run test:coverage` exigem `.env.test` com `NODE_ENV=test`, `DATABASE_URL` e um `DATABASE_LABEL` terminado em `_test`. A suíte falha explicitamente se o banco isolado não estiver configurado; ela não ignora testes de integração silenciosamente.
+
+## Jornadas E2E
+
+As jornadas Playwright usam uma base PostgreSQL dedicada. Crie `dev_test_resolvvi_e2e_test` no PostgreSQL local, aplique as migrations e carregue a fixture processual antes de executar `npm run test:e2e` em `frontend/`. O servidor E2E injeta um remetente que guarda links apenas em memória e inicia um coletor separado, limitado a `127.0.0.1:3051`; esses controles não fazem parte da API de produção.
+
+```bash
+docker exec dev_test_resolvvi-postgres-1 createdb -U dev_test_resolvvi dev_test_resolvvi_e2e_test
+cd backend
+NODE_ENV=test DATABASE_LABEL=dev_test_resolvvi_e2e_test DATABASE_URL=postgresql://dev_test_resolvvi:dev_test_resolvvi@localhost:55432/dev_test_resolvvi_e2e_test npx prisma migrate deploy
+NODE_ENV=test DATABASE_LABEL=dev_test_resolvvi_e2e_test DATABASE_URL=postgresql://dev_test_resolvvi:dev_test_resolvvi@localhost:55432/dev_test_resolvvi_e2e_test npm run seed
+cd ../frontend
+npm run test:e2e
+```
+
+O Playwright inicia API, coletor e SPA nas portas 3050, 3051 e 5100. Confirme que estão livres antes da execução; ajuste `E2E_API_PORT`, `E2E_MAILBOX_PORT`, `E2E_APP_URL` e `E2E_DATABASE_URL` se o ambiente usar outros valores. O PostgreSQL existente é compartilhado como serviço, mas a base de dados acima é isolada das bases de desenvolvimento e integração.
