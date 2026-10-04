@@ -49,6 +49,7 @@ test('E2E-02: link expirado, espera anunciada e reenvio recuperam o cadastro', a
 
 test('E2E-03: consulta distingue validação, ausência e falha, preserva entrada e permite corrigir', async ({ page }) => {
   const email = uniqueEmail();
+  await page.setViewportSize({ width: 320, height: 780 });
   await registerAccount(page, email);
   await confirmInNewContext(page, email);
   await login(page, email);
@@ -58,6 +59,12 @@ test('E2E-03: consulta distingue validação, ausência e falha, preserva entrad
   await expect(page.getByLabel('Número do processo (CNJ)')).toHaveValue('invalido');
   await submitSearch(page, UNKNOWN_CNJ);
   await expect(page.getByText(/Não encontramos esse processo/)).toBeVisible();
+  const cnjField = page.getByLabel('Número do processo (CNJ)');
+  const fieldMetrics = await cnjField.evaluate((field: HTMLInputElement) => ({
+    clientWidth: field.clientWidth,
+    scrollWidth: field.scrollWidth,
+  }));
+  expect(fieldMetrics.scrollWidth).toBeLessThanOrEqual(fieldMetrics.clientWidth);
   await page.route('**/api/processes/search', (route) => route.fulfill({ status: 503, json: { error: { code: 'SERVICE_UNAVAILABLE', field: null, message: 'Falha simulada', retryAfterSeconds: null } } }));
   await submitSearch(page, PROCESS_CNJ);
   await expect(page.getByText('Não foi possível concluir a consulta agora. Tente novamente.')).toBeVisible();
