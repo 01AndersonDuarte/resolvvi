@@ -35,3 +35,10 @@ export function getProcessDetailsError(failure: RequestFailure | null): string {
     ? 'Não encontramos esse processo na base disponível.'
     : SERVICE_MESSAGE;
 }
+
+export function getProcessMovementsError(failure: RequestFailure | null, error: string): string {
+  if (failure?.error.code === 'PROCESS_NOT_FOUND') return NOT_FOUND_MESSAGE;
+  if (failure === null && error.includes('tempo limite')) return SERVICE_MESSAGE;
+  if (failure === null) return CONNECTION_MESSAGE;
+  return SERVICE_MESSAGE;
+}

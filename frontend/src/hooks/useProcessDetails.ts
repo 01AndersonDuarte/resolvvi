@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
 import { getProcessDetailsError } from '../services/process-feedback';
 import { getProcessById } from '../services/process-service';
-import type { ProcessSummary } from '../types/process-summary';
+import type { ProcessDetails } from '../types/process-details';
 import { useSession } from './useSession';
 import { useRequest, type RequestState } from './useRequest';
 
@@ -11,14 +11,18 @@ export function useProcessDetails(id: string | undefined) {
   const { cancel, run } = request;
 
   useEffect(() => {
-    if (id !== undefined) void run(id);
+    if (id !== undefined && session.status === 'authenticated') void run(id);
     return cancel;
-  }, [cancel, id, run]);
+  }, [cancel, id, run, session.status]);
 
-  return { state: request.state, errorMessage: getDetailsMessage(request.state) };
+  return {
+    state: request.state,
+    errorMessage: getDetailsMessage(request.state),
+    retry: () => id === undefined ? Promise.resolve({ status: 'stale' } as const) : run(id),
+  };
 }
 
-function getDetailsMessage(state: RequestState<ProcessSummary>): string | null {
+function getDetailsMessage(state: RequestState<ProcessDetails>): string | null {
   if (state.status !== 'error') return null;
   return getProcessDetailsError(state.failure);
 }
