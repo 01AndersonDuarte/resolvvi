@@ -32,12 +32,12 @@ Requisitos relacionados: RF1, RF2, RF3, RF4, RF15, RF17, RF18, RF19, RF20.
 
 ## Subtarefas
 
-- [ ] 1.1 Concentrar os contratos de detalhes no contexto de tipos de processos e acrescentar validação de identificador e factories de erro.
-- [ ] 1.2 Ampliar repository e service para seleção dos campos gerais, formatação exata e tratamento defensivo das ausências.
-- [ ] 1.3 Integrar controller e router ao contrato ampliado, mantendo a revalidação de sessão e as proteções HTTP existentes.
-- [ ] 1.4 Classificar falhas de persistência e alinhar REQUEST_TIMEOUT no tipo de códigos públicos; registrar somente contexto sanitizado.
-- [ ] 1.5 Implementar os casos unitários e TI-01; atualizar fixtures do GET alterado e preservar os testes de busca e sessão.
-- [ ] 1.6 Executar as validações da tarefa e registrar evidências; atualizar os checklists e criar o commit local do incremento.
+- [x] 1.1 Concentrar os contratos de detalhes no contexto de tipos de processos e acrescentar validação de identificador e factories de erro.
+- [x] 1.2 Ampliar repository e service para seleção dos campos gerais, formatação exata e tratamento defensivo das ausências.
+- [x] 1.3 Integrar controller e router ao contrato ampliado, mantendo a revalidação de sessão e as proteções HTTP existentes.
+- [x] 1.4 Classificar falhas de persistência e alinhar REQUEST_TIMEOUT no tipo de códigos públicos; registrar somente contexto sanitizado.
+- [x] 1.5 Implementar os casos unitários e TI-01; atualizar fixtures do GET alterado e preservar os testes de busca e sessão.
+- [x] 1.6 Executar as validações da tarefa e registrar evidências; atualizar os checklists e criar o commit local do incremento.
 
 ## Detalhes de implementação
 
@@ -70,14 +70,14 @@ IDs, nomes e resultados esperados preservados da TechSpec. Casos compartilhados 
 
 ### Testes de unidade
 
-- [ ] TU-01 — Identificador de detalhes distingue formato inválido. Valores fora da gramática/faixa geram 400 sem consultar repository.
-- [ ] TU-03 — Dados gerais preservam identidade e formatação. CNJ intacto, Decimal sem perda, zeros preservados, ausência em null e CNJ inválido sem sucesso.
-- [ ] TU-18 — Controller revalida antes de responder. Revogação durante leitura ou resposta já encerrada impede entrega tardia.
-- [ ] TU-19 — Falhas de persistência recebem envelope público. Erros conhecidos preservados, indisponibilidade classificada e nenhum detalhe sensível exposto.
+- [x] TU-01 — Identificador de detalhes distingue formato inválido. Valores fora da gramática/faixa geram 400 sem consultar repository.
+- [x] TU-03 — Dados gerais preservam identidade e formatação. CNJ intacto, Decimal sem perda, zeros preservados, ausência em null e CNJ inválido sem sucesso.
+- [x] TU-18 — Controller revalida antes de responder. Revogação durante leitura ou resposta já encerrada impede entrega tardia.
+- [x] TU-19 — Falhas de persistência recebem envelope público. Erros conhecidos preservados, indisponibilidade classificada e nenhum detalhe sensível exposto.
 
 ### Testes de integração
 
-- [ ] TI-01 — Detalhes HTTP correspondem à persistência. Seleção e serialização reais, contrato ampliado e distinção 400/404.
+- [x] TI-01 — Detalhes HTTP correspondem à persistência. Seleção e serialização reais, contrato ampliado e distinção 400/404.
 
 ### Validações de conclusão
 

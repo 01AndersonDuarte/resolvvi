@@ -5,6 +5,7 @@ import type { AuthService } from '../types/auth.js';
 import type { SessionCookieConfiguration } from '../types/http.js';
 import type { CnjInput } from '../types/process.js';
 import type { RequestContext } from '../middlewares/request-context-middleware.js';
+import { parseProcessId } from '../schemas/process-schema.js';
 import type { ProcessService } from '../services/process-service.js';
 
 export type ProcessController = { search: RequestHandler; getById: RequestHandler };
@@ -22,8 +23,8 @@ export function createProcessController(
       response.status(200).json(result);
     },
     getById: async (request, response) => {
-      const param = request.params.id;
-      const result = await processService.getById(typeof param === 'string' ? param : '');
+      const processId = parseProcessId(request.params.id);
+      const result = await processService.getById(processId);
       await revalidateSession(request.headers.cookie, authService, cookie);
       if (isResponseUnavailable(response)) return;
       response.status(200).json(result);

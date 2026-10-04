@@ -20,6 +20,7 @@ describe('controller de processos', () => {
   it('não serializa resposta após o cliente desconectar', skipDisconnectedResponse);
   it('não serializa resposta depois que o timeout respondeu', skipTimedOutResponse);
   it('não serializa resposta quando o contexto marca timeout', skipExpiredRequestContext);
+  it('não serializa detalhes se a sessão expirar durante a leitura', skipDetailsAfterRevocation);
 });
 
 async function skipDisconnectedResponse(): Promise<void> {
@@ -43,8 +44,21 @@ async function skipExpiredRequestContext(): Promise<void> {
   expect(response.json).not.toHaveBeenCalled();
 }
 
+async function skipDetailsAfterRevocation(): Promise<void> {
+  vi.mocked(authService.getSession).mockReset().mockRejectedValue(new Error('session revoked'));
+  const response = makeResponse({});
+
+  await expect(controller.getById(makeDetailsRequest() as Request, response, vi.fn())).rejects.toThrow('session revoked');
+  expect(authService.getSession).toHaveBeenCalledTimes(1);
+  expect(response.json).not.toHaveBeenCalled();
+}
+
 function makeRequest(): Partial<Request> {
   return { body: { cnj: result.cnj }, headers: { cookie: 'session=secret' } };
+}
+
+function makeDetailsRequest(): Partial<Request> {
+  return { params: { id: '1' }, headers: { cookie: 'session=secret' } };
 }
 
 function makeResponse(options: { destroyed?: boolean; headersSent?: boolean; timedOut?: boolean }): Response & {

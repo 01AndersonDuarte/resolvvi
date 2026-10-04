@@ -2,7 +2,7 @@
 
 ## Tarefas
 
-- [ ] 1.0 [API de detalhes do processo](./task_1.md)
+- [x] 1.0 [API de detalhes do processo](./task_1.md)
 - [ ] 2.0 [API de movimentações paginadas](./task_2.md)
 - [ ] 3.0 [Auditoria da base importada pelos novos contratos](./task_3.md)
 - [ ] 4.0 [Cliente HTTP e hooks de detalhes e histórico](./task_4.md)
@@ -12,7 +12,7 @@
 
 ## Escopo e dependências
 
-Estrutura aprovada pelo usuário. Fonte: [PRD](./prd.md) e [TechSpec](./techspec.md). Todos os itens estão pendentes; este documento planeja a implementação e não atesta execução de testes.
+Estrutura aprovada pelo usuário. Fonte: [PRD](./prd.md) e [TechSpec](./techspec.md). A tarefa 1.0 foi implementada e validada; as demais continuam pendentes.
 
 A fundação de dados, a autenticação e a busca CNJ existentes são pré-requisitos. A ordem abaixo coloca as dependências antes de seus consumidores.
 

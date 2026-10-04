@@ -42,23 +42,22 @@ async function verifyReadOnlyQueries(): Promise<void> {
   const client = database;
   if (!client) throw new Error('Banco de teste não conectado.');
   const before = await snapshotProcessData();
-  const router = createProcessRouter({
-    authService,
-    processRepository: createProcessRepository(client),
-    cookie: { name: 'session', secure: false },
-  });
-  const app = createApp({ processRouter: router, publicAppUrl: PUBLIC_APP_URL });
+  const app = createProcessApp(createProcessRepository(client));
 
-  const found = await request(app).post('/api/processes/search')
-    .set('Origin', PUBLIC_APP_URL).send({ cnj: '00000010120258269001' });
-  const absent = await request(app).post('/api/processes/search')
-    .set('Origin', PUBLIC_APP_URL).send({ cnj: ABSENT_CNJ });
-  const malformed = await request(app).post('/api/processes/search')
-    .set('Origin', PUBLIC_APP_URL).send({ cnj: '0000001-01.2025.8.26.900' });
+  await verifyProcessSearchContracts(app, client);
+  await verifyProcessDetailsContracts(app, client);
+  expect(await snapshotProcessData()).toBe(before);
+}
+
+async function verifyProcessSearchContracts(app: ReturnType<typeof createApp>, client: PrismaClient): Promise<void> {
+  const found = await request(app).post('/api/processes/search').set('Origin', PUBLIC_APP_URL)
+    .send({ cnj: '00000010120258269001' });
+  const absent = await request(app).post('/api/processes/search').set('Origin', PUBLIC_APP_URL)
+    .send({ cnj: ABSENT_CNJ });
+  const malformed = await request(app).post('/api/processes/search').set('Origin', PUBLIC_APP_URL)
+    .send({ cnj: '0000001-01.2025.8.26.900' });
   const failed = await request(createFailureApp(client)).post('/api/processes/search')
     .set('Origin', PUBLIC_APP_URL).send({ cnj: PROCESS_CNJ });
-  const destination = await request(app).get(`/api/processes/${processId}`);
-  const after = await snapshotProcessData();
 
   expect(found.status).toBe(200);
   expect(found.body).toEqual({ id: processId, cnj: PROCESS_CNJ });
@@ -66,9 +65,36 @@ async function verifyReadOnlyQueries(): Promise<void> {
   expect((absent.body as { error: { code: string } }).error.code).toBe('PROCESS_NOT_FOUND');
   expect(malformed.status).toBe(400);
   expect(failed.status).toBe(503);
+}
+
+async function verifyProcessDetailsContracts(app: ReturnType<typeof createApp>, client: PrismaClient): Promise<void> {
+  const destination = await request(app).get(`/api/processes/${processId}`);
+  const invalid = await request(app).get('/api/processes/abc');
+  const missing = await request(app).get('/api/processes/2147483647');
+  const failed = await request(createFailureApp(client)).get(`/api/processes/${processId}`);
+
   expect(destination.status).toBe(200);
-  expect(destination.body).toEqual({ id: processId, cnj: PROCESS_CNJ });
-  expect(after).toBe(before);
+  expect(destination.body).toEqual({
+    id: processId,
+    cnj: PROCESS_CNJ,
+    forum: 'Foro de integridade',
+    court: 'Vara de integridade',
+    lawsuitValue: '123,45',
+    numberOfAuthors: 1,
+  });
+  expect(invalid.status).toBe(400);
+  expect((invalid.body as { error: { code: string } }).error.code).toBe('INVALID_INPUT');
+  expect(missing.status).toBe(404);
+  expect((missing.body as { error: { code: string } }).error.code).toBe('PROCESS_NOT_FOUND');
+  expect(failed.status).toBe(503);
+}
+
+function createProcessApp(processRepository: ProcessRepository): ReturnType<typeof createApp> {
+  const processRouter = createProcessRouter({
+    authService, processRepository, cookie: { name: 'session', secure: false },
+  });
+
+  return createApp({ processRouter, publicAppUrl: PUBLIC_APP_URL });
 }
 
 function createFailureApp(client: PrismaClient): ReturnType<typeof createApp> {
@@ -76,12 +102,9 @@ function createFailureApp(client: PrismaClient): ReturnType<typeof createApp> {
   const failingRepository: ProcessRepository = {
     ...repository,
     findSummaryByCnj: () => Promise.reject(new Error('database unavailable')),
+    findById: () => Promise.reject(new Error('database unavailable')),
   };
-  const processRouter = createProcessRouter({
-    authService, processRepository: failingRepository, cookie: { name: 'session', secure: false },
-  });
-
-  return createApp({ processRouter, publicAppUrl: PUBLIC_APP_URL });
+  return createProcessApp(failingRepository);
 }
 
 async function createFixture(): Promise<void> {

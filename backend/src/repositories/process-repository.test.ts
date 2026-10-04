@@ -40,14 +40,21 @@ it('busca por CNJ projetando somente identificador e CNJ', async () => {
   });
 });
 
-it('busca por ID projetando somente identificador e CNJ', async () => {
-  const summary = { id: savedProcess.id, cnj: savedProcess.cnj };
-  const findUnique = vi.fn().mockResolvedValue(summary);
+it('busca por ID projetando os campos gerais necessários aos detalhes', async () => {
+  const details = {
+    id: savedProcess.id,
+    cnj: savedProcess.cnj,
+    forum: 'Foro de teste',
+    court: '1ª Vara',
+    lawsuitValue: new Prisma.Decimal('10000'),
+    numberOfAuthors: 1,
+  };
+  const findUnique = vi.fn().mockResolvedValue(details);
   const repository = createProcessRepository({ process: { findUnique } } as unknown as PrismaClient);
 
-  await expect(repository.findSummaryById(savedProcess.id)).resolves.toBe(summary);
+  await expect(repository.findById(savedProcess.id)).resolves.toBe(details);
   expect(findUnique).toHaveBeenCalledWith({
     where: { id: savedProcess.id },
-    select: { id: true, cnj: true },
+    select: { id: true, cnj: true, forum: true, court: true, lawsuitValue: true, numberOfAuthors: true },
   });
 });

@@ -18,5 +18,14 @@ export type { ApplicationEnvironment, HttpEnvironment, LogContext } from './conf
 export type { AuthenticationDatabase, ProcessDatabase } from './database.js';
 export type { PublicErrorCode, PublicErrorField } from './errors.js';
 export type { AppDependencies, AuthController, AuthRouterDependencies, ProcessRouterDependencies, SessionCookieConfiguration } from './http.js';
-export type { CnjInput, CreateMovementInput, CreateProcessInput, MovementRepository, ProcessRepository, ProcessSummary } from './process.js';
+export type {
+  CnjInput,
+  CreateMovementInput,
+  CreateProcessInput,
+  MovementRepository,
+  ProcessDetails,
+  ProcessDetailsRecord,
+  ProcessRepository,
+  ProcessSummary,
+} from './process.js';
 export type { SeedMovement, SeedProcess } from './seed.js';

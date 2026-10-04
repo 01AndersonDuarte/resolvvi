@@ -1,5 +1,8 @@
-import { cnjFormatInvalid, cnjRequired } from '../errors/process-errors.js';
+import { cnjFormatInvalid, cnjRequired, processIdInvalid } from '../errors/process-errors.js';
 import type { CnjInput } from '../types/process.js';
+
+const PROCESS_ID_PATTERN = /^[1-9][0-9]*$/;
+const MAX_PROCESS_ID = 2_147_483_647;
 
 export function parseCnjInput(input: unknown): CnjInput {
   if (!isObject(input) || Object.keys(input).length !== 1 || typeof input.cnj !== 'string') {
@@ -8,6 +11,15 @@ export function parseCnjInput(input: unknown): CnjInput {
   if (input.cnj.trim().length === 0) throw cnjRequired();
 
   return { cnj: input.cnj };
+}
+
+export function parseProcessId(input: unknown): number {
+  if (typeof input !== 'string' || !PROCESS_ID_PATTERN.test(input)) throw processIdInvalid();
+
+  const id = Number(input);
+  if (!Number.isSafeInteger(id) || id > MAX_PROCESS_ID) throw processIdInvalid();
+
+  return id;
 }
 
 function isObject(value: unknown): value is Record<string, unknown> {

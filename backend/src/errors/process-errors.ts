@@ -26,6 +26,14 @@ export function processNotFound(): ApplicationError {
   });
 }
 
+export function processIdInvalid(): ApplicationError {
+  return new ApplicationError({
+    code: 'INVALID_INPUT',
+    message: 'O endereço do processo é inválido.',
+    status: 400,
+  });
+}
+
 export function processServiceUnavailable(): ApplicationError {
   return new ApplicationError({
     code: 'SERVICE_UNAVAILABLE',
