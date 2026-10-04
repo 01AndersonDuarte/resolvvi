@@ -1,8 +1,18 @@
 import { ApplicationError } from '../errors/application-error.js';
 import { logger } from '../config/logger.js';
-import { processNotFound, processServiceUnavailable } from '../errors/process-errors.js';
-import type { ProcessDetails, ProcessDetailsRecord, ProcessRepository, ProcessSummary } from '../types/process.js';
+import { movementPageInvalid, processNotFound, processServiceUnavailable } from '../errors/process-errors.js';
+import type {
+  MovementPage,
+  MovementPageRequest,
+  ProcessDetails,
+  ProcessDetailsRecord,
+  ProcessRepository,
+  ProcessSummary,
+  MovementRepository,
+  MovementItem,
+} from '../types/process.js';
 import { normalizeCnjInput } from './cnj-input-service.js';
+import { parseMovementPageRequest } from '../schemas/process-schema.js';
 
 const DECIMAL_GROUP_PATTERN = /\B(?=(\d{3})+(?!\d))/g;
 const MASKED_CNJ_PATTERN = /^[0-9]{7}-[0-9]{2}\.[0-9]{4}\.[0-9]\.[0-9]{2}\.[0-9]{4}$/;
@@ -10,13 +20,79 @@ const MASKED_CNJ_PATTERN = /^[0-9]{7}-[0-9]{2}\.[0-9]{4}\.[0-9]\.[0-9]{2}\.[0-9]
 export type ProcessService = {
   search: (cnj: string) => Promise<ProcessSummary>;
   getById: (id: number) => Promise<ProcessDetails>;
+  listMovements: (input: MovementPageRequest) => Promise<MovementPage>;
 };
 
-export function createProcessService(repository: ProcessRepository): ProcessService {
+const MOVEMENT_PAGE_SIZE = 20 as const;
+
+export function createProcessService(
+  repository: ProcessRepository,
+  movementRepository: MovementRepository,
+): ProcessService {
   return {
     search: (cnj) => searchProcess(cnj, repository),
     getById: (id) => getProcessDetails(id, repository),
+    listMovements: (input) => getProcessMovements(input, repository, movementRepository),
   };
+}
+
+async function getProcessMovements(
+  input: MovementPageRequest,
+  processRepository: ProcessRepository,
+  movementRepository: MovementRepository,
+): Promise<MovementPage> {
+  const { id, page } = parseMovementPageRequest(input);
+  try {
+    const process = await processRepository.findById(id);
+    if (!process) throw processNotFound();
+
+    const total = await movementRepository.countByProcess(id);
+    const totalPages = Math.ceil(total / MOVEMENT_PAGE_SIZE);
+    if (page > Math.max(totalPages, 1)) throw movementPageInvalid();
+    const records = await movementRepository.listPageByProcess({ processId: id, page });
+
+    return {
+      processId: id,
+      items: records.map(serializeMovement),
+      page,
+      pageSize: MOVEMENT_PAGE_SIZE,
+      total,
+      totalPages,
+    };
+  } catch (error: unknown) {
+    if (error instanceof ApplicationError) throw error;
+    logMovementFailure(error);
+    throw processServiceUnavailable();
+  }
+}
+
+function serializeMovement(record: Awaited<ReturnType<MovementRepository['listPageByProcess']>>[number]): MovementItem {
+  return {
+    id: record.id,
+    movementDate: formatCivilDate(record.movementDate),
+    movementTitle: normalizeMovementText(record.movementTitle),
+    movementContent: normalizeMovementText(record.movementContent),
+  };
+}
+
+function formatCivilDate(date: Date | null): string | null {
+  if (!(date instanceof Date) || Number.isNaN(date.getTime())) return null;
+
+  const day = String(date.getUTCDate()).padStart(2, '0');
+  const month = String(date.getUTCMonth() + 1).padStart(2, '0');
+  return `${day}/${month}/${date.getUTCFullYear()}`;
+}
+
+function normalizeMovementText(value: string | null | undefined): string | null {
+  return value === null || value === undefined || value.trim().length === 0 ? null : value;
+}
+
+function logMovementFailure(error: unknown): void {
+  const errorType = error instanceof Error ? error.name : typeof error;
+  logger.error('Falha ao consultar movimentações processuais', undefined, {
+    operation: 'process-movements',
+    errorType,
+  });
 }
 
 async function searchProcess(cnj: string, repository: ProcessRepository): Promise<ProcessSummary> {

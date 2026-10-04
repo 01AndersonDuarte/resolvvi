@@ -11,6 +11,7 @@ import { createAuthRouter } from './routers/auth-router.js';
 import { createProcessRouter } from './routers/process-router.js';
 import { createAuthService } from './services/auth-service.js';
 import { createProcessRepository } from './repositories/process-repository.js';
+import { createMovementRepository } from './repositories/movement-repository.js';
 
 function registerProcessHandlers(server: Server): void {
   const shutdown = createShutdown({
@@ -44,6 +45,7 @@ function buildHttpServer(configuration: HttpEnvironment): Server {
     processRouter: createProcessRouter({
       authService,
       processRepository: createProcessRepository(prisma),
+      movementRepository: createMovementRepository(prisma),
       cookie,
     }),
     publicAppUrl: configuration.publicAppUrl,

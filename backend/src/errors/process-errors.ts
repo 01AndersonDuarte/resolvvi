@@ -34,6 +34,14 @@ export function processIdInvalid(): ApplicationError {
   });
 }
 
+export function movementPageInvalid(): ApplicationError {
+  return new ApplicationError({
+    code: 'INVALID_INPUT',
+    message: 'A página de movimentações solicitada é inválida.',
+    status: 400,
+  });
+}
+
 export function processServiceUnavailable(): ApplicationError {
   return new ApplicationError({
     code: 'SERVICE_UNAVAILABLE',

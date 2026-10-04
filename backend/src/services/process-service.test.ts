@@ -1,17 +1,22 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-import { Prisma, type Process } from '../generated/prisma/client.js';
+import { Prisma, type Movement, type Process } from '../generated/prisma/client.js';
 import { logger } from '../config/logger.js';
-import type { ProcessRepository } from '../types/process.js';
+import type { MovementRepository, ProcessRepository } from '../types/process.js';
 import { createProcessService } from './process-service.js';
 
 const record = { id: 1, cnj: '1002271-82.2025.8.26.0003' } as Process;
 const findSummaryByCnj = vi.fn<ProcessRepository['findSummaryByCnj']>();
 const findById = vi.fn<ProcessRepository['findById']>();
+const countByProcess = vi.fn<MovementRepository['countByProcess']>();
+const listPageByProcess = vi.fn<MovementRepository['listPageByProcess']>();
 const repository: ProcessRepository = {
   create: vi.fn<ProcessRepository['create']>(), findByCnj: vi.fn(), findSummaryByCnj, findById,
 };
-const service = createProcessService(repository);
+const movementRepository: MovementRepository = {
+  create: vi.fn(), listByProcess: vi.fn(), countByProcess, listPageByProcess,
+};
+const service = createProcessService(repository, movementRepository);
 
 describe('busca de processos', () => {
   beforeEach(() => {
@@ -67,7 +72,7 @@ async function loadDetailsFailure(): Promise<void> {
   const failingService = createProcessService({
     ...repository,
     findById: async () => Promise.reject(new Error('database secret detail')),
-  });
+  }, movementRepository);
 
   const failure = await failingService.getById(1).catch((error: unknown) => error);
 
@@ -76,6 +81,115 @@ async function loadDetailsFailure(): Promise<void> {
     operation: 'process-details', errorType: 'Error',
   });
   expect(JSON.stringify(loggerSpy.mock.calls)).not.toContain('database secret detail');
+}
+
+describe('metadados da página de movimentações', movementMetadataCases);
+describe('serialização das movimentações', movementSerializationCases);
+describe('falhas na consulta de movimentações', movementFailureCases);
+
+function movementMetadataCases(): void {
+  beforeEach(resetMovementMocks);
+  it.each([0, 1, 20, 21, 120, 1000])('calcula limites para total %i', verifyMovementMetadata);
+}
+
+function movementSerializationCases(): void {
+  beforeEach(resetMovementMocks);
+  it('preserva dia civil e texto significativo, normalizando texto branco', verifyMovementSerialization);
+  it('normaliza data inválida em fixture defensiva', verifyInvalidMovementDate);
+  it('normaliza campos defensivos ausentes', verifyMissingMovementFields);
+}
+
+function movementFailureCases(): void {
+  beforeEach(resetMovementMocks);
+  it('distingue processo inexistente e falha segura de persistência', movementsFailureContracts);
+}
+
+function resetMovementMocks(): void {
+  findById.mockReset();
+  countByProcess.mockReset();
+  listPageByProcess.mockReset();
+}
+
+async function verifyMovementMetadata(total: number): Promise<void> {
+  findById.mockResolvedValue(processDetailsRecord());
+  countByProcess.mockResolvedValue(total);
+  listPageByProcess.mockResolvedValue([]);
+  const totalPages = Math.ceil(total / 20);
+  const page = totalPages || 1;
+  await expect(service.listMovements({ id: '1', query: { page: String(page) } })).resolves.toMatchObject({
+    processId: 1, items: [], page, pageSize: 20, total, totalPages,
+  });
+  await expect(service.listMovements({ id: '1', query: { page: String(page + 1) } })).rejects
+    .toMatchObject({ code: 'INVALID_INPUT', status: 400 });
+}
+
+async function verifyMovementSerialization(): Promise<void> {
+  findById.mockResolvedValue(processDetailsRecord());
+  countByProcess.mockResolvedValue(1);
+  listPageByProcess.mockResolvedValue([{
+    id: 8, processId: 1, movementDate: new Date('2025-01-02T00:00:00.000Z'),
+    movementTitle: '  Título\n preservado  ', movementContent: '   ', sourceOrder: 1,
+  }]);
+  const previousTimeZone = process.env.TZ;
+  try {
+    for (const timeZone of ['UTC', 'Pacific/Honolulu', 'Pacific/Kiritimati']) {
+      process.env.TZ = timeZone;
+      await expect(service.listMovements({ id: '1', query: {} })).resolves.toMatchObject({
+        items: [{ id: 8, movementDate: '02/01/2025' }],
+      });
+    }
+  } finally {
+    if (previousTimeZone === undefined) delete process.env.TZ;
+    else process.env.TZ = previousTimeZone;
+  }
+  await expect(service.listMovements({ id: '1', query: {} })).resolves.toMatchObject({
+    items: [{ movementTitle: '  Título\n preservado  ', movementContent: null }],
+  });
+}
+
+async function verifyInvalidMovementDate(): Promise<void> {
+  findById.mockResolvedValue(processDetailsRecord());
+  countByProcess.mockResolvedValue(1);
+  listPageByProcess.mockResolvedValue([{
+    id: 9, processId: 1, movementDate: new Date(Number.NaN),
+    movementTitle: 'Título', movementContent: null, sourceOrder: 1,
+  }]);
+  await expect(service.listMovements({ id: '1', query: {} })).resolves.toMatchObject({
+    items: [{ movementDate: null }],
+  });
+}
+
+async function verifyMissingMovementFields(): Promise<void> {
+  findById.mockResolvedValue(processDetailsRecord());
+  countByProcess.mockResolvedValue(1);
+  listPageByProcess.mockResolvedValue([{
+    id: 10, processId: 1, movementDate: undefined,
+    movementTitle: undefined, movementContent: null, sourceOrder: 1,
+  } as unknown as Movement]);
+  await expect(service.listMovements({ id: '1', query: {} })).resolves.toMatchObject({
+    items: [{ movementDate: null, movementTitle: null, movementContent: null }],
+  });
+}
+
+async function movementsFailureContracts(): Promise<void> {
+  findById.mockResolvedValue(null);
+  await expect(service.listMovements({ id: '1', query: {} })).rejects
+    .toMatchObject({ code: 'PROCESS_NOT_FOUND', status: 404 });
+  expect(countByProcess).not.toHaveBeenCalled();
+
+  findById.mockResolvedValue(processDetailsRecord());
+  countByProcess.mockRejectedValue(new Error('database secret detail'));
+  const loggerSpy = vi.spyOn(logger, 'error').mockReturnValue(undefined);
+  await expect(service.listMovements({ id: '1', query: {} })).rejects
+    .toMatchObject({ code: 'SERVICE_UNAVAILABLE', status: 503 });
+  expect(JSON.stringify(loggerSpy.mock.calls)).not.toContain('database secret detail');
+}
+
+function processDetailsRecord(): NonNullable<Awaited<ReturnType<ProcessRepository['findById']>>> {
+  return {
+    id: 1, cnj: record.cnj, forum: 'Foro', court: 'Vara',
+    lawsuitValue: new Prisma.Decimal('1'), numberOfAuthors: 1,
+  };
 }
 
 async function serializeProcessDetails(): Promise<void> {

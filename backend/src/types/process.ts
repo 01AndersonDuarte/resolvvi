@@ -12,6 +12,23 @@ export type ProcessRepository = {
   findById: (id: number) => Promise<ProcessDetailsRecord | null>;
 };
 
+export type MovementPageQuery = { processId: number; page: number };
+export type MovementPageRequest = { id: string; query: unknown };
+export type MovementItem = {
+  id: number;
+  movementDate: string | null;
+  movementTitle: string | null;
+  movementContent: string | null;
+};
+export type MovementPage = {
+  processId: number;
+  items: MovementItem[];
+  page: number;
+  pageSize: 20;
+  total: number;
+  totalPages: number;
+};
+
 export type ProcessSummary = Pick<Process, 'id' | 'cnj'>;
 export type ProcessDetailsRecord = Pick<Process, 'id' | 'cnj'> & {
   forum: string | null;
@@ -37,4 +54,6 @@ export type CreateMovementInput = Pick<
 export type MovementRepository = {
   create: (input: CreateMovementInput) => Promise<Movement>;
   listByProcess: (processId: number) => Promise<Movement[]>;
+  countByProcess: (processId: number) => Promise<number>;
+  listPageByProcess: (input: MovementPageQuery) => Promise<Movement[]>;
 };

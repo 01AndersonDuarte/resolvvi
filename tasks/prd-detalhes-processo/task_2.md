@@ -6,7 +6,7 @@ Disponibilizar o GET de movimentações com páginas fixas de 20 itens, conteúd
 
 **Dependências:** [1.0](./task_1.md)
 
-**Status:** pendente de implementação.
+**Status:** concluída e validada.
 
 <skills>
 ### Conformidade com skills
@@ -33,12 +33,12 @@ Requisitos relacionados: RF1, RF2, RF6, RF7, RF9, RF10, RF11, RF12, RF13, RF14, 
 
 ## Subtarefas
 
-- [ ] 2.1 Acrescentar contratos de movimentações, validação da query e contagem/leitura paginada no repository existente.
-- [ ] 2.2 Implementar existência, limites de página, metadados e serialização no service, preservando texto significativo e dia civil.
-- [ ] 2.3 Registrar o endpoint autenticado e compor movementRepository em router, tipos HTTP e servidor; revalidar sessão antes de responder.
-- [ ] 2.4 Cobrir os casos unitários e integrações TI-02 a TI-06, incluindo ambos os endpoints nos testes de sessão, falhas e integridade.
-- [ ] 2.5 Percorrer as 50 páginas do dataset isolado de 1.000 eventos, com empates nas fronteiras; registrar ambiente, tamanho das respostas e tempos observados.
-- [ ] 2.6 Executar as validações da tarefa e registrar evidências; atualizar os checklists e criar o commit local do incremento.
+- [x] 2.1 Acrescentar contratos de movimentações, validação da query e contagem/leitura paginada no repository existente.
+- [x] 2.2 Implementar existência, limites de página, metadados e serialização no service, preservando texto significativo e dia civil.
+- [x] 2.3 Registrar o endpoint autenticado e compor movementRepository em router, tipos HTTP e servidor; revalidar sessão antes de responder.
+- [x] 2.4 Cobrir os casos unitários e integrações TI-02 a TI-06, incluindo ambos os endpoints nos testes de sessão, falhas e integridade.
+- [x] 2.5 Percorrer as 50 páginas do dataset isolado de 1.000 eventos, com empates nas fronteiras; registrar ambiente, tamanho das respostas e tempos observados.
+- [x] 2.6 Executar as validações da tarefa e registrar evidências; atualizar os checklists e criar o commit local do incremento.
 
 ## Detalhes de implementação
 
@@ -77,25 +77,33 @@ IDs, nomes e resultados esperados preservados da TechSpec. Casos compartilhados 
 
 ### Testes de unidade
 
-- [ ] TU-02 — Query aceita somente página inteira permitida. Default 1; rejeita vazios, arrays, parâmetros extras, limites e formatos inválidos.
-- [ ] TU-04 — Dia civil independe de fuso. Mesmo `DD/MM/AAAA` nos fusos controlados; ausência/Date inválido normalizados em fixture.
-- [ ] TU-05 — Texto ausente difere de texto significativo. Branco vira null; texto não vazio conserva espaços e quebras de linha.
-- [ ] TU-06 — Consulta paginada usa ordenação e vínculo corretos. Repository recebe filtro do processo, ordem global e deslocamento corretos; contrato asc antigo preservado.
-- [ ] TU-07 — Contagem determina páginas e limites. Totais 0/1/20/21/120/1000 geram metadados corretos e recusa de página excedente.
-- [ ] TU-18 — Controller revalida antes de responder. Revogação durante leitura ou resposta já encerrada impede entrega tardia.
-- [ ] TU-19 — Falhas de persistência recebem envelope público. Erros conhecidos preservados, indisponibilidade classificada e nenhum detalhe sensível exposto.
+- [x] TU-02 — Query aceita somente página inteira permitida. Default 1; rejeita vazios, arrays, parâmetros extras, limites e formatos inválidos.
+- [x] TU-04 — Dia civil independe de fuso. Mesmo `DD/MM/AAAA` nos fusos controlados; ausência/Date inválido normalizados em fixture.
+- [x] TU-05 — Texto ausente difere de texto significativo. Branco vira null; texto não vazio conserva espaços e quebras de linha.
+- [x] TU-06 — Consulta paginada usa ordenação e vínculo corretos. Repository recebe filtro do processo, ordem global e deslocamento corretos; contrato asc antigo preservado.
+- [x] TU-07 — Contagem determina páginas e limites. Totais 0/1/20/21/120/1000 geram metadados corretos e recusa de página excedente.
+- [x] TU-18 — Controller revalida antes de responder. Revogação durante leitura ou resposta já encerrada impede entrega tardia.
+- [x] TU-19 — Falhas de persistência recebem envelope público. Erros conhecidos preservados, indisponibilidade classificada e nenhum detalhe sensível exposto.
 
 ### Testes de integração
 
-- [ ] TI-02 — Histórico preserva vínculo e ordem entre páginas. Dataset de 1.000 eventos, 50 páginas e empates nas fronteiras sem perdas ou duplicações.
-- [ ] TI-03 — Processo vazio difere de ausente e página inválida. 200 vazio, 404 ausente e 400 página inválida; sem consulta ilimitada.
-- [ ] TI-04 — Duas leituras preservam proteção de sessão. Ausente, expirada e revogada bloqueiam; revogação durante consulta impede resposta.
-- [ ] TI-05 — Falhas e timeout preservam o contrato HTTP. 503/500/504 seguros, sem resposta dupla, dados ou stack no erro.
-- [ ] TI-06 — Leitura não modifica registros processuais. Snapshot dos registros antes/depois de detalhes e paginação idêntico.
+- [x] TI-02 — Histórico preserva vínculo e ordem entre páginas. Dataset de 1.000 eventos, 50 páginas e empates nas fronteiras sem perdas ou duplicações.
+- [x] TI-03 — Processo vazio difere de ausente e página inválida. 200 vazio, 404 ausente e 400 página inválida; sem consulta ilimitada.
+- [x] TI-04 — Duas leituras preservam proteção de sessão. Ausente, expirada e revogada bloqueiam; revogação durante consulta impede resposta.
+- [x] TI-05 — Falhas e timeout preservam o contrato HTTP. 503/500/504 seguros, sem resposta dupla, dados ou stack no erro.
+- [x] TI-06 — Leitura não modifica registros processuais. Snapshot dos registros antes/depois de detalhes e paginação idêntico.
 
 ### Validações de conclusão
 
 Executar `npm run lint`, `npm run typecheck`, `npm test`, `npm run test:coverage` e `npm run build` no aplicativo afetado. Os scripts atuais existem em ambos os aplicativos; prevalecem sobre as observações antigas de ausência de lint/testes. Não reduzir os limites de cobertura nem excluir código novo para atingir o percentual.
+
+### Evidências da execução
+
+- Aplicativo: backend; Node.js `v24.11.0`; PostgreSQL de teste isolado (`dev_test_resolvvi_test`).
+- `npm run lint`, `npm run typecheck` e `npm run build`: aprovados.
+- `npm test`: 32 arquivos e 167 testes aprovados.
+- `npm run test:coverage`: 87,98% statements, 85,50% branches, 86,86% funções e 90,16% linhas.
+- TI-02: 1.000 eventos em 50 páginas; 1.000 IDs únicos e ordenados, sem mistura; payloads totalizaram 127.877 bytes e a execução observou 861,87 ms. Medição observacional, sem constituir SLA.
 
 ## Arquivos relevantes
 

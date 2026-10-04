@@ -2,7 +2,7 @@ import type { RequestHandler } from 'express';
 import type { Router } from 'express';
 
 import type { AuthService } from './auth.js';
-import type { ProcessRepository } from './process.js';
+import type { MovementRepository, ProcessRepository } from './process.js';
 
 export type AuthController = {
   register: RequestHandler;
@@ -24,5 +24,6 @@ export type AuthRouterDependencies = { service: AuthService };
 export type ProcessRouterDependencies = {
   authService: AuthService;
   processRepository: ProcessRepository;
+  movementRepository: MovementRepository;
   cookie: SessionCookieConfiguration;
 };

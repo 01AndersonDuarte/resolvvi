@@ -5,6 +5,7 @@ import dotenv from 'dotenv';
 import type { PrismaClient } from '../generated/prisma/client.js';
 import { createApp } from '../app.js';
 import { createProcessRepository } from '../repositories/process-repository.js';
+import { createMovementRepository } from '../repositories/movement-repository.js';
 import type { AuthService, SessionContext } from '../types/auth.js';
 import type { ProcessRepository } from '../types/process.js';
 import { createProcessRouter } from './process-router.js';
@@ -42,10 +43,16 @@ async function verifyReadOnlyQueries(): Promise<void> {
   const client = database;
   if (!client) throw new Error('Banco de teste não conectado.');
   const before = await snapshotProcessData();
-  const app = createProcessApp(createProcessRepository(client));
+  const app = createProcessApp(createProcessRepository(client), createMovementRepository(client));
 
   await verifyProcessSearchContracts(app, client);
   await verifyProcessDetailsContracts(app, client);
+  const movements = await request(app).get(`/api/processes/${processId}/movements`);
+  expect(movements.status).toBe(200);
+  expect(movements.body).toMatchObject({
+    processId, page: 1, pageSize: 20, total: 1, totalPages: 1,
+    items: [{ movementDate: '02/01/2025', movementTitle: 'Movimentação de fixture' }],
+  });
   expect(await snapshotProcessData()).toBe(before);
 }
 
@@ -89,9 +96,15 @@ async function verifyProcessDetailsContracts(app: ReturnType<typeof createApp>, 
   expect(failed.status).toBe(503);
 }
 
-function createProcessApp(processRepository: ProcessRepository): ReturnType<typeof createApp> {
+function createProcessApp(
+  processRepository: ProcessRepository,
+  movementRepository: ReturnType<typeof createMovementRepository>,
+): ReturnType<typeof createApp> {
   const processRouter = createProcessRouter({
-    authService, processRepository, cookie: { name: 'session', secure: false },
+    authService,
+    processRepository,
+    movementRepository,
+    cookie: { name: 'session', secure: false },
   });
 
   return createApp({ processRouter, publicAppUrl: PUBLIC_APP_URL });
@@ -104,7 +117,7 @@ function createFailureApp(client: PrismaClient): ReturnType<typeof createApp> {
     findSummaryByCnj: () => Promise.reject(new Error('database unavailable')),
     findById: () => Promise.reject(new Error('database unavailable')),
   };
-  return createProcessApp(failingRepository);
+  return createProcessApp(failingRepository, createMovementRepository(client));
 }
 
 async function createFixture(): Promise<void> {
@@ -138,6 +151,7 @@ async function removeFixture(): Promise<void> {
 async function snapshotProcessData(): Promise<string> {
   if (!database) throw new Error('Banco de teste não conectado.');
   const rows = await database.process.findMany({
+    where: { cnj: PROCESS_CNJ },
     include: { movements: { orderBy: [{ movementDate: 'asc' }, { sourceOrder: 'asc' }] } },
     orderBy: { id: 'asc' },
   });

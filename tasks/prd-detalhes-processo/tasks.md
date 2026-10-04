@@ -3,7 +3,7 @@
 ## Tarefas
 
 - [x] 1.0 [API de detalhes do processo](./task_1.md)
-- [ ] 2.0 [API de movimentações paginadas](./task_2.md)
+- [x] 2.0 [API de movimentações paginadas](./task_2.md)
 - [ ] 3.0 [Auditoria da base importada pelos novos contratos](./task_3.md)
 - [ ] 4.0 [Cliente HTTP e hooks de detalhes e histórico](./task_4.md)
 - [ ] 5.0 [Página de informações gerais e estados de detalhes](./task_5.md)
@@ -14,7 +14,7 @@
 
 Estrutura aprovada pelo usuário. Fonte: [PRD](./prd.md) e [TechSpec](./techspec.md). A tarefa 1.0 foi implementada e validada; as demais continuam pendentes.
 
-A fundação de dados, a autenticação e a busca CNJ existentes são pré-requisitos. A ordem abaixo coloca as dependências antes de seus consumidores.
+A fundação de dados, a autenticação e a busca CNJ existentes são pré-requisitos. As tarefas 1.0 e 2.0 foram implementadas e validadas; as tarefas 3.0 a 7.0 continuam pendentes. A ordem abaixo coloca as dependências antes de seus consumidores.
 
 | Tarefa | Dependências diretas | Skills aplicáveis |
 | --- | --- | --- |
