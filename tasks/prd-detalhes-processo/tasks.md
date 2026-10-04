@@ -129,4 +129,4 @@ Inventário completo: 19 casos unitários, oito de integração e cinco E2E. As 
 - Acessibilidade segue o limite do PRD: semântica, teclado, responsividade e zoom nativo de 200%, distinguindo-o de CSS zoom automatizado.
 - Marcar checklists somente após a conclusão e validação do incremento; seguir os commits locais previstos nas rules.
 
-A implementação está em andamento. A próxima tarefa pendente é a 7.0.
+A tarefa 7.0 tem os cinco E2E e os gates automatizados aprovados. Ela permanece pendente até a verificação visual manual de zoom nativo do navegador em 200%; a emulação de CSS zoom foi registrada separadamente em [task_7.md](./task_7.md).
