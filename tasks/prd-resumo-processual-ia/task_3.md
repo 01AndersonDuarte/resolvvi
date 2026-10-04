@@ -94,7 +94,7 @@ Completar os cenários de repository iniciados na tarefa 2. TI-02 deve provar 20
 
 ### Testes de unidade
 
-- [ ] TU-09 — Relógio cancela provedor e proíbe publicação tardia
+- [x] TU-09 — Relógio cancela provedor e proíbe publicação tardia
 - [ ] TU-10 — Retry-After e cooldown são normalizados
 - [ ] TU-11 — Troca operacional preserva validade e troca de regras invalida
 - [ ] TU-16 — Evento operacional usa apenas campos permitidos
