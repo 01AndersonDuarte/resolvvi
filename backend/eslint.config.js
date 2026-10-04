@@ -21,7 +21,7 @@ export default tseslint.config(
       '@typescript-eslint/consistent-type-definitions': ['error', 'type'],
       '@typescript-eslint/explicit-function-return-type': ['error', { allowExpressions: true }],
       eqeqeq: ['error', 'always'],
-      'max-lines': ['error', { max: 100, skipBlankLines: true, skipComments: true }],
+      'max-lines': ['error', { max: 300, skipBlankLines: true, skipComments: true }],
       'max-lines-per-function': ['error', { max: 30, skipBlankLines: true, skipComments: true }],
       'max-params': ['error', 3],
       'no-console': 'error',

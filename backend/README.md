@@ -28,6 +28,8 @@ NODE_ENV=test npx prisma migrate deploy
 
 Configure `PORT` e `PUBLIC_APP_URL` no `.env.development`. O servidor valida essas opções antes de abrir a porta; `PUBLIC_APP_URL` deve ser uma origem sem caminho, credenciais, query ou fragmento. O seed e as migrations usam apenas a configuração de banco e não exigem credenciais do Resend.
 
+Para cadastro e reenvio de confirmação, configure também `RESEND_API_KEY` e `RESEND_FROM`. Mantenha a chave somente no arquivo de ambiente local e use um remetente de domínio verificado no Resend. As suítes automatizadas injetam um remetente simulado e não enviam e-mails reais.
+
 ```bash
 npm run dev
 ```

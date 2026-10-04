@@ -35,12 +35,12 @@ Preservar Prisma 7, singleton existente e direção das dependências. Middlewar
 
 ## Subtarefas
 
-- [ ] 3.1 Expor POST /api/auth/register e POST /api/auth/resend-verification com schemas, controllers e serviços.
-- [ ] 3.2 Integrar criação/releitura de conta única e respostas neutras para repetição e destinatários sem confirmação pendente.
-- [ ] 3.3 Implementar reserva transacional, limites móveis, substituição dos links e Retry-After sob concorrência.
-- [ ] 3.4 Criar conteúdo de confirmação em HTML/texto e adaptador Resend com prazo e chave de idempotência por emissão.
-- [ ] 3.5 Tratar rejeição, timeout e queda após reserva sem desfazer a conta; preparar o provedor simulado para automação.
-- [ ] 3.6 Implementar testes completos dos fluxos e concorrência, incluindo as facetas iniciadas na tarefa 2; executar as verificações do backend.
+- [x] 3.1 Expor POST /api/auth/register e POST /api/auth/resend-verification com schemas, controllers e serviços.
+- [x] 3.2 Integrar criação/releitura de conta única e respostas neutras para repetição e destinatários sem confirmação pendente.
+- [x] 3.3 Implementar reserva transacional, limites móveis, substituição dos links e Retry-After sob concorrência.
+- [x] 3.4 Criar conteúdo de confirmação em HTML/texto e adaptador Resend com prazo e chave de idempotência por emissão.
+- [x] 3.5 Tratar rejeição, timeout e queda após reserva sem desfazer a conta; preparar o provedor simulado para automação.
+- [x] 3.6 Implementar testes completos dos fluxos e concorrência, incluindo as facetas iniciadas na tarefa 2; executar as verificações do backend.
 
 ## Detalhes de implementação
 
@@ -72,31 +72,36 @@ IDs e nomes abaixo vêm da [abordagem de testes da TechSpec](./techspec.md#abord
 
 ### Testes de unidade (se aplicável)
 
-- [ ] TU-07 — Limites móveis de emissão. Escopo nesta tarefa: Limites e cálculo de espera.
-- [ ] TU-09 — Conteúdo de confirmação. Escopo nesta tarefa: Conteúdo seguro e origem correta.
-- [ ] TU-10 — Classificação do resultado Resend. Escopo nesta tarefa: Aceite, rejeição e resultado desconhecido.
+- [x] TU-07 — Limites móveis de emissão. Escopo nesta tarefa: Limites e cálculo de espera.
+- [x] TU-09 — Conteúdo de confirmação. Escopo nesta tarefa: Conteúdo seguro e origem correta.
+- [x] TU-10 — Classificação do resultado Resend. Escopo nesta tarefa: Aceite, rejeição e resultado desconhecido.
 
 ### Testes de integração (se aplicável)
 
-- [ ] TI-01 — Cadastro persistido e envio inicial. Escopo nesta tarefa: Cadastro e emissão inicial completos.
-- [ ] TI-02 — Cadastro inválido por HTTP. Escopo nesta tarefa: Validação HTTP sem efeitos indevidos.
-- [ ] TI-03 — Cadastros simultâneos equivalentes. Escopo nesta tarefa: Completar o cenário de cadastros simultâneos com emissão única e senha original.
-- [ ] TI-06 — Reenvio concorrente e janela móvel. Escopo nesta tarefa: Limites persistentes, concorrência e fronteiras da janela.
-- [ ] TI-08 — Rejeição, timeout e queda após reserva. Escopo nesta tarefa: Conta e reserva preservadas após falhas e queda.
-- [ ] TI-09 — Reenvio inexistente/confirmado. Escopo nesta tarefa: Neutralidade e ausência de criação/envio quando inaplicável.
-- [ ] TI-16 — Falhas de dependências e prazos HTTP. Escopo nesta tarefa: Faceta de cadastro/reenvio, prazos e falhas de persistência/provedor.
+- [x] TI-01 — Cadastro persistido e envio inicial. Escopo nesta tarefa: Cadastro e emissão inicial completos.
+- [x] TI-02 — Cadastro inválido por HTTP. Escopo nesta tarefa: Validação HTTP sem efeitos indevidos.
+- [x] TI-03 — Cadastros simultâneos equivalentes. Escopo nesta tarefa: Completar o cenário de cadastros simultâneos com emissão única e senha original.
+- [x] TI-06 — Reenvio concorrente e janela móvel. Escopo nesta tarefa: Limites persistentes, concorrência e fronteiras da janela.
+- [x] TI-08 — Rejeição, timeout e queda após reserva. Escopo nesta tarefa: Conta e reserva preservadas após falhas e queda.
+- [x] TI-09 — Reenvio inexistente/confirmado. Escopo nesta tarefa: Neutralidade e ausência de criação/envio quando inaplicável.
+- [x] TI-16 — Falhas de dependências e prazos HTTP. Escopo nesta tarefa: Faceta de cadastro/reenvio, prazos e falhas de persistência/provedor.
 
 ### Testes E2E (se aplicável)
 
 Não aplicável como entrega desta tarefa; as jornadas completas estão atribuídas à [tarefa 10](./task_10.md).
 
+## Evidências de conclusão
+
+- `npm run lint`, `npm run typecheck` e `npm run build` aprovados no backend.
+- `npm test` e `npm run test:coverage` aprovados: 32 arquivos e 108 testes; cobertura de 92,2% statements, 86,28% branches, 92,5% functions e 94,88% lines.
+- Testes de integração executados no banco isolado `dev_test_resolvvi_test_template`; cadastro aceito, concorrência, limites móveis, rejeição e timeout verificados com provedor simulado.
+- Nenhum servidor ou serviço foi iniciado durante esta tarefa. O aceite real do Resend permanece na tarefa 10.
+
 ## Arquivos relevantes
 
 - `backend/src/routers/auth-router.ts`
-- `backend/src/controllers/registration-controller.ts`
-- `backend/src/controllers/verification-controller.ts`
-- `backend/src/services/registration-service.ts`
-- `backend/src/services/verification-service.ts`
+- `backend/src/controllers/auth-controller.ts`
+- `backend/src/services/auth-service.ts`
 - `backend/src/services/resend-service.ts`
 - `backend/src/services/verification-email.ts`
 - `backend/src/repositories/user-repository.ts`

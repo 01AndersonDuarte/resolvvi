@@ -6,11 +6,15 @@ import type { HttpEnvironment } from '../protocols.js';
 type RawHttpEnvironment = {
   PORT: number;
   PUBLIC_APP_URL: string;
+  RESEND_API_KEY?: string;
+  RESEND_FROM?: string;
 };
 
 const httpEnvironmentSchema = Joi.object<RawHttpEnvironment>({
   PORT: Joi.number().integer().min(1).max(65535).default(3000),
   PUBLIC_APP_URL: Joi.string().uri({ scheme: ['http', 'https'] }).required(),
+  RESEND_API_KEY: Joi.string().min(1).optional(),
+  RESEND_FROM: Joi.string().email({ tlds: { allow: false } }).optional(),
 }).unknown(true);
 
 export function parseHttpEnvironment(source: NodeJS.ProcessEnv): HttpEnvironment {
@@ -31,5 +35,11 @@ export function parseHttpEnvironment(source: NodeJS.ProcessEnv): HttpEnvironment
     throw configurationError(['PUBLIC_APP_URL']);
   }
 
-  return { port: validation.value.PORT, publicAppUrl: publicUrl.origin };
+  const result: HttpEnvironment = {
+    port: validation.value.PORT,
+    publicAppUrl: publicUrl.origin,
+  };
+  if (validation.value.RESEND_API_KEY) result.resendApiKey = validation.value.RESEND_API_KEY;
+  if (validation.value.RESEND_FROM) result.resendFrom = validation.value.RESEND_FROM;
+  return result;
 }

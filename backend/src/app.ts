@@ -1,5 +1,5 @@
 import cors from 'cors';
-import express, { type Express, type RequestHandler } from 'express';
+import express, { type Express, type RequestHandler, type Router } from 'express';
 
 import { errorMiddleware } from './middlewares/error-middleware.js';
 import { createOriginMiddleware } from './middlewares/origin-middleware.js';
@@ -11,6 +11,7 @@ const BODY_LIMIT = '8kb';
 export type AppDependencies = {
   publicAppUrl: string;
   healthHandler?: RequestHandler;
+  authRouter?: Router;
 };
 
 export function createApp(dependencies: AppDependencies): Express {
@@ -27,6 +28,7 @@ export function createApp(dependencies: AppDependencies): Express {
   });
   app.use(createOriginMiddleware(allowedOrigin));
   app.use(express.json({ limit: BODY_LIMIT, strict: true }));
+  if (dependencies.authRouter) app.use('/api', dependencies.authRouter);
   app.use(createHealthRouter(dependencies.healthHandler));
   app.use((_request, response) => response.status(404).json({ error: { code: 'NOT_FOUND' } }));
   app.use(errorMiddleware);

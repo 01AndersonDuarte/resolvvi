@@ -2,7 +2,7 @@ import Joi from 'joi';
 
 const MAX_EMAIL_LENGTH = 254;
 
-const emailSchema = Joi.string().max(MAX_EMAIL_LENGTH).email().required();
+const emailSchema = Joi.string().max(MAX_EMAIL_LENGTH).email({ tlds: { allow: false } }).required();
 
 export type EmailValidation =
   | { valid: true; normalizedEmail: string }

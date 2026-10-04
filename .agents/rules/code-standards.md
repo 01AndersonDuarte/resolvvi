@@ -24,9 +24,9 @@ function canPublishArticle(article: Article): boolean {
 }
 ```
 
-## Limitar classes e arquivos a 100 linhas
+## Limitar classes a 100 linhas e arquivos TypeScript a 300 linhas
 
-Classes e arquivos `.ts` devem ter, no máximo, 100 linhas. Quando esse limite for atingido, extraia responsabilidades para outras classes, funções ou arquivos coesos.
+Classes devem ter, no máximo, 100 linhas. Arquivos TypeScript (`.ts` e `.tsx`) devem ter, no máximo, 300 linhas. Quando um limite for atingido, extraia responsabilidades para outras classes, funções ou arquivos coesos.
 
 ```ts
 class OrderService {

@@ -1,6 +1,7 @@
 import type { ErrorRequestHandler } from 'express';
 
 import { logger } from '../config/logger.js';
+import { ApplicationError } from '../errors/application-error.js';
 
 const BAD_JSON = 'entity.parse.failed';
 const BODY_TOO_LARGE = 'entity.too.large';
@@ -20,6 +21,10 @@ function getParserError(error: HttpError): { code: string; message: string; stat
 
 export const errorMiddleware: ErrorRequestHandler = (error: HttpError, request, response, _next) => {
   void _next;
+  if (error instanceof ApplicationError) {
+    sendApplicationError(response, error);
+    return;
+  }
   const parserError = getParserError(error);
   if (parserError) {
     response.status(parserError.status).json({
@@ -44,3 +49,15 @@ export const errorMiddleware: ErrorRequestHandler = (error: HttpError, request, 
     });
   }
 };
+
+function sendApplicationError(response: Parameters<ErrorRequestHandler>[2], error: ApplicationError): void {
+  if (error.retryAfterSeconds !== null) response.setHeader('Retry-After', error.retryAfterSeconds);
+  response.status(error.status).json({
+    error: {
+      code: error.code,
+      field: error.field,
+      message: error.message,
+      retryAfterSeconds: error.retryAfterSeconds,
+    },
+  });
+}

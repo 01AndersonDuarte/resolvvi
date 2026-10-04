@@ -1,10 +1,17 @@
 import { createServer, type Server } from 'node:http';
 
 import { createApp } from './app.js';
+import { prisma } from './config/database.js';
 import { parseHttpEnvironment } from './config/http-environment-schema.js';
 import { logger } from './config/logger.js';
 import type { HttpEnvironment } from './protocols.js';
 import { createShutdown } from './shutdown.js';
+import { createUserRepository } from './repositories/user-repository.js';
+import { createVerificationRepository } from './repositories/verification-repository.js';
+import { createAuthRouter } from './routers/auth-router.js';
+import { createAuthService } from './services/auth-service.js';
+import { createResendService } from './services/resend-service.js';
+import { configurationError } from './errors/configuration-error.js';
 
 function registerProcessHandlers(server: Server): void {
   const shutdown = createShutdown({
@@ -28,7 +35,19 @@ function registerProcessHandlers(server: Server): void {
 }
 
 function buildHttpServer(configuration: HttpEnvironment): Server {
-  return createServer(createApp({ publicAppUrl: configuration.publicAppUrl }));
+  const authService = createAuthService({
+    publicAppUrl: configuration.publicAppUrl,
+    users: createUserRepository(prisma),
+    verifications: createVerificationRepository(prisma),
+    sender: createResendService({
+      apiKey: configuration.resendApiKey ?? '',
+      from: configuration.resendFrom ?? '',
+    }),
+  });
+  return createServer(createApp({
+    authRouter: createAuthRouter(authService),
+    publicAppUrl: configuration.publicAppUrl,
+  }));
 }
 
 export function createHttpServer(source: NodeJS.ProcessEnv): Server {
@@ -37,6 +56,12 @@ export function createHttpServer(source: NodeJS.ProcessEnv): Server {
 
 export function startServer(source: NodeJS.ProcessEnv = process.env): Server {
   const configuration = parseHttpEnvironment(source);
+  if (!configuration.resendApiKey || !configuration.resendFrom) {
+    throw configurationError([
+      ...(!configuration.resendApiKey ? ['RESEND_API_KEY'] : []),
+      ...(!configuration.resendFrom ? ['RESEND_FROM'] : []),
+    ]);
+  }
   const server = buildHttpServer(configuration);
   server.listen(configuration.port, () => {
     logger.info('Servidor HTTP iniciado', { port: configuration.port });
