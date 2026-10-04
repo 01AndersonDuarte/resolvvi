@@ -31,6 +31,11 @@ export type RegistrationInput = { email: string; password: string };
 export type EmailInput = { email: string };
 export type ConfirmationInput = { token: string };
 export type MessageResponse = { message: string };
+export type CredentialsInput = RegistrationInput;
+export type SessionResponse = { sessionId: string; expiresAt: string; serverTime: string };
+export type SessionContext = SessionResponse & { userId: string; emailVerifiedAt: Date };
+export type SessionGrant = SessionContext & { secret: string };
+export type LoginInput = CredentialsInput;
 
 export type EmissionReservation =
   | { status: 'reserved'; emission: VerificationEmission }
@@ -45,7 +50,9 @@ export type AuthRepository = {
   findUserById: (id: string) => Promise<AuthenticationUser | null>;
   markEmailVerified: (id: string, verifiedAt: Date) => Promise<AuthenticationUser>;
   createSession: (input: CreateSessionInput) => Promise<AuthenticationSession>;
+  replaceSession: (input: CreateSessionInput, previousTokenHash: string | null, revokedAt: Date) => Promise<AuthenticationSession>;
   findSessionByTokenHash: (tokenHash: string) => Promise<AuthenticationSession | null>;
+  findValidSessionByTokenHash: (tokenHash: string, now: Date) => Promise<(AuthenticationSession & { user: AuthenticationUser }) | null>;
   revokeSessionByTokenHash: (tokenHash: string, revokedAt: Date) => Promise<number>;
   createVerification: (input: CreateVerificationInput) => Promise<VerificationEmission>;
   findVerificationByTokenHash: (tokenHash: string) => Promise<VerificationEmission | null>;
@@ -63,6 +70,9 @@ export type AuthService = {
   register: (input: RegistrationInput) => Promise<MessageResponse>;
   resend: (input: EmailInput) => Promise<MessageResponse>;
   confirm: (input: ConfirmationInput) => Promise<MessageResponse>;
+  login: (input: LoginInput, previousSecret?: string | null) => Promise<SessionGrant>;
+  getSession: (secret: string | null) => Promise<SessionContext>;
+  logout: (secret: string | null) => Promise<void>;
 };
 
 export type AuthServiceDependencies = {

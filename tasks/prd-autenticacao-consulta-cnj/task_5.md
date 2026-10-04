@@ -35,12 +35,12 @@ Preservar Prisma 7, singleton existente e direção das dependências. Middlewar
 
 ## Subtarefas
 
-- [ ] 5.1 Expor POST /api/auth/login, GET /api/auth/session e POST /api/auth/logout com os contratos da TechSpec.
-- [ ] 5.2 Implementar serviço de login, tratamento comum de credenciais recusadas e bloqueio de conta pendente.
-- [ ] 5.3 Implementar criação, leitura e revogação da sessão, incluindo substituição da sessão anterior ao novo login.
-- [ ] 5.4 Configurar cookie por ambiente, middleware de sessão, checagem de confirmação e revalidação após espera.
-- [ ] 5.5 Tratar saída repetida, falha de revogação, timeout e proibição de cookie tardio sem afirmar sucesso remoto indevido.
-- [ ] 5.6 Implementar testes completos do ciclo de sessão e suas fronteiras; executar as verificações do backend.
+- [x] 5.1 Expor POST /api/auth/login, GET /api/auth/session e POST /api/auth/logout com os contratos da TechSpec.
+- [x] 5.2 Implementar serviço de login, tratamento comum de credenciais recusadas e bloqueio de conta pendente.
+- [x] 5.3 Implementar criação, leitura e revogação da sessão, incluindo substituição da sessão anterior ao novo login.
+- [x] 5.4 Configurar cookie por ambiente, middleware de sessão, checagem de confirmação e revalidação após espera.
+- [x] 5.5 Tratar saída repetida, falha de revogação, timeout e proibição de cookie tardio sem afirmar sucesso remoto indevido.
+- [x] 5.6 Implementar testes completos do ciclo de sessão e suas fronteiras; executar as verificações do backend.
 
 ## Detalhes de implementação
 
@@ -72,15 +72,15 @@ IDs e nomes abaixo vêm da [abordagem de testes da TechSpec](./techspec.md#abord
 
 ### Testes de unidade (se aplicável)
 
-- [ ] TU-03 — Verificação de senha e erro comum. Escopo nesta tarefa: Completar a decisão de login e a mensagem comum, além das primitivas da tarefa 2.
-- [ ] TU-06 — Expiração absoluta e revogação. Escopo nesta tarefa: Expiração absoluta e revogação.
+- [x] TU-03 — Verificação de senha e erro comum. Escopo nesta tarefa: Completar a decisão de login e a mensagem comum, além das primitivas da tarefa 2.
+- [x] TU-06 — Expiração absoluta e revogação. Escopo nesta tarefa: Expiração absoluta e revogação.
 
 ### Testes de integração (se aplicável)
 
-- [ ] TI-10 — Login, credenciais erradas e pendência. Escopo nesta tarefa: Contrato completo de login e conta pendente.
-- [ ] TI-11 — Cookie, origem e proteção direta. Escopo nesta tarefa: Faceta de cookies, origem e middleware; proteção das rotas processuais será completada na tarefa 6.
-- [ ] TI-12 — Expiração e logout revogável. Escopo nesta tarefa: Caso completo de expiração e revogação HTTP, incluindo token anterior capturado.
-- [ ] TI-16 — Falhas de dependências e prazos HTTP. Escopo nesta tarefa: Faceta de autenticação e logout, sem cookie tardio e sem falso sucesso de revogação.
+- [x] TI-10 — Login, credenciais erradas e pendência. Escopo nesta tarefa: Contrato completo de login e conta pendente.
+- [x] TI-11 — Cookie, origem e proteção direta. Escopo nesta tarefa: Faceta de cookies, origem e middleware; proteção das rotas processuais será completada na tarefa 6.
+- [x] TI-12 — Expiração e logout revogável. Escopo nesta tarefa: Caso completo de expiração e revogação HTTP, incluindo token anterior capturado.
+- [x] TI-16 — Falhas de dependências e prazos HTTP. Escopo nesta tarefa: Faceta de autenticação e logout, sem cookie tardio e sem falso sucesso de revogação.
 
 ### Testes E2E (se aplicável)
 
@@ -100,3 +100,11 @@ Não aplicável como entrega desta tarefa; as jornadas completas estão atribuí
 - `backend/src/app.ts`
 - Testes `*.test.ts`/`*.test.tsx` adjacentes aos módulos implementados, quando aplicável.
 - `tasks/prd-autenticacao-consulta-cnj/task_5.md` e `tasks.md` para atualização de progresso ao concluir a implementação.
+
+## Evidências de validação
+
+- `npm run typecheck` — passou.
+- `npm run lint` — passou.
+- `npm test` — 148 testes em 31 arquivos passaram, incluindo integrações com PostgreSQL isolado.
+- `npm run test:coverage` — passou; statements 92,33%, branches 87%, funções 94,64% e linhas 95,54%.
+- `npm run build` — passou.

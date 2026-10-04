@@ -34,6 +34,7 @@ function registerProcessHandlers(server: Server): void {
 }
 
 function buildHttpServer(configuration: HttpEnvironment): Server {
+  const secureCookie = new URL(configuration.publicAppUrl).protocol === 'https:';
   const authService = createAuthService({
     publicAppUrl: configuration.publicAppUrl,
     repositories: createAuthRepository(prisma),
@@ -43,7 +44,9 @@ function buildHttpServer(configuration: HttpEnvironment): Server {
     }),
   });
   return createServer(createApp({
-    authRouter: createAuthRouter(authService),
+    authRouter: createAuthRouter(authService, {
+      name: secureCookie ? '__Host-session' : 'session', secure: secureCookie,
+    }),
     publicAppUrl: configuration.publicAppUrl,
   }));
 }

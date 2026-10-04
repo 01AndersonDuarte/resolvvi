@@ -7,7 +7,12 @@ export type AuthController = {
   register: RequestHandler;
   resend: RequestHandler;
   confirm: RequestHandler;
+  login: RequestHandler;
+  session: RequestHandler;
+  logout: RequestHandler;
 };
+
+export type SessionCookieConfiguration = { name: string; secure: boolean };
 
 export type AppDependencies = {
   publicAppUrl: string;

@@ -30,8 +30,33 @@ export function createSession(input: CreateSessionInput, client: AuthenticationD
   return client.session.create({ data: input });
 }
 
+export async function replaceSession(
+  input: { session: CreateSessionInput; previousTokenHash: string | null; revokedAt: Date },
+  client: AuthenticationDatabase,
+): Promise<Session> {
+  if (!('$transaction' in client)) throw new Error('Session replacement requires PrismaClient.');
+  return (client as PrismaClient).$transaction(async (transaction) => {
+    if (input.previousTokenHash) {
+      await transaction.session.updateMany({
+        where: { tokenHash: input.previousTokenHash, revokedAt: null }, data: { revokedAt: input.revokedAt },
+      });
+    }
+    return transaction.session.create({ data: input.session });
+  }, { maxWait: 2_000, timeout: 3_000 });
+}
+
 export function findSessionByTokenHash(tokenHash: string, client: AuthenticationDatabase): Promise<Session | null> {
   return client.session.findUnique({ where: { tokenHash } });
+}
+
+export async function findValidSessionByTokenHash(
+  tokenHash: string,
+  now: Date,
+  client: AuthenticationDatabase,
+): Promise<(Session & { user: User }) | null> {
+  const session = await client.session.findUnique({ where: { tokenHash }, include: { user: true } });
+  if (!session || session.revokedAt || session.expiresAt <= now || !session.user.emailVerifiedAt) return null;
+  return session;
 }
 
 export async function revokeSessionByTokenHash(
@@ -98,7 +123,10 @@ export function createAuthRepository(client: AuthenticationDatabase): AuthReposi
     findUserById: (id) => findUserById(id, client),
     markEmailVerified: (id, verifiedAt) => markEmailVerified(id, verifiedAt, client),
     createSession: (input) => createSession(input, client),
+    replaceSession: (session, previousTokenHash, revokedAt) =>
+      replaceSession({ session, previousTokenHash, revokedAt }, client),
     findSessionByTokenHash: (tokenHash) => findSessionByTokenHash(tokenHash, client),
+    findValidSessionByTokenHash: (tokenHash, now) => findValidSessionByTokenHash(tokenHash, now, client),
     revokeSessionByTokenHash: (tokenHash, revokedAt) => revokeSessionByTokenHash(tokenHash, revokedAt, client),
     createVerification: (input) => createVerification(input, client),
     findVerificationByTokenHash: (tokenHash) => findVerificationByTokenHash(tokenHash, client),

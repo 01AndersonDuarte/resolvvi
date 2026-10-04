@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { parseEmailInput } from './auth-schema.js';
+import { parseEmailInput, parseLoginInput } from './auth-schema.js';
 
 describe('parseEmailInput', () => {
   it('accepts a single email field', () => {
@@ -10,6 +10,19 @@ describe('parseEmailInput', () => {
   it.each([null, {}, { email: 42 }, { email: 'person@example.test', extra: true }])(
     'rejects invalid email payload shapes',
     (input) => expect(() => parseEmailInput(input)).toThrow('Informe um e-mail válido.'),
+  );
+});
+
+describe('parseLoginInput', () => {
+  it('preserves the login password exactly as submitted', () => {
+    expect(parseLoginInput({ email: 'person@example.test', password: ' pass word ' }))
+      .toEqual({ email: 'person@example.test', password: ' pass word ' });
+  });
+
+  it.each([null, {}, { email: 'person@example.test' }, { email: 'person@example.test', password: 42 },
+    { email: 'person@example.test', password: 'password', extra: true }])(
+    'rejects incomplete or additional login fields',
+    (input) => expect(() => parseLoginInput(input)).toThrow(),
   );
 });
 import { validateAndNormalizeEmail } from './auth-schema.js';

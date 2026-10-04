@@ -26,6 +26,7 @@ describe('repositórios de autenticação', () => {
 
   it('impõe unicidade concorrente do e-mail sem substituir a senha aceita', enforceConcurrentEmailUniqueness);
   it('persiste sessões expiradas e permite revogação idempotente', persistAndRevokeSession);
+  it('substitui sessão anterior e valida confirmação e expiração da conta', replaceAndValidateSessions);
   it('persiste a reserva de confirmação ligada à conta', persistVerificationEmission);
 });
 
@@ -44,6 +45,28 @@ async function enforceConcurrentEmailUniqueness(): Promise<void> {
   expect(await repository.findUserById(persistedUser!.id)).toEqual(persistedUser);
   expect(await repository.markEmailVerified(persistedUser!.id, new Date('2026-10-03T20:00:00.000Z')))
     .toMatchObject({ emailVerifiedAt: new Date('2026-10-03T20:00:00.000Z') });
+}
+
+async function replaceAndValidateSessions(): Promise<void> {
+  const repository = createAuthRepository(database!);
+  const user = await repository.createUser({ email, passwordHash: 'session-hash' });
+  const createdAt = new Date();
+  const old = await repository.createSession({
+    userId: user.id, tokenHash: 'e'.repeat(64), expiresAt: new Date(createdAt.getTime() + 60_000),
+  });
+  const expiresAt = new Date(createdAt.getTime() + 8 * 60 * 60_000);
+  const current = await repository.replaceSession(
+    { userId: user.id, tokenHash: 'f'.repeat(64), expiresAt }, old.tokenHash, createdAt,
+  );
+
+  expect((await repository.findSessionByTokenHash(old.tokenHash))?.revokedAt).toEqual(createdAt);
+  expect(await repository.findValidSessionByTokenHash(current.tokenHash, createdAt)).toBeNull();
+  await repository.markEmailVerified(user.id, createdAt);
+  expect(await repository.findValidSessionByTokenHash(current.tokenHash, createdAt)).toMatchObject({
+    id: current.id, user: { id: user.id, emailVerifiedAt: createdAt },
+  });
+  expect(await repository.findValidSessionByTokenHash(old.tokenHash, createdAt)).toBeNull();
+  expect(await repository.findValidSessionByTokenHash(current.tokenHash, expiresAt)).toBeNull();
 }
 
 async function persistAndRevokeSession(): Promise<void> {

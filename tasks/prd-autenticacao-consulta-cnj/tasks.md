@@ -4,7 +4,7 @@ Estrutura aprovada pelo usuário. Referências: [PRD](./prd.md) e [TechSpec](./t
 
 O validador CNJ permanece um pré-requisito da fundação, confirmado pelo usuário, e sua implementação não integra este plano. A tarefa 6 e a entrega completa ficam bloqueadas até sua disponibilização. As tarefas 7 e 8 podem avançar após suas dependências, independentemente desse bloqueio; a numeração não impõe dependências adicionais.
 
-As tarefas 1.0, 2.0 e 3.0 foram concluídas; as demais permanecem pendentes. A aprovação desta decomposição autorizou a geração dos documentos; a execução explícita das tarefas anteriores autorizou suas implementações. Marcar itens somente após implementação, testes e verificações pertinentes. Aceite real do Resend e verificações manuais de acessibilidade estão na tarefa 10.
+As tarefas 1.0 a 5.0 foram concluídas; as demais permanecem pendentes. A aprovação desta decomposição autorizou a geração dos documentos; a execução explícita das tarefas anteriores autorizou suas implementações. Marcar itens somente após implementação, testes e verificações pertinentes. Aceite real do Resend e verificações manuais de acessibilidade estão na tarefa 10.
 
 ## Tarefas
 
@@ -12,7 +12,7 @@ As tarefas 1.0, 2.0 e 3.0 foram concluídas; as demais permanecem pendentes. A a
 - [x] 2.0 [Persistência de autenticação e segurança de senhas e tokens](./task_2.md) — depende de 1.0.
 - [x] 3.0 [Cadastro e reenvio pelo Resend com limites e recuperação](./task_3.md) — depende de 2.0.
 - [x] 4.0 [Confirmação de e-mail de uso único e controle de concorrência](./task_4.md) — depende de 3.0.
-- [ ] 5.0 [Login, sessão, autorização e logout com revogação](./task_5.md) — depende de 4.0.
+- [x] 5.0 [Login, sessão, autorização e logout com revogação](./task_5.md) — depende de 4.0.
 - [ ] 6.0 [API protegida de consulta CNJ e destino mínimo do processo](./task_6.md) — depende de 5.0 e validador real da fundação (pendente).
 - [ ] 7.0 [Base React, cliente HTTP, controle de sessão e rotas protegidas](./task_7.md) — depende de 5.0.
 - [ ] 8.0 [Telas de cadastro, confirmação, reenvio e login](./task_8.md) — depende de 3.0, 4.0, 7.0.

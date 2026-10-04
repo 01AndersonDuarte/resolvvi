@@ -1,4 +1,4 @@
-export { createAuthService, register, resend } from './auth-service.js';
+export { createAuthService, getSession, login, logout, register, resend } from './auth-service.js';
 export {
   createDummyPasswordHash,
   createPasswordWorkQueue,

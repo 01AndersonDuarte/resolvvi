@@ -1,20 +1,129 @@
 import { ApplicationError, invalidInput } from '../errors/application-error.js';
 import { Prisma } from '../generated/prisma/client.js';
 import { validateAndNormalizeEmail, validatePassword, verificationInvalid } from '../schemas/auth-schema.js';
-import type { AuthenticationUser, AuthRepository, AuthService, AuthServiceDependencies, ConfirmationInput, EmailInput, MessageResponse, RegistrationInput } from '../types/auth.js';
+import type { AuthenticationUser, AuthRepository, AuthService, AuthServiceDependencies, ConfirmationInput, EmailInput, LoginInput, MessageResponse, RegistrationInput, SessionContext, SessionGrant } from '../types/auth.js';
 import type { DeliveryResult } from '../types/resend.js';
-import { createSecret, digestSecret, hashPassword } from './security-service.js';
+import { createDummyPasswordHash, createSecret, digestSecret, hashPassword, isValidSecret, verifyPassword } from './security-service.js';
 
 const REGISTRATION_MESSAGE = 'Confira seu e-mail para continuar. Se já possui conta confirmada, entre.';
 const RESEND_MESSAGE = 'Se houver confirmação pendente para este e-mail, enviaremos as instruções.';
 const REQUEST_TIMEOUT_MS = 12_000;
+const SESSION_LIFETIME_MS = 8 * 60 * 60 * 1000;
+const INVALID_CREDENTIALS_MESSAGE = 'E-mail ou senha incorretos.';
 
 export function createAuthService(dependencies: AuthServiceDependencies): AuthService {
   return {
     register: (input) => register(input, dependencies),
     resend: (input) => resend(input, dependencies),
     confirm: (input) => confirm(input, dependencies),
+    login: (input, previousSecret = null) => login(input, previousSecret, dependencies),
+    getSession: (secret) => getSession(secret, dependencies),
+    logout: (secret) => logout(secret, dependencies),
   };
+}
+
+export async function login(
+  input: LoginInput,
+  previousSecret: string | null,
+  dependencies: AuthServiceDependencies,
+): Promise<SessionGrant> {
+  const email = normalizeEmail(input.email);
+  try {
+    const user = await dependencies.repositories.findUserByEmail(email);
+    if (!user) {
+      await createDummyPasswordHash(Date.now() + REQUEST_TIMEOUT_MS);
+      throw credentialsRejected();
+    }
+    if (!await verifyPassword(input.password, user.passwordHash, Date.now() + REQUEST_TIMEOUT_MS)) {
+      throw credentialsRejected();
+    }
+    if (!user.emailVerifiedAt) throw emailUnconfirmed();
+    return await createSessionGrant(user, previousSecret, dependencies);
+  } catch (error: unknown) {
+    throw mapLoginFailure(error);
+  }
+}
+
+async function createSessionGrant(
+  user: AuthenticationUser,
+  previousSecret: string | null,
+  dependencies: AuthServiceDependencies,
+): Promise<SessionGrant> {
+  const now = getCurrentTime(dependencies);
+  const expiresAt = new Date(now.getTime() + SESSION_LIFETIME_MS);
+  const secret = createSecret();
+  const session = await dependencies.repositories.replaceSession(
+    { userId: user.id, tokenHash: digestSecret(secret), expiresAt },
+    previousSecret && isValidSecret(previousSecret) ? digestSecret(previousSecret) : null,
+    now,
+  );
+  return { ...toSessionContext({
+    sessionId: session.id, userId: user.id, expiresAt, serverTime: now, emailVerifiedAt: user.emailVerifiedAt!,
+  }), secret };
+}
+
+export async function getSession(secret: string | null, dependencies: AuthServiceDependencies): Promise<SessionContext> {
+  if (!secret || !isValidSecret(secret)) throw sessionInvalid();
+  try {
+    const now = getCurrentTime(dependencies);
+    const session = await dependencies.repositories.findValidSessionByTokenHash(digestSecret(secret), now);
+    if (!session) throw sessionInvalid();
+    return toSessionContext({
+      sessionId: session.id, userId: session.userId, expiresAt: session.expiresAt,
+      serverTime: now, emailVerifiedAt: session.user.emailVerifiedAt!,
+    });
+  } catch (error: unknown) {
+    throw mapSessionFailure(error);
+  }
+}
+
+export async function logout(secret: string | null, dependencies: AuthServiceDependencies): Promise<void> {
+  if (!secret || !isValidSecret(secret)) return;
+  try {
+    await dependencies.repositories.revokeSessionByTokenHash(digestSecret(secret), getCurrentTime(dependencies));
+  } catch {
+    throw serviceUnavailable('Não foi possível concluir a saída agora. Tente novamente.');
+  }
+}
+
+function toSessionContext(input: {
+  sessionId: string; userId: string; expiresAt: Date; serverTime: Date; emailVerifiedAt: Date;
+}): SessionContext {
+  return {
+    sessionId: input.sessionId,
+    userId: input.userId,
+    expiresAt: input.expiresAt.toISOString(),
+    serverTime: input.serverTime.toISOString(),
+    emailVerifiedAt: input.emailVerifiedAt,
+  };
+}
+
+function credentialsRejected(): ApplicationError {
+  return new ApplicationError({ code: 'INVALID_CREDENTIALS', message: INVALID_CREDENTIALS_MESSAGE, status: 401 });
+}
+
+function emailUnconfirmed(): ApplicationError {
+  return new ApplicationError({
+    code: 'EMAIL_UNCONFIRMED', message: 'Confirme seu e-mail antes de entrar.', status: 403,
+  });
+}
+
+function sessionInvalid(): ApplicationError {
+  return new ApplicationError({ code: 'SESSION_INVALID', message: 'Sua sessão não é mais válida.', status: 401 });
+}
+
+function serviceUnavailable(message = 'A autenticação está temporariamente indisponível. Tente novamente.'): ApplicationError {
+  return new ApplicationError({ code: 'SERVICE_UNAVAILABLE', message, status: 503 });
+}
+
+function mapLoginFailure(error: unknown): Error {
+  if (error instanceof ApplicationError) return error;
+  return serviceUnavailable();
+}
+
+function mapSessionFailure(error: unknown): Error {
+  if (error instanceof ApplicationError) return error;
+  return serviceUnavailable();
 }
 
 export async function confirm(input: ConfirmationInput, dependencies: AuthServiceDependencies): Promise<MessageResponse> {

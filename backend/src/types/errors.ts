@@ -4,6 +4,9 @@ export type PublicErrorCode =
   | 'CONFIRMATION_SEND_FAILED'
   | 'CONFIRMATION_SEND_UNKNOWN'
   | 'VERIFICATION_INVALID'
-  | 'SERVICE_UNAVAILABLE';
+  | 'SERVICE_UNAVAILABLE'
+  | 'INVALID_CREDENTIALS'
+  | 'EMAIL_UNCONFIRMED'
+  | 'SESSION_INVALID';
 
 export type PublicErrorField = 'email' | 'password';

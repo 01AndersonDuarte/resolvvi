@@ -1,7 +1,7 @@
 import Joi from 'joi';
 
 import { ApplicationError, invalidInput } from '../errors/application-error.js';
-import type { ConfirmationInput, EmailInput, RegistrationInput } from '../types/auth.js';
+import type { ConfirmationInput, EmailInput, LoginInput, RegistrationInput } from '../types/auth.js';
 
 const MAX_EMAIL_LENGTH = 254;
 const MIN_PASSWORD_CODE_POINTS = 8;
@@ -54,6 +54,19 @@ export function parseRegistrationInput(input: unknown): RegistrationInput {
   }
 
   return result.value as RegistrationInput;
+}
+
+export function parseLoginInput(input: unknown): LoginInput {
+  const result = credentialsSchema.validate(input, { abortEarly: false, convert: false });
+  if (result.error) {
+    const passwordInvalid = result.error.details.some((detail) => detail.path[0] === 'password');
+    throw invalidInput(
+      passwordInvalid ? 'Informe sua senha.' : 'Informe um e-mail válido.',
+      passwordInvalid ? 'password' : 'email',
+    );
+  }
+
+  return result.value as LoginInput;
 }
 
 export function validateAndNormalizeEmail(email: string): EmailValidation {
