@@ -6,7 +6,7 @@ Preparar o consumo dos dois endpoints e os estados de carregamento e recuperaç�
 
 **Dependências:** [1.0](./task_1.md), [2.0](./task_2.md)
 
-**Status:** pendente de implementação.
+**Status:** concluída e validada.
 
 <skills>
 ### Conformidade com skills
@@ -32,12 +32,12 @@ Requisitos relacionados: RF2, RF12, RF14, RF15, RF16, RF17, RF18, RF19, RF20.
 
 ## Subtarefas
 
-- [ ] 4.1 Criar os tipos de detalhes, movimento, página e entrada e ampliar os serviços HTTP e as mensagens de feedback.
-- [ ] 4.2 Implementar leitores dos contratos com validação de identidade, duplicações, campos e metadados, sem descartar silenciosamente itens ou reordenar a resposta.
-- [ ] 4.3 Ampliar useProcessDetails com recuperação e criar useProcessMovements com snapshot confirmado, destino pendente e bloqueio de chamadas concorrentes.
-- [ ] 4.4 Tratar timeout, cancelamento, desmontagem e geração de sessão; disponibilizar a sinalização de processo ausente para a integração visual.
-- [ ] 4.5 Implementar TU-10 e as variantes de hooks de TU-12, TU-13 e TU-14, preservando o contrato genérico de useRequest.
-- [ ] 4.6 Executar as validações da tarefa e registrar evidências; atualizar os checklists e criar o commit local do incremento.
+- [x] 4.1 Criar os tipos de detalhes, movimento, página e entrada e ampliar os serviços HTTP e as mensagens de feedback.
+- [x] 4.2 Implementar leitores dos contratos com validação de identidade, duplicações, campos e metadados, sem descartar silenciosamente itens ou reordenar a resposta.
+- [x] 4.3 Ampliar useProcessDetails com recuperação e criar useProcessMovements com snapshot confirmado, destino pendente e bloqueio de chamadas concorrentes.
+- [x] 4.4 Tratar timeout, cancelamento, desmontagem e geração de sessão; disponibilizar a sinalização de processo ausente para a integração visual.
+- [x] 4.5 Implementar TU-10 e as variantes de hooks de TU-12, TU-13 e TU-14, preservando o contrato genérico de useRequest.
+- [x] 4.6 Executar as validações da tarefa e registrar evidências; atualizar os checklists e criar o commit local do incremento.
 
 ## Detalhes de implementação
 
@@ -70,14 +70,16 @@ IDs, nomes e resultados esperados preservados da TechSpec. Casos compartilhados 
 
 ### Testes de unidade
 
-- [ ] TU-10 — Leitor de resposta valida vínculo e estrutura. Rejeita identidade/metadados incoerentes e normaliza ausências previstas sem descartar itens.
-- [ ] TU-12 — Falha de histórico preserva detalhes. Nova tentativa localizada; página antiga permanece inclusive após timeout.
-- [ ] TU-13 — Resposta obsoleta não repõe dados. Troca de ID, desmontagem ou geração descarta respostas anteriores e snapshot local.
-- [ ] TU-14 — Sessão inválida tem prioridade sobre recuperação local. Invalidação existente acionada; histórico não reaparece após resposta tardia.
+- [x] TU-10 — Leitor de resposta valida vínculo e estrutura. Rejeita identidade/metadados incoerentes e normaliza ausências previstas sem descartar itens.
+- [x] TU-12 — Falha de histórico preserva detalhes. Nova tentativa localizada; página antiga permanece inclusive após timeout.
+- [x] TU-13 — Resposta obsoleta não repõe dados. Troca de ID, desmontagem ou geração descarta respostas anteriores e snapshot local.
+- [x] TU-14 — Sessão inválida tem prioridade sobre recuperação local. Invalidação existente acionada; histórico não reaparece após resposta tardia.
 
 ### Validações de conclusão
 
 Executar `npm run lint`, `npm run typecheck`, `npm test`, `npm run test:coverage` e `npm run build` no aplicativo afetado. Os scripts atuais existem em ambos os aplicativos; prevalecem sobre as observações antigas de ausência de lint/testes. Não reduzir os limites de cobertura nem excluir código novo para atingir o percentual.
+
+**Evidências:** todos os cinco comandos passaram em `frontend/`; `npm test` executou 110 testes em 17 arquivos. A cobertura global foi 92,95% em statements, 90,24% em branches, 94,78% em funções e 95,28% em linhas. O build de produção terminou com sucesso.
 
 ## Arquivos relevantes
 
