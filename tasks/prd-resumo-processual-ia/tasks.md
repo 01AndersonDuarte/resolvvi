@@ -10,7 +10,7 @@
 
 ## Escopo aprovado
 
-Planejamento em cinco entregas incrementais, conforme [prd.md](./prd.md) e [techspec.md](./techspec.md). A tarefa 1.0 está implementada e validada; as tarefas 2.0–5.0 permanecem pendentes.
+Planejamento em cinco entregas incrementais, conforme [prd.md](./prd.md) e [techspec.md](./techspec.md). As tarefas 1.0–4.0 estão implementadas e validadas. A tarefa 5.0 passou pela regressão automatizada e pelo relatório de QA, mas continua pendente da revisão semântica humana e da confirmação operacional da política de retenção.
 
 - Avaliação sem comprovante HMAC de apresentação; servidor mantém sessão, acesso, vínculo e versão atual. A exibição prévia é uma condição da interface.
 - Referências por frase com data e título, conferidas manualmente no histórico. Sem endpoint de localização, salto, expansão ou foco automático.

@@ -38,7 +38,7 @@ O health check `GET /health` confirma somente que o processo HTTP está responde
 
 ## Resumos processuais por IA
 
-Configure `SUMMARY_ENABLED`, `SUMMARY_PROVIDER`, `SUMMARY_MODEL`, `SUMMARY_CONTEXT_CAPACITY` e `OPENAI_API_KEY` no ambiente do backend. A configuração de exemplo mantém a geração desabilitada. Antes de habilitá-la, confirme operacionalmente o tratamento de dados processuais pelo provedor escolhido. O adaptador envia o histórico necessário à geração sem ferramentas e sem persistência remota solicitada.
+Configure `SUMMARY_ENABLED`, `SUMMARY_PROVIDER`, `SUMMARY_MODEL`, `SUMMARY_CONTEXT_CAPACITY` e `SUMMARY_API_KEY` no ambiente do backend. A configuração de exemplo mantém a geração desabilitada. Antes de habilitá-la com dados processuais reais, confirme operacionalmente o tratamento e a retenção de dados pelo provedor escolhido. O adaptador envia o histórico necessário à geração sem ferramentas e define `store: false`.
 
 Execute inicialmente uma única instância do backend que processe gerações. A deduplicação e o cooldown são persistidos no PostgreSQL; o limite de quatro execuções é local à instância e não coordena capacidade entre réplicas. Implemente coordenação global antes de executar mais de uma instância geradora. O encerramento cancela e aguarda as gerações antes de fechar o Prisma.
 

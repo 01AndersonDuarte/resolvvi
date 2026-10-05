@@ -6,6 +6,6 @@
 **/.env
 **/.env.*
 !**/.env.*.example
+/tasks/prd-resumo-processual-ia/.semantic-review/
 backend/var/
 backend/src/generated/prisma/
-
