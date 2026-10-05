@@ -5,7 +5,7 @@
 - [x] 1.0 [Fonte integral, contratos, prompt e validação](./task_1.md)
 - [x] 2.0 [Persistência, versionamento e concorrência](./task_2.md)
 - [x] 3.0 [Provedor, execução, API, avaliações e métricas](./task_3.md)
-- [ ] 4.0 [Interface de geração, referências e avaliação](./task_4.md)
+- [x] 4.0 [Interface de geração, referências e avaliação](./task_4.md)
 - [ ] 5.0 [E2E, regressão e avaliação semântica](./task_5.md)
 
 ## Escopo aprovado

@@ -40,12 +40,12 @@ Após cada incremento coeso validado, revisar o diff, selecionar arquivos explic
 
 ## Subtarefas
 
-- [ ] 4.1 Criar tipos de domínio por arquivo, serviços HTTP e validação de respostas unknown para leitura, geração e feedback.
-- [ ] 4.2 Implementar hook de resumo com leitura inicial, handlers, watchdog, polling limitado, cancelamento e descarte por identidade de processo/sessão/tentativa.
-- [ ] 4.3 Implementar seção, corpo, avisos e estados; integrar à view sem mudar a navegação manual do histórico.
-- [ ] 4.4 Exibir referências agrupadas por frase com data e título e orientação de conferência manual, sem navegação automática.
-- [ ] 4.5 Implementar hook/componente de avaliação com estado confirmado, mensagens de criação/troca, falha e reconciliação após 409.
-- [ ] 4.6 Implementar testes de comportamento, acessibilidade, falhas, paginação sem geração e respostas atrasadas; executar lint, tipos, testes, cobertura e build do frontend.
+- [x] 4.1 Criar tipos de domínio por arquivo, serviços HTTP e validação de respostas unknown para leitura, geração e feedback.
+- [x] 4.2 Implementar hook de resumo com leitura inicial, handlers, watchdog, polling limitado, cancelamento e descarte por identidade de processo/sessão/tentativa.
+- [x] 4.3 Implementar seção, corpo, avisos e estados; integrar à view sem mudar a navegação manual do histórico.
+- [x] 4.4 Exibir referências agrupadas por frase com data e título e orientação de conferência manual, sem navegação automática.
+- [x] 4.5 Implementar hook/componente de avaliação com estado confirmado, mensagens de criação/troca, falha e reconciliação após 409 ou resposta perdida.
+- [x] 4.6 Implementar testes de comportamento, acessibilidade, falhas, paginação sem geração e respostas atrasadas; executar lint, tipos, testes, cobertura e build do frontend.
 
 ## Detalhes de implementação
 
@@ -86,10 +86,10 @@ TU-12 inclui geração por clique, falha de leitura sem geração, estados de fo
 
 ### Testes de unidade
 
-- [ ] TU-12 — Estados visuais e geração dependem de clique
-- [ ] TU-13 — Hook encerra polling e descarta processo/sessão anteriores
-- [ ] TU-14 — Feedback confirma somente gravação e preserva voto em erro
-- [ ] TU-15 — Referências exibem frase, data e título para conferência manual
+- [x] TU-12 — Estados visuais e geração dependem de clique
+- [x] TU-13 — Hook encerra polling e descarta processo/sessão anteriores
+- [x] TU-14 — Feedback confirma somente gravação e preserva voto em erro
+- [x] TU-15 — Referências exibem frase, data e título para conferência manual
 
 ## Arquivos relevantes
 

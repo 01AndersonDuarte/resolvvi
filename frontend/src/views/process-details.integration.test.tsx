@@ -28,6 +28,7 @@ describe('process details and movement HTTP integration', () => {
     const fetchMock = vi.fn(async (input: RequestInfo | URL) => {
       const path = String(input);
       if (path === '/api/processes/17') return jsonResponse(processDetails);
+      if (path.startsWith('/api/processes/17/ai-summary?')) return errorResponse(503, 'SERVICE_UNAVAILABLE');
       if (path === '/api/processes/17/movements?page=1') {
         movementAttempts += 1;
         if (movementAttempts === 1) return errorResponse(503, 'SERVICE_UNAVAILABLE');
@@ -49,7 +50,7 @@ describe('process details and movement HTTP integration', () => {
     await user.keyboard('{Enter}');
 
     expect(await screen.findByText('Ato recuperado pela API')).toBeInTheDocument();
-    expect(fetchMock).toHaveBeenCalledTimes(3);
+    expect(fetchMock).toHaveBeenCalledTimes(4);
     screen.getByRole('link', { name: 'Voltar à consulta' }).focus();
     await user.keyboard('{Enter}');
     expect(await screen.findByRole('textbox', { name: 'Número do processo (CNJ)' })).toHaveValue('10013993120238260070');
