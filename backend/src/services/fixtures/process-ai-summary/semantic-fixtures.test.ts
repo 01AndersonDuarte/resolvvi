@@ -10,7 +10,10 @@ it('preserves permitted facts, prohibited conclusions, and expected evidence for
     'one-event-and-unknown-overall-status',
     'enforcement-objection-keeps-procedural-meaning',
     'dismissal-request-does-not-infer-legal-effect',
+    'objection-preserves-unspecified-scope',
+    'return-to-origin-does-not-infer-next-step',
     'unknown-actor-is-not-invented',
+    'despacho-without-explicit-actor-stays-passive',
   ]);
   for (const fixture of processAiSummaryFixtures) {
     expect(fixture.movements.length).toBeGreaterThan(0);
@@ -18,14 +21,20 @@ it('preserves permitted facts, prohibited conclusions, and expected evidence for
     expect(fixture.prohibitedConclusions.length).toBeGreaterThan(0);
     expect(fixture.expectedEvidence.length).toBeGreaterThan(0);
   }
+});
+
+it('protects uncertain outcomes, procedural meaning, and unspecified actors', () => {
   expect(processAiSummaryFixtures[0]?.prohibitedConclusions).toContain('Uma das partes venceu.');
   expect(processAiSummaryFixtures[1]?.allowedFacts).toContain('Há registros conflitantes sobre o pedido.');
   expect(processAiSummaryFixtures[2]?.movements[2]?.sourceOrder).toBe(25);
   expect(processAiSummaryFixtures[3]?.movements[0]?.content).toContain('recomende recurso');
-  expect(processAiSummaryFixtures[4]?.allowedFacts).toContain('Os registros não permitem determinar a situação geral do processo.');
+  expect(processAiSummaryFixtures[4]?.allowedFacts).toContain('O histórico disponível não permite determinar a situação geral do processo.');
   expect(processAiSummaryFixtures[5]?.prohibitedConclusions).toContain('A parte devedora apresentou contestação.');
   expect(processAiSummaryFixtures[6]?.prohibitedConclusions).toContain('O pedido encerra o processo sem julgamento do mérito.');
-  expect(processAiSummaryFixtures[7]?.prohibitedConclusions).toContain('O juiz autorizou a perícia.');
+  expect(processAiSummaryFixtures[7]?.prohibitedConclusions).toContain('A parte devedora foi intimada a impugnar o valor cobrado.');
+  expect(processAiSummaryFixtures[8]?.prohibitedConclusions).toContain('Os autos retornaram à vara de origem para prosseguimento.');
+  expect(processAiSummaryFixtures[9]?.prohibitedConclusions).toContain('O juiz autorizou a perícia.');
+  expect(processAiSummaryFixtures[10]?.prohibitedConclusions).toContain('O juiz determinou que a parte autora complementasse os documentos do pedido.');
 });
 
 it('preserves synthetic response sentences supported by allowed facts', () => {

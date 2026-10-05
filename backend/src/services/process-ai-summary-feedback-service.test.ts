@@ -39,7 +39,7 @@ async function savesFeedback(): Promise<void> {
   });
   expect(saveSummaryFeedback).toHaveBeenCalledWith({
     processId: 42, summaryId: 'summary-id', userId: 'user-id', helpful: true,
-    rulesVersion: 'summary-rules-v2', now,
+    rulesVersion: 'summary-rules-v14', now,
   }, expect.anything());
 }
 

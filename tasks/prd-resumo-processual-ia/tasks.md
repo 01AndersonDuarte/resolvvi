@@ -6,11 +6,11 @@
 - [x] 2.0 [Persistência, versionamento e concorrência](./task_2.md)
 - [x] 3.0 [Provedor, execução, API, avaliações e métricas](./task_3.md)
 - [x] 4.0 [Interface de geração, referências e avaliação](./task_4.md)
-- [ ] 5.0 [E2E, regressão e avaliação semântica](./task_5.md)
+- [x] 5.0 [E2E, regressão e avaliação semântica](./task_5.md)
 
 ## Escopo aprovado
 
-Planejamento em cinco entregas incrementais, conforme [prd.md](./prd.md) e [techspec.md](./techspec.md). As tarefas 1.0–4.0 estão implementadas e validadas. A tarefa 5.0 continua pendente da nova avaliação semântica real e da etapa própria de QA; o banco local de desenvolvimento já recebeu as migrations pendentes.
+Planejamento em cinco entregas incrementais, conforme [prd.md](./prd.md) e [techspec.md](./techspec.md). As tarefas 1.0–5.0 estão concluídas. A avaliação real final passou nos 20 casos sintéticos, com GPT-4.1 e regras v14; a análise foi realizada pelo agente por determinação do usuário. QA aprovado em [qa.md](./qa.md), testes e cobertura aprovados, tabelas confirmadas no banco de desenvolvimento. Gasto estimado acumulado: US$ 0,3151232 de US$ 0,50 autorizados.
 
 - Avaliação sem comprovante HMAC de apresentação; servidor mantém sessão, acesso, vínculo e versão atual. A exibição prévia é uma condição da interface.
 - Referências por frase com data e título, conferidas manualmente no histórico. Sem endpoint de localização, salto, expansão ou foco automático.
@@ -25,7 +25,7 @@ Planejamento em cinco entregas incrementais, conforme [prd.md](./prd.md) e [tech
 | 2 | 1 e banco de testes isolado | executar-task |
 | 3 | 1 e 2 | executar-task |
 | 4 | 3 | executar-task, react |
-| 5 | 1–4; acesso ao provedor e revisor humano para o gate real | executar-task, react, executar-qa |
+| 5 | 1–4; acesso ao provedor e revisão semântica pelo agente autorizada pelo usuário | executar-task, react, executar-qa |
 
 A tarefa 3 reúne mais trabalho: suas subtarefas separam adaptador, executor, service, HTTP, observabilidade e composição. Os testes pertencem a cada incremento; a tarefa 5 não substitui testes unitários/de integração das tarefas 1–4.
 
@@ -117,6 +117,6 @@ A TechSpec é a fonte de verdade dos 37 casos: 18 unitários, 14 de integração
 
 - Todos os casos mapeados implementados e aprovados, com número de chamadas/efeitos persistidos nas integrações; cobertura mínima de 80% por aplicativo em linhas, funções, branches e statements.
 - Em cada aplicativo: `npm run lint`, `npm run typecheck`, `npm test`, `npm run test:coverage` e `npm run build`. Em `frontend/`: também `npm run test:e2e`, com banco/harness isolados.
-- Avaliação real explícita de 20 resumos ou de todos os casos elegíveis se houver menos, com rubrica humana aprovada, configuração identificada e evidências protegidas. Mocks não concluem esse gate.
+- Avaliação real explícita de 20 resumos ou de todos os casos elegíveis se houver menos, com avaliação semântica aprovada pelo agente, conforme instrução do usuário, configuração identificada e evidências protegidas. Mocks não concluem esse gate.
 - Implantação documentada para uma instância executora, tratamento de dados do provedor verificado e ausência de conteúdo processual/segredos em logs.
 - Checklists atualizados somente após validação, commits locais coesos conforme as regras e relatório de QA com evidências para CA-01–CA-23. Sem dashboard ou geração automática adicional.

@@ -7,7 +7,7 @@ describe('parseSummaryEnvironment', () => {
       enabled: false,
       apiKey: null,
       provider: 'openai',
-      model: 'gpt-4.1-mini-2025-04-14',
+      model: 'gpt-4.1-2025-04-14',
       contextCapacity: 131_072,
     });
   });

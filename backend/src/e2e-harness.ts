@@ -19,7 +19,7 @@ function createFakeSummaryProvider(state: ProviderState): SummaryProvider {
       const refs = readSourceRefs(input.source);
       const output = state.mode === 'invalid' ? { language: 'en', paragraphs: [] } : {
         language: 'pt-BR',
-        paragraphs: [{ sentences: [{ text: 'O histórico registra movimentações do processo.', sourceRefs: refs }] }],
+        paragraphs: [{ sentences: [{ text: 'A parte ré apresentou defesa e negou responsabilidade pelo dano.', sourceRefs: refs }] }],
       };
       const result = { output, status: 'completed' as const, refusal: null, model: 'deterministic', usage: null };
       if (state.mode === 'held') return waitForProviderRelease(input.signal, state, result);
@@ -52,8 +52,16 @@ function readSourceRefs(source: string): string[] {
   const parsed = JSON.parse(source) as unknown;
   if (typeof parsed !== 'object' || parsed === null || !('records' in parsed) || !Array.isArray(parsed.records)) return [];
   const records = parsed.records as unknown[];
-  const first = records[0];
-  return typeof first === 'object' && first !== null && 'ref' in first && typeof first.ref === 'string' ? [first.ref] : [];
+  const matching = records.find((record) => isSummaryFixtureRecord(record));
+  return typeof matching === 'object' && matching !== null && 'ref' in matching && typeof matching.ref === 'string'
+    ? [matching.ref]
+    : [];
+}
+
+function isSummaryFixtureRecord(value: unknown): value is { ref: string; content: string } {
+  return typeof value === 'object' && value !== null && 'ref' in value && typeof value.ref === 'string'
+    && 'content' in value && typeof value.content === 'string'
+    && value.content.startsWith('A parte ré apresentou defesa e negou responsabilidade pelo dano.');
 }
 
 function assertIsolatedTestEnvironment(): void {
@@ -107,7 +115,10 @@ function registerSourceControls(app: express.Express): void {
     if (movementId === null) return response.status(400).end();
     const movement = await prisma.movement.updateMany({
       where: { id: movementId },
-      data: { movementTitle: `Movimentação atualizada pelo controle E2E ${randomUUID()}` },
+      data: {
+        movementTitle: 'Defesa apresentada pela parte ré',
+        movementContent: `A parte ré apresentou defesa e negou responsabilidade pelo dano. Revisão E2E ${randomUUID()}.`,
+      },
     });
     return response.status(movement.count === 1 ? 204 : 404).end();
   });

@@ -14,7 +14,7 @@ const summaryEnvironmentSchema = Joi.object<RawSummaryEnvironment>({
   SUMMARY_ENABLED: Joi.boolean().default(false),
   SUMMARY_API_KEY: Joi.string().trim().min(1).when('SUMMARY_ENABLED', { is: true, then: Joi.required(), otherwise: Joi.optional() }),
   SUMMARY_PROVIDER: Joi.string().valid('openai').default('openai'),
-  SUMMARY_MODEL: Joi.string().trim().min(1).default('gpt-4.1-mini-2025-04-14'),
+  SUMMARY_MODEL: Joi.string().trim().min(1).default('gpt-4.1-2025-04-14'),
   SUMMARY_CONTEXT_CAPACITY: Joi.number().integer().min(1).default(131_072),
 }).unknown(true);
 

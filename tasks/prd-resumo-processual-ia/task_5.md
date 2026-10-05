@@ -4,7 +4,7 @@
 
 Concluir a validação da funcionalidade integrada, com API e banco reais nos E2E e provedor falso controlado. Executar separadamente a avaliação da configuração real e registrar evidências para todos os critérios do PRD.
 
-**Dependências:** [1.0](./task_1.md), [2.0](./task_2.md), [3.0](./task_3.md) e [4.0](./task_4.md). Para o gate real: configuração candidata, credenciais/acesso à conta, dados sintéticos ou autorizados, execução externa explícita e revisor humano disponíveis. A aprovação deste planejamento não executa chamadas externas.
+**Dependências:** [1.0](./task_1.md), [2.0](./task_2.md), [3.0](./task_3.md) e [4.0](./task_4.md). Para o gate real: configuração candidata, credenciais/acesso à conta, dados sintéticos ou autorizados, execução externa explícita e revisão semântica disponíveis. A aprovação deste planejamento não executa chamadas externas.
 
 <skills>
 ### Conformidade com skills
@@ -34,9 +34,9 @@ Após cada incremento coeso validado, revisar o diff, selecionar arquivos explic
 - Cobrir fluxo completo, atualização concorrente, falhas/recuperação, expiração de sessão, isolamento, referências manuais, teclado, celular/desktop e zoom 200%. Preservar cenários anteriores de autenticação, consulta e detalhes.
 - Executar lint, typecheck, testes, cobertura e build nos dois aplicativos; E2E pelo frontend. Manter pelo menos 80% em linhas, funções, branches e statements em cada aplicativo e proteger todas as regras críticas.
 - Produzir 20 resumos com a configuração candidata ou todos os casos elegíveis se houver menos, incluindo ambiguidades e entrada maliciosa. A execução real é explícita e separada da CI.
-- Registrar revisão humana de factualidade por frase/evidência, cobertura, incerteza, ausência de conselho e linguagem brasileira simples. Todos os itens devem passar; falha exige ajuste versionado e nova avaliação.
+- Registrar revisão semântica de factualidade pelo agente, conforme instrução expressa do usuário, por frase/evidência, cobertura, incerteza, ausência de conselho e linguagem brasileira simples. Todos os itens devem passar; falha exige ajuste versionado e nova avaliação.
 - Confirmar configuração real de tratamento de dados e operação com uma instância executora. Não declarar retenção zero sem evidência; preservar outputs/rubrica em área protegida e versionar somente exemplos sintéticos/desidentificados.
-- Não declarar a funcionalidade entregue enquanto faltarem gates, revisão humana ou evidências; ausência de credenciais não pode ser substituída por aprovação com mocks.
+- Não declarar a funcionalidade entregue enquanto faltarem gates, revisão semântica ou evidências; ausência de credenciais não pode ser substituída por aprovação com mocks.
 </requirements>
 
 ## Subtarefas
@@ -44,9 +44,9 @@ Após cada incremento coeso validado, revisar o diff, selecionar arquivos explic
 - [x] 5.1 Estender harness E2E com fake, contagem de chamadas e controles isolados de fonte, falhas e sessão, sem expor controles em produção.
 - [x] 5.2 Implementar os cinco E2E da TechSpec, incluindo conferência manual de referência fora da primeira página e geração única após recarga/paginação.
 - [x] 5.3 Executar a regressão completa e verificar cobertura, concorrência, persistência, acessibilidade e ausência de vazamento em logs; corrigir falhas encontradas.
-- [ ] 5.4 Reexecutar a amostra real após os ajustes semânticos e concluir a avaliação solicitada pelo usuário; preservar resultados sintéticos em área protegida.
-- [ ] 5.5 Incorporar resultados semânticos aprovados às fixtures sintéticas/desidentificadas de TU-18; repetir os gates afetados após nova avaliação real.
-- [ ] 5.6 Executar QA e registrar evidências em etapa própria, após estabilizar a funcionalidade.
+- [x] 5.4 Reexecutar a amostra real após os ajustes semânticos e concluir a avaliação solicitada pelo usuário; preservar resultados sintéticos em área protegida.
+- [x] 5.5 Incorporar resultados semânticos aprovados às fixtures sintéticas/desidentificadas de TU-18; repetir os gates afetados após nova avaliação real.
+- [x] 5.6 Executar QA e registrar evidências em etapa própria, após estabilizar a funcionalidade.
 
 ## Detalhes de implementação
 
@@ -90,7 +90,7 @@ Critérios do [PRD](./prd.md); a validação de aceitação é responsabilidade 
 
 ## Testes da tarefa
 
-Executar também TU-01 a TU-18 e TI-01 a TI-14 como regressão dos incrementos anteriores. O gate semântico é adicional, sem ID artificial de caso automatizado e sem substituir TU-18. Não marcar esta tarefa concluída se a amostra real/revisão humana estiver pendente. O relatório deve distinguir testes automatizados, revisão semântica e configuração operacional verificada.
+Executar também TU-01 a TU-18 e TI-01 a TI-14 como regressão dos incrementos anteriores. O gate semântico é adicional, sem ID artificial de caso automatizado e sem substituir TU-18. Não marcar esta tarefa concluída se a amostra real/revisão semântica estiver pendente. O relatório deve distinguir testes automatizados, revisão semântica e configuração operacional verificada.
 
 ### Testes de unidade
 
@@ -104,9 +104,13 @@ Executar também TU-01 a TU-18 e TI-01 a TI-14 como regressão dos incrementos a
 - [x] E2E-04 — Trocar processo e expirar sessão durante geração
 - [x] E2E-05 — Operar por teclado em celular, desktop e zoom 200%
 
-TU-18 preserva regressões sintéticas e verificações determinísticas. Esse resultado não substitui a amostra real nem a revisão humana do gate semântico (5.4–5.5).
+TU-18 preserva regressões sintéticas e verificações determinísticas. Esse resultado não substitui a amostra real nem a revisão semântica do gate (5.4–5.5).
 
-As subtarefas 5.1–5.3 e seus testes automatizados foram executados. A primeira amostra real (regras v1) foi analisada e revelou extrapolações jurídicas; as regras passaram à v2 e fixtures TU-18 foram ampliadas. A nova avaliação real depende de uma chave rotacionada após exposição acidental no diagnóstico. O usuário pediu que as evidências formais sejam produzidas na etapa própria de QA; 5.6 continua pendente.
+As subtarefas 5.1–5.6 foram concluídas. A amostra final de 20 casos sintéticos executada na API real, com `gpt-4.1-2025-04-14` e `summary-rules-v14`, passou na análise semântica feita pelo agente conforme solicitado pelo usuário. O modelo mini e os prompts anteriores apresentaram extrapolações; as rodadas reprovadas permanecem preservadas, sem compor a aprovação final.
+
+As respostas finais aprovadas foram incorporadas às fixtures e validadas sem API pela regressão. Backend: 272 testes; frontend: 153; E2E: 15. Cobertura superior a 80% nas quatro dimensões em ambos os aplicativos. QA e capturas foram produzidos na etapa própria; ver [qa.md](./qa.md). O gasto acumulado estimado das rodadas registradas foi US$ 0,3151232, abaixo do teto final de US$ 0,50. As cinco tabelas de resumo foram confirmadas no banco dev. Serviços de QA encerrados e portas liberadas.
+
+Por determinação expressa do usuário, a revisão foi realizada pelo agente com base no PRD; não é uma revisão jurídica humana. Os dados externos desta avaliação são sintéticos, e a aprovação da amostra não garante ausência de erros futuros.
 
 ## Arquivos relevantes
 
@@ -117,6 +121,6 @@ As subtarefas 5.1–5.3 e seus testes automatizados foram executados. A primeira
 - `backend/vitest.config.ts`
 - `frontend/vitest.config.ts`
 - `frontend/playwright.config.ts`
-- `tasks/prd-resumo-processual-ia/qa.md` (relatório a criar na execução conforme executar-qa)
-- `tasks/prd-resumo-processual-ia/evidences/` (evidências de navegador a produzir no QA)
+- `tasks/prd-resumo-processual-ia/qa.md` (relatório final conforme executar-qa)
+- `tasks/prd-resumo-processual-ia/evidences/` (evidências produzidas no QA)
 - Testes adjacentes dos módulos novos/alterados e reexports explícitos dos barrels necessários, conforme “Visão dos componentes” da TechSpec.
