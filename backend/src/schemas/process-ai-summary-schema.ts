@@ -68,7 +68,7 @@ export function parseSummaryId(value: unknown): string {
 
 export function parseSummaryReadQuery(value: unknown): SummaryReadQuery {
   const result = Joi.object({ attemptId: Joi.string().guid().optional(), track: Joi.boolean().optional() })
-    .unknown(false).validate(value, { abortEarly: true, convert: false });
+    .unknown(false).validate(value, { abortEarly: true });
   if (result.error) throw invalidSummaryInput('Os parâmetros do resumo são inválidos.');
   return result.value as SummaryReadQuery;
 }

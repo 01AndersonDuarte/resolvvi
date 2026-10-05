@@ -6,7 +6,7 @@ export default defineConfig({
   test: {
     fileParallelism: false,
     coverage: {
-      exclude: ['src/**/*.test.ts', 'src/generated/**', 'src/protocols.ts'],
+      exclude: ['src/**/*.test.ts', 'src/generated/**', 'src/protocols.ts', 'src/e2e-harness.ts', 'src/main.ts'],
       include: ['src/**/*.ts'],
       provider: 'v8',
       reporter: ['text', 'json-summary', 'html'],

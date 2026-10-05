@@ -33,7 +33,9 @@ describe('process AI summary request schemas', () => {
       attemptId: '752a061e-31b0-44c4-bf41-c83e72670ea1',
     });
     expect(parseSummaryReadQuery({ track: false })).toEqual({ track: false });
-    expect(() => parseSummaryReadQuery({ track: 'false' })).toThrow();
+    expect(parseSummaryReadQuery({ track: 'true' })).toEqual({ track: true });
+    expect(parseSummaryReadQuery({ track: 'false' })).toEqual({ track: false });
+    expect(() => parseSummaryReadQuery({ track: 'sometimes' })).toThrow();
     expect(() => parseSummaryReadQuery({ page: '2' })).toThrow();
     expect(() => parseSummaryReadQuery({ attemptId: 'invalid' })).toThrow();
   });

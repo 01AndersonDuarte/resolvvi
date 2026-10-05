@@ -41,9 +41,9 @@ Após cada incremento coeso validado, revisar o diff, selecionar arquivos explic
 
 ## Subtarefas
 
-- [ ] 5.1 Estender harness E2E com fake, contagem de chamadas e controles isolados de fonte, falhas e sessão, sem expor controles em produção.
-- [ ] 5.2 Implementar os cinco E2E da TechSpec, incluindo conferência manual de referência fora da primeira página e geração única após recarga/paginação.
-- [ ] 5.3 Executar a regressão completa e verificar cobertura, concorrência, persistência, acessibilidade e ausência de vazamento em logs; corrigir falhas encontradas.
+- [x] 5.1 Estender harness E2E com fake, contagem de chamadas e controles isolados de fonte, falhas e sessão, sem expor controles em produção.
+- [x] 5.2 Implementar os cinco E2E da TechSpec, incluindo conferência manual de referência fora da primeira página e geração única após recarga/paginação.
+- [x] 5.3 Executar a regressão completa e verificar cobertura, concorrência, persistência, acessibilidade e ausência de vazamento em logs; corrigir falhas encontradas.
 - [ ] 5.4 Executar a amostra real separada e obter a revisão humana da rubrica; preservar a configuração e evidências, respeitando o tratamento de dados definido.
 - [ ] 5.5 Incorporar resultados semânticos aprovados às fixtures sintéticas/desidentificadas de TU-18; repetir os gates afetados após ajustes.
 - [ ] 5.6 Registrar relatório de QA com evidências para CA-01 a CA-23, resultados dos comandos, limitações operacionais e decisão sobre o gate semântico; atualizar checklists somente após comprovação.
@@ -98,13 +98,15 @@ Executar também TU-01 a TU-18 e TI-01 a TI-14 como regressão dos incrementos a
 
 ### Testes E2E
 
-- [ ] E2E-01 — Consultar, gerar, conferir referência, votar, trocar e recarregar
-- [ ] E2E-02 — Atualizar após alteração da fonte com outra aba concorrente
-- [ ] E2E-03 — Falhas de geração/leitura/voto recuperam sem afetar histórico
-- [ ] E2E-04 — Trocar processo e expirar sessão durante geração
-- [ ] E2E-05 — Operar por teclado em celular, desktop e zoom 200%
+- [x] E2E-01 — Consultar, gerar, conferir referência, votar, trocar e recarregar
+- [x] E2E-02 — Atualizar após alteração da fonte com outra aba concorrente
+- [x] E2E-03 — Falhas de geração/leitura/voto recuperam sem afetar histórico
+- [x] E2E-04 — Trocar processo e expirar sessão durante geração
+- [x] E2E-05 — Operar por teclado em celular, desktop e zoom 200%
 
 TU-18 preserva regressões sintéticas e verificações determinísticas. Esse resultado não substitui a amostra real nem a revisão humana do gate semântico (5.4–5.5).
+
+As subtarefas 5.1–5.3 e seus testes automatizados foram executados. As subtarefas 5.4–5.6 permanecem pendentes até a geração real da amostra com configuração candidata, revisão humana aprovada, incorporação dos resultados e registro de evidências.
 
 ## Arquivos relevantes
 

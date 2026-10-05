@@ -15,7 +15,7 @@ export default defineConfig({
   use: { baseURL: appUrl, trace: 'retain-on-failure', ...devices['Desktop Chrome'] },
   webServer: [
     {
-      command: 'npm run e2e:harness',
+      command: 'npx prisma migrate deploy && npm run e2e:harness',
       cwd: '../backend',
       url: `http://127.0.0.1:${backendPort}/health`,
       reuseExistingServer: false,

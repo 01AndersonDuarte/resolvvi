@@ -21,6 +21,8 @@ import { createSummaryProviderInput } from './services/summary-prompt-service.js
 import { validateSummaryOutput } from './services/summary-validation-service.js';
 import { finishSummaryAttempt, markSummaryAttemptDispatched } from './repositories/summary-attempt-repository.js';
 import { publishProcessAiSummary } from './repositories/process-ai-summary-repository.js';
+import type { SummaryEnvironment } from './types/config.js';
+import type { SummaryProvider } from './types/summary-provider.js';
 
 function registerProcessHandlers(server: Server, closeSummaryTasks: () => Promise<void>): void {
   const shutdown = createShutdown({
@@ -49,8 +51,9 @@ type BuiltHttpServer = { server: Server; shutdownSummaryTasks: () => Promise<voi
 function createSummaryComponents(
   authService: ReturnType<typeof createAuthService>,
   cookie: { name: string; secure: boolean },
+  overrides: { configuration: SummaryEnvironment; provider: SummaryProvider | null },
 ): { router: ReturnType<typeof createProcessAiSummaryRouter>; shutdown: () => Promise<void> } {
-  const provider = env.summary.enabled ? createOpenAiSummaryProvider(env.summary) : null;
+  const { configuration, provider } = overrides;
   const generation = createSummaryGenerationService({
     provider,
     validateSession: async (sessionId) => { await authService.getSessionById(sessionId); },
@@ -69,17 +72,20 @@ function createSummaryComponents(
     },
     createProviderInput: createSummaryProviderInput,
   });
-  const service = createProcessAiSummaryService({ client: prisma, configuration: env.summary, provider, generation });
+  const service = createProcessAiSummaryService({ client: prisma, configuration, provider, generation });
   return { router: createProcessAiSummaryRouter({ authService, service, cookie }), shutdown: () => generation.shutdown() };
 }
 
-function buildHttpServer(configuration: HttpEnvironment): BuiltHttpServer {
+function buildHttpServer(
+  configuration: HttpEnvironment,
+  summary: { configuration: SummaryEnvironment; provider: SummaryProvider | null },
+): BuiltHttpServer {
   const secureCookie = new URL(configuration.publicAppUrl).protocol === 'https:';
   const authService = createAuthService({
     repositories: createAuthRepository(prisma),
   });
   const cookie = { name: secureCookie ? '__Host-session' : 'session', secure: secureCookie };
-  const summary = createSummaryComponents(authService, cookie);
+  const summaryComponents = createSummaryComponents(authService, cookie, summary);
   const server = createServer(createApp({
     authRouter: createAuthRouter(authService, cookie),
     processRouter: createProcessRouter({
@@ -88,19 +94,35 @@ function buildHttpServer(configuration: HttpEnvironment): BuiltHttpServer {
       movementRepository: createMovementRepository(prisma),
       cookie,
     }),
-    processAiSummaryRouter: summary.router,
+    processAiSummaryRouter: summaryComponents.router,
     publicAppUrl: configuration.publicAppUrl,
   }));
-  return { server, shutdownSummaryTasks: summary.shutdown };
+  return { server, shutdownSummaryTasks: summaryComponents.shutdown };
 }
 
 export function createHttpServer(source: NodeJS.ProcessEnv): Server {
-  return buildHttpServer(parseHttpEnvironment(source)).server;
+  const summary = env.summary.enabled
+    ? { configuration: env.summary, provider: createOpenAiSummaryProvider(env.summary) }
+    : { configuration: env.summary, provider: null };
+  return buildHttpServer(parseHttpEnvironment(source), summary).server;
+}
+
+export function createE2eHttpServer(source: NodeJS.ProcessEnv, provider: SummaryProvider): BuiltHttpServer {
+  if (source.NODE_ENV !== 'test' || !source.DATABASE_LABEL?.endsWith('_test')) {
+    throw new Error('The E2E server requires NODE_ENV=test and an isolated test database.');
+  }
+  return buildHttpServer(parseHttpEnvironment(source), {
+    configuration: { ...env.summary, enabled: true, apiKey: 'e2e-fake-provider' },
+    provider,
+  });
 }
 
 export function startServer(source: NodeJS.ProcessEnv = process.env): Server {
   const configuration = parseHttpEnvironment(source);
-  const built = buildHttpServer(configuration);
+  const summary = env.summary.enabled
+    ? { configuration: env.summary, provider: createOpenAiSummaryProvider(env.summary) }
+    : { configuration: env.summary, provider: null };
+  const built = buildHttpServer(configuration, summary);
   const { server } = built;
   server.listen(configuration.port, () => {
     logger.info('Servidor HTTP iniciado', { port: configuration.port });
