@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react';
+import { render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
@@ -55,7 +55,8 @@ describe('process movement section', () => {
     await screen.findByText('Movimento inicial');
     await user.click(screen.getByRole('button', { name: 'Próxima' }));
 
-    expect(await screen.findByRole('alert')).toHaveTextContent('Não foi possível conectar');
+    const movements = within(screen.getByRole('region', { name: 'Movimentações' }));
+    expect(await movements.findByRole('alert')).toHaveTextContent('Não foi possível conectar');
     expect(screen.getByText('Foro de Batatais')).toBeInTheDocument();
     expect(screen.getByText('Movimento inicial')).toBeInTheDocument();
     await user.click(screen.getByRole('button', { name: 'Tentar novamente' }));

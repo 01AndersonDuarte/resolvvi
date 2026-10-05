@@ -52,6 +52,44 @@ describe('process AI summary section', () => {
     expect(api.generate).toHaveBeenCalledWith(17, expect.any(AbortSignal));
   });
 
+  it('recovers state after a generation request loses its response', async () => {
+    api.read.mockResolvedValueOnce(makeState('not_generated')).mockResolvedValueOnce(availableState);
+    api.generate.mockRejectedValue(new Error('response lost'));
+    renderSummary();
+    const user = userEvent.setup();
+    await user.click(await screen.findByRole('button', { name: 'Gerar resumo' }));
+
+    expect(await screen.findByText('Uma petição foi juntada ao processo.')).toBeInTheDocument();
+    expect(api.read).toHaveBeenCalledTimes(2);
+    expect(api.generate).toHaveBeenCalledTimes(1);
+  });
+
+  it('shows a recoverable error when generation and reconciliation both fail', async () => {
+    api.read.mockResolvedValueOnce(makeState('not_generated')).mockRejectedValueOnce(new Error('read failed'));
+    api.generate.mockRejectedValue(new Error('post failed'));
+    renderSummary();
+    const user = userEvent.setup();
+    await user.click(await screen.findByRole('button', { name: 'Gerar resumo' }));
+
+    expect(await screen.findByRole('alert')).toHaveTextContent('Não foi possível confirmar o resultado da solicitação.');
+    expect(api.generate).toHaveBeenCalledTimes(1);
+    expect(api.read).toHaveBeenCalledTimes(2);
+  });
+
+  it('invalidates the session without reconciling a rejected generation', async () => {
+    const invalidate = vi.fn();
+    api.read.mockResolvedValueOnce(makeState('not_generated'));
+    api.generate.mockRejectedValue(new ApiRequestError('expired', 401, {
+      code: 'SESSION_INVALID', message: 'expired', field: null, retryAfterSeconds: null,
+    }));
+    renderSummary(invalidate);
+    const user = userEvent.setup();
+    await user.click(await screen.findByRole('button', { name: 'Gerar resumo' }));
+
+    await waitFor(() => expect(invalidate).toHaveBeenCalledTimes(1));
+    expect(api.read).toHaveBeenCalledTimes(1);
+  });
+
   it('reads once under StrictMode without submitting a generation', async () => {
     render(<StrictMode><Provider><ProcessAiSummary processId={17} /></Provider></StrictMode>);
     expect(await screen.findByText('Uma petição foi juntada ao processo.')).toBeInTheDocument();
@@ -173,16 +211,16 @@ function makeState(
 
 const confirmedFeedback = { helpful: true, createdAt: '2026-10-04T12:00:00.000Z', updatedAt: '2026-10-04T12:00:00.000Z' };
 
-function Provider({ children }: { children: React.ReactNode }) {
+function Provider({ children, invalidate = vi.fn() }: { children: React.ReactNode; invalidate?: () => void }) {
   const context: AuthContextValue = {
     state: { ...INITIAL_SESSION_STATE, status: 'authenticated', generation: 1, session: {
       sessionId: 'session-one', expiresAt: '2030-01-01T01:00:00Z', serverTime: '2030-01-01T00:00:00Z', receivedAt: 1,
     } },
-    refresh: vi.fn(), completeLogin: vi.fn(), logout: vi.fn(async () => true), invalidate: vi.fn(),
+    refresh: vi.fn(), completeLogin: vi.fn(), logout: vi.fn(async () => true), invalidate,
   };
   return <AuthContext.Provider value={context}>{children}</AuthContext.Provider>;
 }
 
-function renderSummary() {
-  return render(<Provider><ProcessAiSummary processId={17} /></Provider>);
+function renderSummary(invalidate?: () => void) {
+  return render(<Provider invalidate={invalidate}><ProcessAiSummary processId={17} /></Provider>);
 }

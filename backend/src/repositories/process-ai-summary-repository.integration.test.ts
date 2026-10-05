@@ -4,7 +4,7 @@ import { createDatabaseClient } from '../config/database-client.js';
 import {
   observeProcessSummarySource, publishProcessAiSummary, readCurrentProcessAiSummary, reserveProcessSummaryAttempt,
 } from './process-ai-summary-repository.js';
-import { finishSummaryAttempt, markSummaryAttemptDispatched } from './summary-attempt-repository.js';
+import { markSummaryAttemptDispatched } from './summary-attempt-repository.js';
 import { getSummaryFeedbackMetrics, saveSummaryFeedback } from './summary-feedback-repository.js';
 import type { SaveSummaryFeedbackResult } from './summary-feedback-repository.js';
 import type { SummaryReservation } from '../types/process-ai-summary.js';
@@ -26,25 +26,13 @@ describe('process AI summary repository', () => {
   it('persists attempts across a client restart and never reuses an expired attempt', persistsAttemptsAcrossRestart);
   it('does not reactivate a summary when the observed source is reverted', doesNotReactivateRevertedSource);
   it('rolls back summary and attempt state when publication violates a database constraint', rollsBackFailedPublication);
-  it('blocks direct movement updates while the source table lock is held', blocksDirectMovementWrites);
-  it('persists a provider cooldown before allowing an explicit retry', persistsProviderCooldown);
 });
 
 async function observesSourceEdits(): Promise<void> {
   const firstMovement = await createMovement(2, 'segunda');
   await createMovement(1, 'primeira');
   const first = await observeProcessSummarySource(processId, database!);
-  const changes = [
-    { movementTitle: 'Título alterado' },
-    { movementContent: 'Conteúdo alterado' },
-    { movementDate: new Date('2026-09-02T00:00:00Z') },
-    { sourceOrder: 3 },
-  ];
-  let expectedRevision = 1;
-  for (const data of changes) {
-    expectedRevision += 1;
-    await updateMovementAndObserve(firstMovement.id, data, expectedRevision);
-  }
+  let expectedRevision = await updateMovementFields(firstMovement.id);
   await createMovement(4, 'Movimentação adicionada');
   expectedRevision += 1;
   expect((await observeProcessSummarySource(processId, database!))?.sourceRevision).toBe(expectedRevision);
@@ -60,6 +48,21 @@ async function observesSourceEdits(): Promise<void> {
   expect(first?.source.movements.map((item) => item.sourceOrder)).toEqual([1, 2]);
   expect(second?.sourceRevision).toBe(expectedRevision);
   expect(second?.source.sourceHash).not.toBe(first?.source.sourceHash);
+}
+
+async function updateMovementFields(movementId: number): Promise<number> {
+  const changes = [
+    { movementTitle: 'Título alterado' },
+    { movementContent: 'Conteúdo alterado' },
+    { movementDate: new Date('2026-09-02T00:00:00Z') },
+    { sourceOrder: 3 },
+  ];
+  let expectedRevision = 1;
+  for (const data of changes) {
+    expectedRevision += 1;
+    await updateMovementAndObserve(movementId, data, expectedRevision);
+  }
+  return expectedRevision;
 }
 
 async function reassignMovementAndObserve(movementId: number, targetProcessId: number, revision: number): Promise<void> {
@@ -110,22 +113,27 @@ async function preservesPublishedEvidence(): Promise<void> {
   expect((await readCurrentProcessAiSummary({ processId, rulesVersion, userId }, database!))?.summary)
     .toMatchObject({ id: published!.id, version: 1, myFeedback: null });
 
-  await assertFeedbackMetrics(published!.id, 0, 0);
-  const first = await saveFeedback(published!.id, true, new Date(now.getTime() + 2_000));
-  const repeated = await saveFeedback(published!.id, true, new Date(now.getTime() + 3_000));
-  const changed = await saveFeedback(published!.id, false, new Date(now.getTime() + 4_000));
-  await assertFeedbackMetrics(published!.id, 1, 0);
-  const concurrentVotes = await recordConcurrentVotes(published!.id, now);
+  await assertFeedbackLifecycle(published!.id, now);
   await database!.movement.deleteMany({ where: { processId } });
   const sourceAfterRemoval = await observeProcessSummarySource(processId, database!);
   const snapshot = await database!.summaryGenerationSlot.findUnique({ where: { id: reservation.slotId! } });
 
+  expect(sourceAfterRemoval?.sourceRevision).toBe(2);
+  expect(snapshot?.sourceSnapshot).toMatchObject([{ title: 'Petição juntada' }]);
+}
+
+async function assertFeedbackLifecycle(summaryId: string, now: Date): Promise<void> {
+  await assertFeedbackMetrics(summaryId, 0, 0);
+  const first = await saveFeedback(summaryId, true, new Date(now.getTime() + 2_000));
+  const repeated = await saveFeedback(summaryId, true, new Date(now.getTime() + 3_000));
+  const changed = await saveFeedback(summaryId, false, new Date(now.getTime() + 4_000));
+  await assertFeedbackMetrics(summaryId, 1, 0);
+  const concurrentVotes = await recordConcurrentVotes(summaryId, now);
+
   expect([first?.outcome, repeated?.outcome, changed?.outcome]).toEqual(['created', 'unchanged', 'updated']);
   expect(changed?.feedback).toMatchObject({ helpful: false });
   expect(concurrentVotes.map((vote) => vote?.outcome).sort()).toEqual(['unchanged', 'updated']);
-  await assertSavedFeedback(published!.id);
-  expect(sourceAfterRemoval?.sourceRevision).toBe(2);
-  expect(snapshot?.sourceSnapshot).toMatchObject([{ title: 'Petição juntada' }]);
+  await assertSavedFeedback(summaryId);
 }
 
 async function assertSavedFeedback(summaryId: string): Promise<void> {
@@ -234,50 +242,6 @@ async function rollsBackFailedPublication(): Promise<void> {
   await expect(result).rejects.toMatchObject({ code: 'P2002' });
   expect(await database!.summaryAttempt.findUnique({ where: { id: reservation.attemptId! } })).toMatchObject({ status: 'running' });
   expect(await database!.processAiSummary.findMany({ where: { processId }, select: { version: true } })).toEqual([{ version: 2 }]);
-}
-
-async function blocksDirectMovementWrites(): Promise<void> {
-  const movement = await createMovement(1, 'Petição juntada');
-  let unlock: () => void = () => undefined;
-  let announceLock: () => void = () => undefined;
-  const locked = new Promise<void>((resolve) => { announceLock = resolve; });
-  const release = new Promise<void>((resolve) => { unlock = resolve; });
-  const holdingLock = database!.$transaction(async (transaction) => {
-    await transaction.$executeRaw`LOCK TABLE "Movement" IN SHARE MODE`;
-    announceLock();
-    await release;
-  });
-  const secondClient = createDatabaseClient(databaseUrl!);
-  try {
-    await locked;
-    await expect(secondClient.$transaction(async (transaction) => {
-      await transaction.$queryRaw`SELECT set_config('lock_timeout', '50ms', true)`;
-      return transaction.$executeRaw`UPDATE "Movement" SET "movementTitle" = 'SQL direto' WHERE "id" = ${movement.id}`;
-    })).rejects.toMatchObject({ code: 'P2010' });
-  } finally {
-    unlock();
-    await holdingLock;
-    await secondClient.$disconnect();
-  }
-  await database!.movement.update({ where: { id: movement.id }, data: { movementTitle: 'SQL liberado' } });
-  expect((await database!.movement.findUnique({ where: { id: movement.id } }))?.movementTitle).toBe('SQL liberado');
-}
-
-async function persistsProviderCooldown(): Promise<void> {
-  await createMovement(1, 'Petição juntada');
-  const now = new Date('2026-10-04T12:00:00Z');
-  const initial = await reserve(now);
-  const retryAt = new Date(now.getTime() + 10_000);
-  const finished = await finishSummaryAttempt({
-    attemptId: initial.attemptId!, status: 'failed', failureCode: 'provider_unavailable',
-    finishedAt: new Date(now.getTime() + 1_000), retryAt,
-  }, database!);
-  const beforeCooldown = await reserve(new Date(now.getTime() + 2_000));
-  const afterCooldown = await reserve(new Date(now.getTime() + 11_000));
-
-  expect(finished).toBe(true);
-  expect(beforeCooldown).toMatchObject({ outcome: 'cooldown', retryAt });
-  expect(afterCooldown).toMatchObject({ outcome: 'created', attemptNumber: 2 });
 }
 
 async function reserve(

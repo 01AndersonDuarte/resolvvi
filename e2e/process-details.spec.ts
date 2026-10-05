@@ -59,7 +59,8 @@ test('E2E-03: falha localizada do histórico permite nova tentativa sem apagar d
   });
   await page.getByRole('button', { name: 'Próxima' }).click();
   expect(failedFirstRequest).toBe(true);
-  await expect(page.getByRole('alert')).toContainText('Não foi possível conectar.');
+  await expect(page.getByRole('region', { name: 'Movimentações' }).getByRole('alert'))
+    .toContainText('Não foi possível conectar.');
   await expect(page.getByText(PROCESS_CNJ)).toBeVisible();
   await expectPageRange(page, 1);
   await page.getByRole('button', { name: 'Tentar novamente' }).click();
@@ -155,4 +156,6 @@ async function checkExpandedLayout(page: Page, viewport: { width: number; height
   await expect(page.getByText(PROCESS_CNJ)).toBeVisible();
   await expect(page.getByRole('link', { name: 'Voltar à consulta' })).toBeVisible();
   await expect(page.getByRole('heading', { name: 'Movimentações' })).toBeVisible();
+  await page.keyboard.press('Escape');
+  await expect(page.getByText(PROCESS_CNJ)).toBeVisible();
 }

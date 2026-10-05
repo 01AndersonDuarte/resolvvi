@@ -1,8 +1,13 @@
-import type { PreparedSummarySource } from '../types/process-ai-summary.js';
-import type { SummaryProvider, SummaryProviderInput, SummaryProviderResult, ValidatedSummary } from '../types/summary-provider.js';
+import type { SummaryProviderResult, ValidatedSummary } from '../types/summary-provider.js';
 import { SummaryProviderError } from '../types/summary-provider.js';
 import { ProcessAiSummaryError } from '../errors/process-ai-summary-errors.js';
 import { logSummaryOperationalEvent, type SummaryOperationalEvent } from './summary-operational-event-service.js';
+import { createSummaryPublication } from './summary-publication-service.js';
+import type {
+  SummaryAttemptFailure, SummaryGenerationDependencies, SummaryGenerationJob, SummaryGenerationService,
+} from './summary-generation-types.js';
+
+export type { SummaryGenerationDependencies, SummaryGenerationJob, SummaryGenerationService } from './summary-generation-types.js';
 
 const MAX_LOCAL_EXECUTIONS = 4;
 const TOTAL_DEADLINE_MS = 30_000;
@@ -10,56 +15,6 @@ const PROVIDER_DEADLINE_MS = 25_000;
 const VALIDATION_DEADLINE_MS = 27_000;
 const PUBLICATION_DEADLINE_MS = 29_000;
 const MINIMUM_RETRY_DELAY_MS = 30_000;
-
-export type SummaryGenerationJob = {
-  processId: number;
-  slotId: string;
-  attemptId: string;
-  sessionId: string;
-  rulesVersion: string;
-  source: PreparedSummarySource;
-  requestedAt: number;
-  startedAt: Date;
-};
-
-type SummaryAttemptFailure = {
-  attemptId: string;
-  failureCode: string;
-  retryAt: Date | null;
-  now: Date;
-  usage?: SummaryProviderResult['usage'];
-  providerRequestId?: string | null;
-};
-
-export type SummaryGenerationDependencies = {
-  provider: SummaryProvider | null;
-  validateSession: (sessionId: string) => Promise<void>;
-  markDispatched: (attemptId: string, now: Date) => Promise<boolean>;
-  validateOutput: (result: SummaryProviderResult, source: PreparedSummarySource) => ValidatedSummary;
-  publish: (input: {
-    processId: number;
-    slotId: string;
-    attemptId: string;
-    rulesVersion: string;
-    paragraphs: string[];
-    claims: ValidatedSummary['output']['paragraphs'];
-    now: Date;
-    deadlineAt: Date;
-    usage: SummaryProviderResult['usage'];
-    providerRequestId: string | null;
-  }) => Promise<boolean>;
-  finish: (input: SummaryAttemptFailure) => Promise<void>;
-  createProviderInput: (source: PreparedSummarySource, signal: AbortSignal) => SummaryProviderInput;
-  now?: () => Date;
-  monotonicNow?: () => number;
-  onEvent?: (event: SummaryOperationalEvent) => void;
-};
-
-export type SummaryGenerationService = {
-  acquire: () => (() => void) | null;
-  start: (job: SummaryGenerationJob, release?: () => void) => boolean;
-  shutdown: () => Promise<void>;
-};
 
 type ActiveExecution = { controller: AbortController; operation: Promise<void> };
 
@@ -225,30 +180,15 @@ async function publishValidated(input: {
     await finishFailure(job, dependencies, { code: 'GENERATION_TIMEOUT', providerResult });
     return;
   }
-  const published = await dependencies.publish(createPublicationInput({ job, dependencies, validated, providerResult }));
-  if (!published) await finishFailure(job, dependencies, { code: 'SOURCE_CHANGED', providerResult });
-  else emitCompletion(job, dependencies, providerResult);
-}
-
-function createPublicationInput(input: {
-  job: SummaryGenerationJob;
-  dependencies: SummaryGenerationDependencies;
-  validated: ValidatedSummary;
-  providerResult: SummaryProviderResult;
-}): Parameters<SummaryGenerationDependencies['publish']>[0] {
-  const { job, dependencies, validated, providerResult } = input;
-  return {
-    processId: job.processId,
-    slotId: job.slotId,
-    attemptId: job.attemptId,
-    rulesVersion: job.rulesVersion,
-    paragraphs: validated.output.paragraphs.map((paragraph) => paragraph.sentences.map((sentence) => sentence.text).join(' ')),
-    claims: validated.output.paragraphs,
+  const published = await dependencies.publish(createSummaryPublication({
+    job,
+    validated,
+    providerResult,
     now: currentDate(dependencies),
     deadlineAt: new Date(job.startedAt.getTime() + TOTAL_DEADLINE_MS),
-    usage: providerResult.usage,
-    providerRequestId: providerResult.providerRequestId ?? null,
-  };
+  }));
+  if (!published) await finishFailure(job, dependencies, { code: 'SOURCE_CHANGED', providerResult });
+  else emitCompletion(job, dependencies, providerResult);
 }
 
 function emitCompletion(job: SummaryGenerationJob, dependencies: SummaryGenerationDependencies, result: SummaryProviderResult): void {

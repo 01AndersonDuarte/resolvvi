@@ -1,4 +1,4 @@
-import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { act, fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { AuthContext } from '../contexts/auth-context';
@@ -24,18 +24,7 @@ afterEach(() => {
 
 describe('process details and movement HTTP integration', () => {
   it('loads a direct destination, recovers history locally, and returns to the saved CNJ draft', async () => {
-    let movementAttempts = 0;
-    const fetchMock = vi.fn(async (input: RequestInfo | URL) => {
-      const path = String(input);
-      if (path === '/api/processes/17') return jsonResponse(processDetails);
-      if (path.startsWith('/api/processes/17/ai-summary?')) return errorResponse(503, 'SERVICE_UNAVAILABLE');
-      if (path === '/api/processes/17/movements?page=1') {
-        movementAttempts += 1;
-        if (movementAttempts === 1) return errorResponse(503, 'SERVICE_UNAVAILABLE');
-        return jsonResponse(movementPage);
-      }
-      throw new Error(`Unexpected request: ${path}`);
-    });
+    const fetchMock = createMovementFailureFetchMock();
     vi.stubGlobal('fetch', fetchMock);
     window.sessionStorage.setItem('process.activeSession', 'session-one');
     window.sessionStorage.setItem('process.cnj.session-one', '10013993120238260070');
@@ -43,7 +32,8 @@ describe('process details and movement HTTP integration', () => {
     render(<AuthenticatedRouter />);
 
     expect(await screen.findByText('Foro integrado real')).toBeInTheDocument();
-    expect(await screen.findByRole('alert')).toHaveTextContent('Não foi possível concluir');
+    const movements = within(screen.getByRole('region', { name: 'Movimentações' }));
+    expect(await movements.findByRole('alert')).toHaveTextContent('Não foi possível concluir');
     expect(screen.getByText('Foro integrado real')).toBeInTheDocument();
     const user = userEvent.setup();
     screen.getByRole('button', { name: 'Tentar novamente' }).focus();
@@ -78,6 +68,21 @@ describe('process details and movement HTTP integration', () => {
     expect(screen.queryByText('Ato recuperado pela API')).not.toBeInTheDocument();
   });
 });
+
+function createMovementFailureFetchMock() {
+  let movementAttempts = 0;
+  return vi.fn(async (input: RequestInfo | URL) => {
+    const path = String(input);
+    if (path === '/api/processes/17') return jsonResponse(processDetails);
+    if (path.startsWith('/api/processes/17/ai-summary?')) return errorResponse(503, 'SERVICE_UNAVAILABLE');
+    if (path === '/api/processes/17/movements?page=1') {
+      movementAttempts += 1;
+      if (movementAttempts === 1) return errorResponse(503, 'SERVICE_UNAVAILABLE');
+      return jsonResponse(movementPage);
+    }
+    throw new Error(`Unexpected request: ${path}`);
+  });
+}
 
 function AuthenticatedRouter({ initialPath = '/processos/17' }: { initialPath?: string }) {
   const context: AuthContextValue = {

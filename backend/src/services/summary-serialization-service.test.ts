@@ -24,9 +24,7 @@ const summary = {
   myFeedback: null,
 } as unknown as ProcessAiSummary & { myFeedback: SummaryFeedbackRecord | null };
 
-describe('serializeProcessAiSummary', summarySerializationCases);
-
-function summarySerializationCases(): void {
+describe('serializeProcessAiSummary', () => {
   it('resolves sentence references from the complete source snapshot', () => {
     const result = serializeProcessAiSummary(summary, source);
 
@@ -56,7 +54,7 @@ function summarySerializationCases(): void {
 
     expect(() => serializeProcessAiSummary(invalidSummary, source)).toThrow('Persisted summary reference is invalid.');
   });
-}
+});
 
 describe('serializeProcessAiSummary paragraph data', () => {
   it('rejects persisted paragraphs outside the approved contract', () => {
