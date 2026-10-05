@@ -1,5 +1,3 @@
-import { mkdirSync } from 'node:fs';
-import path from 'node:path';
 import { expect, test, type Page } from '../frontend/e2e-support/playwright';
 import {
   changeSummarySource,
@@ -17,13 +15,6 @@ import {
 } from '../frontend/e2e-support/session';
 
 const SUMMARY_TEXT = 'O histórico registra movimentações do processo.';
-const EVIDENCE_DIRECTORY = path.resolve(process.cwd(), '../tasks/prd-resumo-processual-ia/evidences');
-
-async function captureQaEvidence(page: Page, fileName: string): Promise<void> {
-  mkdirSync(EVIDENCE_DIRECTORY, { recursive: true });
-  await page.getByRole('region', { name: 'Resumo por inteligência artificial' })
-    .screenshot({ path: path.join(EVIDENCE_DIRECTORY, fileName) });
-}
 
 async function openProcess(page: Page): Promise<{ email: string; processId: number }> {
   const email = uniqueEmail();
@@ -78,7 +69,6 @@ test('E2E-01: consulta, geração única, conferência manual, voto e recarga', 
   await page.reload();
   await expect(page.getByText(SUMMARY_TEXT, { exact: true })).toBeVisible();
   await expect(page.getByRole('button', { name: 'Não' })).toHaveAttribute('aria-pressed', 'true');
-  await captureQaEvidence(page, 'resumo-disponivel-e-avaliado.png');
   expect(await summaryProviderCalls()).toBe(1);
 });
 
@@ -108,7 +98,6 @@ test('E2E-02: fonte alterada remove versão antiga e concorrência gera uma vers
 test('E2E-03: falha do provedor não esconde dados nem movimentações', async ({ page }) => {
   const { processId } = await openProcess(page);
   await failGeneration(page, 'unavailable', 'Não foi possível gerar o resumo agora');
-  await captureQaEvidence(page, 'resumo-falha-recuperavel.png');
   await expect(page.getByRole('heading', { name: 'Movimentações' })).toBeVisible();
   await expect(page.getByRole('heading', { name: 'Processo' })).toBeVisible();
   expect(await summaryProviderCalls()).toBe(1);
@@ -183,12 +172,9 @@ test('E2E-05: controles da seção são acessíveis por teclado em celular e zoo
   await tabToButton(page, 'Sim');
   await page.keyboard.press('Enter');
   await expect(page.getByRole('button', { name: 'Sim' })).toHaveAttribute('aria-pressed', 'true');
-  await captureQaEvidence(page, 'resumo-mobile-teclado.png');
   for (const width of [320, 1_280, 640]) {
     await page.setViewportSize({ width, height: 780 });
     await expectNoHorizontalOverflow(page);
-    if (width === 1_280) await captureQaEvidence(page, 'resumo-desktop.png');
-    if (width === 640) await captureQaEvidence(page, 'resumo-viewport-200-equivalente.png');
   }
 });
 

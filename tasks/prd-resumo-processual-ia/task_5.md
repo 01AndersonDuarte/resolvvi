@@ -44,9 +44,9 @@ Após cada incremento coeso validado, revisar o diff, selecionar arquivos explic
 - [x] 5.1 Estender harness E2E com fake, contagem de chamadas e controles isolados de fonte, falhas e sessão, sem expor controles em produção.
 - [x] 5.2 Implementar os cinco E2E da TechSpec, incluindo conferência manual de referência fora da primeira página e geração única após recarga/paginação.
 - [x] 5.3 Executar a regressão completa e verificar cobertura, concorrência, persistência, acessibilidade e ausência de vazamento em logs; corrigir falhas encontradas.
-- [ ] 5.4 Executar a amostra real separada e obter a revisão humana da rubrica; preservar a configuração e evidências, respeitando o tratamento de dados definido. A amostra de 20 casos sintéticos foi gerada com `gpt-4.1-mini-2025-04-14`; formato e idioma passaram. A revisão humana está pendente em [formulário protegido](./.semantic-review/human-review.md).
-- [ ] 5.5 Incorporar resultados semânticos aprovados às fixtures sintéticas/desidentificadas de TU-18; repetir os gates afetados após ajustes.
-- [x] 5.6 Registrar relatório de QA com evidências para CA-01 a CA-23, resultados dos comandos, limitações operacionais e decisão sobre o gate semântico; atualizar checklists somente após comprovação. QA registrado como BLOQUEADO enquanto a revisão humana e a confirmação operacional de retenção estiverem pendentes.
+- [ ] 5.4 Reexecutar a amostra real após os ajustes semânticos e concluir a avaliação solicitada pelo usuário; preservar resultados sintéticos em área protegida.
+- [ ] 5.5 Incorporar resultados semânticos aprovados às fixtures sintéticas/desidentificadas de TU-18; repetir os gates afetados após nova avaliação real.
+- [ ] 5.6 Executar QA e registrar evidências em etapa própria, após estabilizar a funcionalidade.
 
 ## Detalhes de implementação
 
@@ -106,7 +106,7 @@ Executar também TU-01 a TU-18 e TI-01 a TI-14 como regressão dos incrementos a
 
 TU-18 preserva regressões sintéticas e verificações determinísticas. Esse resultado não substitui a amostra real nem a revisão humana do gate semântico (5.4–5.5).
 
-As subtarefas 5.1–5.3 e seus testes automatizados foram executados. A amostra real de 5.4 foi gerada e preservada em diretório local protegido; falta a revisão humana. A 5.5 depende dessa aprovação. O relatório 5.6 está registrado, com status BLOQUEADO e evidências automatizadas para os critérios.
+As subtarefas 5.1–5.3 e seus testes automatizados foram executados. A primeira amostra real (regras v1) foi analisada e revelou extrapolações jurídicas; as regras passaram à v2 e fixtures TU-18 foram ampliadas. A nova avaliação real depende de uma chave rotacionada após exposição acidental no diagnóstico. O usuário pediu que as evidências formais sejam produzidas na etapa própria de QA; 5.6 continua pendente.
 
 ## Arquivos relevantes
 

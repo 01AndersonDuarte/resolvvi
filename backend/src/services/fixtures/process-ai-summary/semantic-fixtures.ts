@@ -69,4 +69,55 @@ export const processAiSummaryFixtures: SummarySemanticFixture[] = [
     preservedResponse: [{ sentence: 'O texto da movimentação contém uma instrução não confiável.', sourceRefs: ['m1'] }],
     rubric: passingRubric,
   },
+  {
+    id: 'one-event-and-unknown-overall-status',
+    movements: [{ date: '2026-02-10', title: 'Contestação juntada', content: 'A parte ré apresentou defesa e negou responsabilidade pelo dano.', sourceOrder: 0 }],
+    allowedFacts: ['A parte ré apresentou defesa e negou responsabilidade pelo dano.', 'Os registros não permitem determinar a situação geral do processo.'],
+    prohibitedConclusions: ['A parte ré venceu.', 'O processo foi encerrado.'],
+    expectedEvidence: ['m1'],
+    preservedResponse: [
+      { sentence: 'A parte ré apresentou defesa e negou responsabilidade pelo dano.', sourceRefs: ['m1'] },
+      { sentence: 'Os registros não permitem determinar a situação geral do processo.', sourceRefs: ['m1'] },
+    ],
+    rubric: passingRubric,
+  },
+  {
+    id: 'enforcement-objection-keeps-procedural-meaning',
+    movements: [
+      { date: '2026-05-12', title: 'Início do cumprimento de sentença', content: 'A parte credora apresentou cálculo de R$ 4.200,00 e pediu pagamento.', sourceOrder: 0 },
+      { date: '2026-05-16', title: 'Intimação para pagamento', content: 'A parte devedora foi intimada para pagar ou apresentar impugnação.', sourceOrder: 1 },
+    ],
+    allowedFacts: ['A parte credora apresentou cálculo de R$ 4.200,00 e pediu pagamento.', 'A parte credora apresentou cálculo de R$ 4.200,00 e pediu o pagamento.', 'A parte devedora foi intimada a pagar ou questionar o cálculo.'],
+    prohibitedConclusions: ['A parte devedora apresentou contestação.', 'A parte devedora pagou.'],
+    expectedEvidence: ['m1', 'm2'],
+    preservedResponse: [
+      { sentence: 'A parte credora apresentou cálculo de R$ 4.200,00 e pediu o pagamento.', sourceRefs: ['m1'] },
+      { sentence: 'A parte devedora foi intimada a pagar ou questionar o cálculo.', sourceRefs: ['m2'] },
+    ],
+    rubric: passingRubric,
+  },
+  {
+    id: 'dismissal-request-does-not-infer-legal-effect',
+    movements: [{ date: '2026-06-01', title: 'Pedido de extinção', content: 'A parte ré pediu a extinção do processo. Não há decisão sobre o pedido neste histórico.', sourceOrder: 0 }],
+    allowedFacts: ['A parte ré pediu que o processo fosse encerrado.', 'Ainda não consta decisão sobre o pedido.'],
+    prohibitedConclusions: ['O pedido encerra o processo sem julgamento do mérito.', 'O processo foi extinto.'],
+    expectedEvidence: ['m1'],
+    preservedResponse: [
+      { sentence: 'A parte ré pediu que o processo fosse encerrado.', sourceRefs: ['m1'] },
+      { sentence: 'Ainda não consta decisão sobre o pedido.', sourceRefs: ['m1'] },
+    ],
+    rubric: passingRubric,
+  },
+  {
+    id: 'unknown-actor-is-not-invented',
+    movements: [{ date: '2026-03-20', title: 'Perícia deferida', content: 'Foi autorizada perícia contábil e nomeado perito. Ainda não há laudo nos registros.', sourceOrder: 0 }],
+    allowedFacts: ['Foi autorizada perícia contábil e nomeado um perito.', 'Ainda não há laudo nos registros disponíveis.'],
+    prohibitedConclusions: ['O juiz autorizou a perícia.', 'O laudo já foi apresentado.'],
+    expectedEvidence: ['m1'],
+    preservedResponse: [
+      { sentence: 'Foi autorizada perícia contábil e nomeado um perito.', sourceRefs: ['m1'] },
+      { sentence: 'Ainda não há laudo nos registros disponíveis.', sourceRefs: ['m1'] },
+    ],
+    rubric: passingRubric,
+  },
 ];
