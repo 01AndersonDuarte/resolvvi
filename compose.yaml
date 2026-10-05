@@ -1,0 +1,68 @@
+name: resolvvi
+
+x-backend: &backend
+  build:
+    context: ./backend
+  env_file:
+    - ./backend/.env.development
+  environment:
+    DATABASE_LABEL: ${POSTGRES_DB:?Configure POSTGRES_DB in backend/.env.development}
+    DATABASE_URL: ${DATABASE_URL_DOCKER:?Configure DATABASE_URL_DOCKER in backend/.env.development}
+    NODE_ENV: development
+    PORT: 3000
+  restart: "no"
+
+services:
+  postgres:
+    image: postgres:17
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:?Configure POSTGRES_DB in backend/.env.development}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Configure POSTGRES_PASSWORD in backend/.env.development}
+      POSTGRES_USER: ${POSTGRES_USER:?Configure POSTGRES_USER in backend/.env.development}
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 2s
+      timeout: 3s
+      retries: 15
+    ports:
+      - "127.0.0.1:${COMPOSE_POSTGRES_PORT:-5432}:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+
+  migrate:
+    <<: *backend
+    command: ["sh", "-c", "npm run prisma:generate && npx prisma migrate deploy"]
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  seed:
+    <<: *backend
+    command: ["sh", "-c", "npm run prisma:generate && npm run seed"]
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+    volumes:
+      - ./lawsuits_movements.csv:/lawsuits_movements.csv:ro
+
+  backend:
+    <<: *backend
+    command: ["sh", "-c", "npm run prisma:generate && npm run dev"]
+    depends_on:
+      seed:
+        condition: service_completed_successfully
+    ports:
+      - "127.0.0.1:3000:3000"
+
+  frontend:
+    build:
+      context: ./frontend
+    environment:
+      VITE_API_PROXY_TARGET: http://backend:3000
+    depends_on:
+      - backend
+    ports:
+      - "127.0.0.1:5173:5173"
+
+volumes:
+  postgres-data:

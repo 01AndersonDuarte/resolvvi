@@ -8,6 +8,14 @@ import { persistSeed } from './persist-seed.js';
 const seedFilePath = fileURLToPath(new URL('../../../lawsuits_movements.csv', import.meta.url));
 
 export async function runSeed(): Promise<void> {
+  const existingProcessCount = await prisma.process.count();
+  if (existingProcessCount > 0) {
+    logger.info('Seed inicial ignorado: a base já contém processos', {
+      processCount: existingProcessCount,
+    });
+    return;
+  }
+
   const data = await parseSeedFile(seedFilePath);
   await persistSeed(data, prisma);
   logger.info('Seed inicial concluído', {
