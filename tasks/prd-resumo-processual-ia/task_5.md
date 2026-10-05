@@ -94,7 +94,7 @@ Executar também TU-01 a TU-18 e TI-01 a TI-14 como regressão dos incrementos a
 
 ### Testes de unidade
 
-- [ ] TU-18 — Regras de fixtures semânticas têm fatos e proibições explícitas
+- [x] TU-18 — Regras de fixtures semânticas têm fatos e proibições explícitas
 
 ### Testes E2E
 
@@ -103,6 +103,8 @@ Executar também TU-01 a TU-18 e TI-01 a TI-14 como regressão dos incrementos a
 - [ ] E2E-03 — Falhas de geração/leitura/voto recuperam sem afetar histórico
 - [ ] E2E-04 — Trocar processo e expirar sessão durante geração
 - [ ] E2E-05 — Operar por teclado em celular, desktop e zoom 200%
+
+TU-18 preserva regressões sintéticas e verificações determinísticas. Esse resultado não substitui a amostra real nem a revisão humana do gate semântico (5.4–5.5).
 
 ## Arquivos relevantes
 
