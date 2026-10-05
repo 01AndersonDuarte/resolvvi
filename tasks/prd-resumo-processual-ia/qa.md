@@ -7,6 +7,7 @@
 - Critérios de aceitação: 23 verificados e atendidos na amostra e nos cenários executados.
 - Defeitos de produto tratados: 2; pendências bloqueadoras: 0.
 - Skills aplicadas: executar-task, react e executar-qa. A análise semântica foi realizada pelo agente por determinação expressa do usuário, substituindo o revisor humano previsto inicialmente.
+- Reuso desta execução: resultados de unidade, integração, E2E, cobertura, revisão semântica e capturas da task 5. As alterações locais dos fluxos de movimentações já estavam presentes antes daquela execução; nenhuma alteração posterior no código da funcionalidade exige repetir as suítes.
 
 ## Critérios de aceitação verificados
 
